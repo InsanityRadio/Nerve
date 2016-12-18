@@ -1,0 +1,5 @@
+dump.rdb
+Gemfile.lock
+config.yml
+export
+schema.current.sql
