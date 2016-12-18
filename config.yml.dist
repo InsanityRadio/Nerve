@@ -1,0 +1,223 @@
+host: nerve.insanityradio.com
+slave: false
+
+station_name: Insanity Radio 103.2FM
+contact_email: computing@insanityradio.com
+
+search:
+    # If you change this, it's likely that you'll lose part of dupe checking, as different systems!
+    # Watch out :) Use musixmatch if you can - it has a good API for metadata and lyrics, and has 
+    #  a cool feature called "commontrack", which pretty accurately prevents dupes.
+    # Using MusixMatch uses MusicBrainz to do searching, as it's more reliable from defacement
+    mode: musixmatch
+    # NOT IMPLEMNETED but planned for future versions:
+    # mode: trust    means use the user's metadata. Very basic duplicate checking is done here.
+    # mode: spotify  uses Spotify's API for metadata. No lyrics, and the explicit checking <100% :(
+    # mode: custom   use your custom code here, idc
+
+    # Can be any type of key. Preferably one with lyric access, but it doesn't need to be
+    musixmatch_key: 
+
+security:
+    # ::Simple is literally just key=>value in a config file. Don't use it in production.
+    # Coding a backend for authentication is simple, you just need to implement 3 easy functions.
+    authentication: Nerve::Authentication::Simple
+
+    # This is only really needed for master/slave installs. Technically, distribution is pretty
+    #  pointless, but there are some "odd" setups.
+    allowed_origins:
+        - "nerve.insanityradio.com"
+
+
+# Only really supports MySQL2 (sorry! I'm lazy haha)
+database:
+
+    redis: localhost:6379
+
+    mysql2:
+        host: 127.0.0.1
+        username: nerve
+        password: nerve # you probably want something more secure than that
+        database: nerve
+
+
+import:
+    # The minimum bitrate we'll accept. For FM/online radio, try >256. >128 for AM
+    # Currently set to 240 because of strange errors/bugs/"features" in Sox (metadata?)
+    bitrate_min: 240
+
+    # The minimum sample rate we'll accept. 44,000 is a good starting point.
+    sample_min: 44000
+
+    # Minimum length for a song. Prevents uploads of unauthorized branding if set to small.
+    length_min: 10
+
+    # Maximum length for a song in seconds. This is 15 minutes :-)
+    length_max: 900
+
+    # From 0/nil (off) to 10 (super high), how much compression do we want?
+    # The higher the compression, the smoother the waveform will be when looking in, say, Audacity.
+    # 3 is about right for FM. But have a play around. It jacks up pretty quickly. :)
+    compression_strength: 5
+
+    # -2 ~= 65%, what most stations sorta use. At least, Insanity does.
+    normalise: -2
+
+    # Set to true to automatically generate waveform data as part of the import. 
+    # This requires "audiowaveform" by BBC, so you might want to install/compile before enabling. 
+    # Luckily, most (if not all) of its dependencies are satisfied if you've already got me working
+    generate_waveform: true
+
+    # Leave empty or specify localhost to disable multi-server mode.
+    workers:
+        - localhost
+
+    # Path to sox binary. Comment out to use default
+    # sox: /usr/local/bin/sox
+
+    # Putting any MP3s in here will automatically import them. This is good for migrating/bulks.
+    # auto_import: /dev/null
+    auto_import: /srv/auto_import
+
+    # Setting this to "true" will bypass moderation on auto import tracks. If you're migrating then
+    #  this is probably the setting that you want. Tracks will still be flagged, unless you disable
+    #  remote metadata for this entirely
+    auto_import_trust: false
+
+    # Path to /tmp. Leave commented to use system default. (note that "" will use /)
+    #temp: /tmp
+
+export:
+    format: mp3
+    # Use AudioWall to export to Myriad. Remember to enable "TCP", and set up Windows Firewall to
+    #  only allow connections from at least the *MASTER* server. 
+    mode: Nerve::Playout::AudioWall::Export
+
+    # Directory to store tracks before they're exported and before their local kill date
+    # Local kill is basically Nerve's internal cache and won't delete from playout.
+    # Directory should exist.
+    directory: /srv/export
+
+    # mode-specific settings
+    settings:
+        host: ins-stu2-plyt.rhul.ac.uk
+        port: 6950
+
+        # use_extended_path: false
+        # path: /audiowall
+
+        use_extended_path: true
+        path:
+            ini: /audiowall/1/Audwall.ini
+            1: /audiowall/1
+            1001: /audiowall/1001
+            2001: /audiowall/2001
+            3001: /audiowall/3001
+            4001: /audiowall/4001
+            5001: /audiowall/5001
+            6001: /audiowall/6001
+            7001: /audiowall/7001
+            8001: /audiowall/8001
+            9001: /audiowall/9001
+
+            10001: /audiowall/10001
+            20001: /audiowall/20001
+            30001: /audiowall/30001
+            40001: /audiowall/40001
+            50001: /audiowall/50001
+            60001: /audiowall/60001
+            70001: /audiowall/70001
+            80001: /audiowall/80001
+            90001: /audiowall/90001
+
+        # Set the "genre mapping" to AudioWall ranges
+        # See 2nd column of affiliate.itunes.apple.com/resources/documentation/genre-mapping/
+        genre:
+            default: 141000-149999
+            sweepers: 1000-2000
+            misc: 106000-110000
+            34: 141000-149999
+            # Pop
+            14: 10000-14999
+            # Rock
+            21: 15000-19999
+            # Indie/Alternative
+            20: 20000-24999
+            # Acoustic
+            10: 25000-29999
+            1160: 25000-29999
+            # Country/Folk
+            6:  30000-34999
+            # Electronic
+            7:  35000-39999
+            # Dance
+            17:   40000-44999
+            1137: 40000-44999
+            # EDM (Dubstep/House/Techno)
+            1048: 45000-49999
+            1049: 45000-49999
+            1050: 45000-49999
+            1051: 45000-49999
+            # Punk
+            1006: 50000-54999
+            # Metal
+            1149: 55000-59999
+            1151: 55000-59999
+            1153: 55000-59999
+            # Hip-Hop
+            18: 60000-64999
+            # R&B
+            15: 65000-69999
+            # Reggae
+            24: 70000-74999
+            # Blues/Soul
+            2:  75000-79999
+            1143: 75000-79999 
+            # Jazz
+            11: 80000-84999
+            # Classic
+            5:  85000-89999
+            # World
+            19: 90000-94999
+            # Soundtrack
+            16: 95000-99999
+            # Mixes (Insanity genre system) don't have an iTunes genre, so we use Podcasts
+            26: 100000-104999
+            # Holiday
+            8:  105000-105999
+
+        database:
+            type: mssql # freetds
+            host: localhost
+            user: myriad
+            password: iamnottherejustyet
+            name: InsanityRadio
+
+        categories:
+            held: 0
+            automation: 6
+            library: 7
+
+    # mode: file
+    # directory: /srv/export
+
+# audiowall can be the same format as "path" above (ie. multi folder)
+migrate:
+    use_extended_path: false
+    audiowall: /path_to/old_audiowall/
+    database: InsanityRadio1032FM
+    category_id: 5
+    target_category_id: 8
+    automation: true
+
+playlists:
+    # Use InstantCart to populate a user's Myriad account with their uploads.
+    # It's the only real way to provide a user with "private" playlists in Myriad
+    # Note that the user provider must satisfy "playout_username" (property or method), regardless
+    #  of whether or not this is enabled. Set to "nil" to disable.
+
+    mode: InstantCart
+    # mode: nil
+
+
+

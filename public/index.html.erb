@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Nerve</title>
+		<meta charset="UTF-8" />
+		<link rel="stylesheet" href="css/style.css" />
+	</head>
+	<body>
+		<div id="sidebar">
+			<img class="logo" src="theme/logo.png" style="padding-left: 5px" />
+			<b>Nerve</b>
+			<br /><br />
+			<ul class="menu">
+				<li><a href="">
+					<img src="theme/library.svg" />
+					Library
+				</a></li>
+				<li><a class="current" href="" data-href="upload">
+					<i class="fa fa-upload" aria-hidden="true"></i>
+					Upload Songs
+				</a></li>
+				<li><a href="">
+					<img src="theme/browse.svg" style="width: 43%; margin-bottom: 5px; padding-right: 2px" />
+					Browse
+				</a></li>
+<% if user.admin %>
+				<li data-balloon="<%= @stats[:pending_moderation] %>"><a href="" data-href="moderation">
+					<img src="theme/moderate.svg" style="width: 43%; margin-bottom: 5px; padding-right: 2px" />
+					Moderation
+				</a></li>
+<% end %>
+			</ul>
+			<span><%= @stats[:total_uploads] %> tracks</span>
+			<div class="credits">
+				Proudly produced in England by Jamie &#9829;<br />
+				<a href="https://index.hm" target="_blank"><img src="https://cdn.index.hm/logo-dark.svg" width=50 /></a>
+			</div>
+		</div>
+		<div id="sidebar-upload" class="second-sidebar">
+			<br />
+			<b>Upload Menu</b>
+			<br /><br />
+			<ul class="menu">
+				<li><a href="" data-href="uploadList">
+					<i class="fa fa-cloud-upload" aria-hidden="true"></i>
+					My Uploads
+				</a></li>
+				<li><a href="" data-href="uploadSong">
+					<img src="theme/library.svg" />
+					Upload Song
+				</a></li>
+				<li><a href="" data-href="uploadSweeper" style="pointer-events: none; opacity: 0.3 !important; color: #000 !important; cursor: default !important; background: none !important">
+					<img src="theme/link.svg" />
+					Upload Sweeper
+				</a></li>
+			</ul>
+		</div>
+		<div id="sidebar-moderation" class="second-sidebar">
+			<br />
+			<b>Moderation</b>
+			<br /><br />
+			<ul class="menu">
+				<li data-balloon="<%= @stats[:pending_moderation] %>"><a href="" data-href="moderation">
+					<img src="theme/library.svg" />
+					Pending Uploads
+				</a></li>
+				<li><a href="" data-href="uploadSong">
+					<i class="fa fa-users" aria-hidden="true"></i>
+					Users
+				</a></li>
+			</ul>
+		</div>
+		<div id="body">
+
+			<div id="top">
+				<div class="profile">
+					<i class="fa fa-user" aria-hidden="true"></i>&nbsp;
+					<%= user.name %>
+				</div>
+			</div>
+
+			<div class="screen" id="screen-load">
+
+				<i class="fa fa-cog" style="animation: fa-spin 5s infinite linear;"></i>
+				<i class="fa fa-cog small" style="animation: fa-spin 5s infinite linear;"></i>
+
+			</div>
+
+			<!--
+		   	******************************
+			        UPLOAD SCREENS
+		   	******************************
+			-->
+
+			<div class="screen" id="screen-upload">
+
+				<a data-href="uploadSong" class="big-button" onclick="document.getElementById('x').className='second-sidebar visible';">
+					<img src="theme/browse.svg" width=100 />
+					<span>Upload Music</span>
+				</a>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a data-href="uploadSweeper" class="big-button">
+					<img src="theme/link.svg" width=100 />
+					<span>Upload Sweepers</span>
+				</a>
+				<br /><br /><br />
+				Looking for bulk import? It's still cooking, come back soon!
+			</div>
+
+			<div class="screen" id="screen-upload-song">
+
+				<table class="grid"><tr><td>
+
+					<label class="upload-box" for="song-upload-main">
+
+						<div class="upload-progress" id="song-upload-progress" style="width: 0%"></div>
+
+						<i class="fa fa-file-audio-o" aria-hidden="true"></i><br />
+						<span id="song-upload-label">Choose Songs</span>
+						<br />
+						<br /><span id="song-upload-status"></span>
+
+					</label>
+					<input id="song-upload-main" type="file" accept=".mp3,.flac,.wav" style="display: none" />
+					<br />
+	<% if user.admin %>
+					<input type="checkbox" name="override-bitrate" id="override-bitrate" value="1" />
+					<label for="override-bitrate">Override Minimum Bitrate / Sample Rate</label><br />
+	<!-- TODO: add if statement/advanced permissions (Specialist use case?) -->
+					<input type="checkbox" name="override-compressor" id="override-compressor" value="1" />
+					<label for="override-compressor">Disable Compression</label>
+					<p>(Don't check unless you know what you're doing - for example classical music)</p>
+	<% end %>
+
+					<input type="checkbox" checked name="upload-library" id="upload-library" value="1" />
+					<label for="upload-library">Add To Library</label>
+					<p>(Uncheck if you don't want this song to be a candidate for automation)</p>
+
+				</td>
+				<td style="width: 270px; padding-right: 15px">
+
+					<br />
+					<div class="banner info">
+
+						<h2><i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;&nbsp;  Information</h2>
+						<br />
+
+						<p>Use the "Library" tab to search for a song before you upload it here. Duplicate songs are automatically rejected, unless you press the "Upload Alternative Version" next to it in search.</p>
+
+						<br />
+
+						<p>Also, this is a reminder that any and all music you upload <b>MUST</b> adhere to rules and regulations.</p>
+
+						<br />
+						<p>We don't want to lose our license, that'd be terrible!</p>
+
+						<br />
+						<p>Find a copy of the <a href="/music-policy" target="_blank">Music Policy here</a>.</p>
+
+						<br /><br />
+						<p style="font-size: 8pt">(In short, check every upload for explicit lyrics and please don't use YouTube rips.)</p>
+
+					</div>
+
+				</td></tr></table>
+
+			</div>
+
+			<div class="screen" id="screen-upload-sweeper">
+
+				This page hasn't been built yet, sorry! Nerve is still in beta. <br /><br />
+				To upload show-specific jingles, message the Head of Station Sound. 
+
+			</div>
+
+			<div class="screen" id="screen-upload-list">
+
+				<b>Uploads needing your input</b>
+				<table class="list first">
+					<tr>
+						<th></th>
+						<th style="width: 30%">Title</th>
+						<th style="width: 20%">Artist</th>
+						<th style="width: 15%">Date</th>
+						<th style="width: 10%">Needed Info</th>
+						<th></th>
+					</th>
+					<tbody id="screen-upload-list-alert">
+
+					</tbody>
+				</table>
+
+				<b>My Uploads</b>
+				<table class="list first">
+					<tr>
+						<th></th>
+						<th style="width: 30%">Title</th>
+						<th style="width: 20%">Artist</th>
+						<th style="width: 15%">Date</th>
+						<th style="width: 10%">Approved</th>
+						<th></th>
+					</th>
+					<tbody id="screen-upload-list-all">
+
+					</tbody>
+				</table>
+
+			</div>
+
+			<div class="screen" id="screen-edit">
+
+				<div class="deck" id="screen-edit-deck">
+					<table style="width: 100%;">
+						<tr><td>
+							<span class="spect"><!--<canvas></canvas>--></span>
+						</td><td class="meta" style="width: 220px; vertical-align: top; padding: 20px 0 0 10px; ">
+
+							<button id="edit-delete" title="Delete Song"><i class="fa fa-trash" aria-hidden="true"></i></button>
+							<button id="edit-save" title="Save Information"><i class="fa fa-floppy-o" aria-hidden="true"></i></button><br />
+
+							<b>Song Information:</b>
+
+							<input type="text" id="edit-title" value="Unknown Title" disabled="disabled" />
+							<button title="Edit Title"><i class="fa fa-pencil" aria-hidden="true"></i></button><br />
+							<input type="text" id="edit-artist" value="Unknown Title" disabled="disabled" />
+							<button title="Edit Artist"><i class="fa fa-pencil" aria-hidden="true"></i></button><br />
+
+							<br />
+							<b id="edit-lyrics-caption">Lyrics:</b>
+							<div class="lyrics-portal">
+								<p id="edit-lyrics"></p>
+							</div>
+
+						</td></tr>
+					</table>
+					<table style="table-layout: fixed;">
+						<tr><td style="padding-left: 10px;">
+							<table class="meta"><tr>
+								<td></td>
+								<td>00:00</td>
+								<td rowspan=2><span class="volume"><span class="bit"></span></span></td>
+							</tr><tr>
+								<td></td>
+								<td>00:00</td>
+							</tr><tr>
+								<td colspan=2><em>Low quality, low-bandwidth preview</em></td>
+							</tr></table>
+							<button class="play"><i class="fa fa-play"></i></button>
+							<button class="pause"><i class="fa fa-pause"></i></button>
+							<button class="reset"><i class="fa fa-step-backward"></i></button>
+							<button class="eject" disabled><i class="fa fa-eject"></i></button>
+						</td><td style="width: 200px">
+							<div id="edit-warnings"></div>
+						</td><td style="width: 650px; text-align: right; padding-right: 10px"><br />
+							<select id="edit-extro" style="font-size: 12pt; padding: 2px 8px">
+								<option value="-1" selected disabled>How does the song end?&nbsp;&nbsp;&nbsp;</option>
+								<option value="0">Just Ends (fast)</option>
+								<option value="1">Fades Out (medium)</option>
+								<option value="2">Sustained Ending (slow)</option>
+							</select><br /><br />
+							<button id="edit-is" class="sect intro start" onclick="confirm('WARNING - this doesn\'t have the effect you think it does. Use sparingly. Continue?') || event.stopPropagation()" title="Set Intro Start point">
+								Intro Start
+								<input type="text" id="edit00-text" value="00:00" locked />
+							</button>
+							<button id="edit-ie" class="sect intro end" title="Set Intro End point">
+								Intro End
+								<input type="text" id="edit01-text" value="-00:00" locked />
+							</button>
+
+							<button id="edit-hs" class="sect hook start" title="Set Hook Start point">
+								Hook Start
+								<input type="text" id="edit10-text" value="-00:00" locked />
+							</button>
+							<button id="edit-he" class="sect hook end" title="Set Hook End point">
+								Hook End
+								<input type="text" id="edit11-text" value="-00:00" locked />
+							</button>
+
+							<button id="edit-es" class="sect extro" title="Set Extro Point">
+								<br />Extro
+								<input type="text" id="edit20-text" value="00:00" locked />
+							</button>
+
+							<button class="sect" id="edit-save-pub" disabled><i class="fa fa-floppy-o" style="font-size: 30pt" aria-hidden="true"></i></button>
+						</td></tr>
+					</table>
+				</div>
+
+			</div>
+
+
+			<!--
+		   	******************************
+			       MODERATION SCREENS
+		   	******************************
+			-->
+
+			<div class="screen" id="screen-moderation">
+
+				<table class="list first">
+					<tr>
+						<th></th>
+						<th style="width: 30%">Title</th>
+						<th style="width: 20%">Artist</th>
+						<th style="width: 15%">Date</th>
+						<th style="width: 10%">Reason</th>
+						<th></th>
+					</th>
+					<tbody id="screen-moderation-list">
+
+					</tbody>
+				</table>
+
+			</div>
+
+			<div class="screen" id="screen-moderation-view">
+
+				<div class="deck" id="screen-mv-deck">
+					<table style="width: 100%;">
+						<tr><td>
+							<span class="spect"><!--<canvas></canvas>--></span>
+						</td><td class="meta" style="width: 220px; vertical-align: top; padding: 20px 0 0 10px; ">
+
+							<button id="mv-delete" title="Delete Song"><i class="fa fa-trash" aria-hidden="true"></i></button>
+							<button id="mv-edit" title="Save Information"><i class="fa fa-pencil" aria-hidden="true"></i></button><br />
+
+							<b>MODERATION<br />Song Information:</b>
+
+							<input type="text" id="mv-title" value="Unknown Title" disabled="disabled" />
+							<input type="text" id="mv-artist" value="Unknown Title" disabled="disabled" />
+
+							<br />
+							<b id="mv-lyrics-caption">Lyrics:</b>
+							<div class="lyrics-portal">
+								<p id="mv-lyrics"></p>
+							</div>
+
+						</td></tr>
+					</table>
+					<table style="table-layout: fixed;">
+						<tr><td style="padding-left: 10px;">
+							<table class="meta"><tr>
+								<td></td>
+								<td>00:00</td>
+								<td rowspan=2><span class="volume"><span class="bit"></span></span></td>
+							</tr><tr>
+								<td></td>
+								<td>00:00</td>
+							</tr><tr>
+								<td colspan=2><em>Low quality, low-bandwidth preview</em></td>
+							</tr></table>
+							<button class="play"><i class="fa fa-play"></i></button>
+							<button class="pause"><i class="fa fa-pause"></i></button>
+							<button class="reset"><i class="fa fa-step-backward"></i></button>
+							<button class="eject" disabled><i class="fa fa-eject"></i></button>
+						</td><td style="width: 200px">
+							<p id="mv-extro">Ends (fast)</p>
+						</td><td style="width: 650px; text-align: right; padding-right: 10px"><br />
+
+							<button class="sect" id="mv-reject" disabled><i class="fa fa-times" style="font-size: 30pt" aria-hidden="true"></i></button>
+
+							<button class="sect" id="mv-approve" disabled><i class="fa fa-upload" style="font-size: 30pt" aria-hidden="true"></i></button>
+						</td></tr>
+					</table>
+				</div>
+
+			</div>
+
+			<div class="screen" id="screen-moderation-fast">
+
+				<i>"Fast" moderation mode is here</i>
+
+			</div>
+
+			<div class="screen" id="screen-moderation-track">
+
+				<div class="deck">
+					<canvas class="canvas" width=800 height=400></canvas>
+				</div>
+
+			</div>
+
+
+		</div>
+
+		<div id="error-container" style="display: none">
+
+			<div id="error">
+
+				<div>
+					<h1 id="error-title">Title</h1>
+					<p id="error-message">Message</p>
+
+					<button id="error-close" class="button" style="float: right">Okay</button>
+
+					<em id="error-code"></em>
+				</div>
+
+			</div>
+
+		</div>
+
+		<script type="text/javascript" src="js/musicmetadata.js"></script>
+		<script type="text/javascript" src="js/peaks.js"></script>
+		<script type="text/javascript" src="js/smoothedit.js"></script>
+
+		<script type="text/javascript" src="dynamic/config.js"></script>
+
+<!--		<script type="text/javascript" src="js/app.js"></script>-->
+		<script type="text/javascript" src="js/models.js"></script>
+		<script type="text/javascript" src="js/views.js"></script>
+		<script type="text/javascript">
+			$config.key = '<%= csrf_key %>';
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,8 @@
+window.$config = {
+	'station_name': <%= $config["station_name"].to_json %>,
+	'contact_email': <%= $config["contact_email"].to_json %>,
+	'banned_words': <%= $config["words"]["banned"].to_json %>,
+	'genres': <%= $genres.to_json %>,
+
+
+};
