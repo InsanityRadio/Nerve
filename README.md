@@ -2,6 +2,8 @@
 
 Nerve is a music library and importation system, inspired by it's predecessor, IRIS. Written in Ruby, Nerve has a modern and intuitive interface, and is built using modern technologies.
 
+This software is aimed to be the last "master" you'll ever need for music metadata and processing, as it is able to mirror changes to the playout system (hopefully soon plural) under its control.  
+
 Nerve is object-oriented and (nearly) event-ready, and is completely customisable and extendable. We mean "object oriented" in the broadcast sense - you can tie its data into systems to create immersive and future-proofed content through in-development APIs. 
 
 
