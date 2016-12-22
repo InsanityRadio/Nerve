@@ -297,7 +297,7 @@ module Nerve; module Job
 				(external_id, title, artist, album, main_genre,
 					created_by, status, explicit, bitrate, sample_rate, length, waveform,
 					is_library, is_automation, ext_id)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
 				data["external_id"], options["title"], artist_id, album_id,
 				genre, options["user_id"], !explicit, explicit,
 				options["bit_rate"], options["sample_rate"], options["length"], 
