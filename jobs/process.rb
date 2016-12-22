@@ -271,7 +271,7 @@ module Nerve; module Job
 			ext_artist_id = data["big"] ? data["big"]["artist_id"] : 0
 			ext_album_id = data["big"] ? data["big"]["album_id"] : 0
 
-			explicit = data["explicit"].to_i | (options["cache_id"] == -1 ? 1 : 0)
+			explicit = (data["explicit"].to_i | (options["cache_id"] == -1 ? 1 : 0)) == 1
 			
 			# For some reason, versions of libsndfile don't like parsing files with ID3 tags(?!)
 			# => we have to do it after
@@ -299,7 +299,7 @@ module Nerve; module Job
 					is_library, is_automation, ext_id)
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
 				data["external_id"], options["title"], artist_id, album_id,
-				genre, options["user_id"], !explicit, explicit,
+				genre, options["user_id"], explicit ? 0 : 1, explicit ? 1 : 0,
 				options["bit_rate"], options["sample_rate"], options["length"], 
 				$config["import"]["generate_waveform"] ? 1 : 0,
 				options["upload_library"] ? 1 : 0,  options["automation"] | false, options["ext_id"] )
@@ -409,7 +409,7 @@ module Nerve; module Job
 
 			completed(#@is_filtered ? \
 				#"Processed, however the file is waiting for manual approval by an administrator." :\
-				"Processed, the file just needs some more input from you.")
+				"Processed. Head on over to the My Uploads page to fill in song information.")
 
 
 			# Update an external status. 3 = IMPORTED
