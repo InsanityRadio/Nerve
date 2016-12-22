@@ -76,11 +76,20 @@ module Nerve
 
 					genre = 34 if genre == nil
 
+					override_title = nil
+					if track["track_name_translation_list"] != nil
+						translations = track["track_name_translation_list"]
+						translations.each do | trans | 
+							trans = trans["track_name_translation"]
+							override_title = trans["translation"] if trans["language"] == "EN"
+						end
+					end
+
 					data = {
 						"nerve_id" => 0,
 						"cache" => "miss",
 						"external_id" => track["commontrack_id"],
-						"title" => track["track_name"],
+						"title" => override_title || track["track_name"],
 						"artist" => track["artist_name"],
 						"album" => track["album_name"],
 						"explicit" => track["explicit"],
