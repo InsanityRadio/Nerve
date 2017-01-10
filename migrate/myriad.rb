@@ -58,13 +58,14 @@ module Nerve; module Migrate
 				rescue
 					puts "Failed uploading #{t} - potentially reassigned cart?!"
 					pp $!
+					pp $1.backtrace
 					self.class.status_update t, 8
 				end
 
 			end
 
 
-			exit!(99) if result.length == 0
+			exit!(99) if result.size == 0
 
 			result.do
 
