@@ -65,7 +65,7 @@ module Nerve; module Migrate
 			end
 
 
-			exit!(99) if result.size == 0
+			exit!(99) if result.to_a.length == 0
 
 			result.do
 
