@@ -41,7 +41,7 @@ module Nerve; module Migrate
 				FROM Songs AS s
 				JOIN SongTitles AS t ON (t.TitleNumber = s.TitleNumber)
 				JOIN Artists AS a ON (a.ArtistNumber = s.ArtistNumber1)
-				WHERE (NerveStatus = null OR NerveStatus = 0) AND Category=#{@@migrate_id.to_i};")
+				WHERE (NerveStatus = null OR NerveStatus = 0) AND Category=#{@@migrate_id.to_i};").to_a
 
 			result.each do | track |
 				begin
@@ -55,6 +55,12 @@ module Nerve; module Migrate
 					queue track, cart_id, file_path
 
 					self.class.status_update t, 1
+				rescue TinyTds::Error
+					retry if $!.message == "Adaptive Server connection timed out"
+					puts "SQL Error"
+					pp $!
+					pp $!.backtrace
+					self.class.status_update t, 8
 				rescue
 					puts "Failed uploading #{t} - potentially reassigned cart?!"
 					pp $!
