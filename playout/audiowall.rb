@@ -309,7 +309,7 @@ module Nerve; module Playout
 				file_name = get_full_path(id) + ".LST"
 				data = File.read(file_name, :encoding => "ASCII-8BIT")
 			else 
-				fh = File.open(get_nearly_full_path(id) + "/Carts#{((id - 1) / 1000) + 1}.LST", "r")
+				fh = File.open(get_nearly_full_path(id) + "/Carts#{[11, ((id - 1) / 1000) + 1].min}.LST", "r")
 				i = id - 1
 				fh.seek(300 * (i > 10000 ? i - 10000 : (i % 1000)))
 				data = fh.read(300)
