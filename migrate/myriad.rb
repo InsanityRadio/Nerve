@@ -161,7 +161,7 @@ module Nerve; module Migrate
 			cart = @@audiowall.load_cart(cart_id)
 
 			raise "Unmatching title #{cart.title}, #{track['ItemTitle']}" \
-				if cart.title.downcase.strip != track['ItemTitle'].downcase.strip
+				if cart.title.downcase.strip.gsub(" ", "") != track['ItemTitle'].downcase.strip.gsub(" ", "")
 
 			raise "Unmatching artist #{cart.artist}, #{track['AritstName']}" \
 				if cart.artist.downcase.strip != track['ArtistName'].downcase.strip
