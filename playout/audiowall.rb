@@ -33,7 +33,7 @@ module Nerve; module Playout
 
 			end
 
-			def self.from_data id, data
+			def self.from_data id, data, audiowall
 
 				cart = self.new
 				cart.cart_id = id
