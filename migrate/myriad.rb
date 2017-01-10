@@ -40,7 +40,7 @@ module Nerve; module Migrate
 			result = @connection.execute("SELECT#{a} s.*, t.ItemTitle, a.ArtistName
 				FROM Songs AS s
 				JOIN SongTitles AS t ON (t.TitleNumber = s.TitleNumber)
-				JOIN Artists AS a ON (a.ArtistNumber = s.ArtistNumber1)
+				JOIN Artists AS a ON (a.ArtistNumber = s.ArtistNumber1 OR )
 				WHERE (NerveStatus = null OR NerveStatus = 0) AND Category=#{@@migrate_id.to_i};").to_a
 
 			result.each do | track |
@@ -56,7 +56,12 @@ module Nerve; module Migrate
 
 					self.class.status_update t, 1
 				rescue TinyTds::Error
-					retry if $!.message == "Adaptive Server connection timed out"
+					if $!.message == "Adaptive Server connection timed out"
+						# We've lost connection. >:(
+						@connection = Myriad.get_connection @@database
+						retry
+					end
+
 					puts "SQL Error"
 					pp $!
 					pp $!.backtrace
