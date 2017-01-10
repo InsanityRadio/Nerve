@@ -40,7 +40,7 @@ module Nerve; module Migrate
 			result = @connection.execute("SELECT#{a} s.*, t.ItemTitle, a.ArtistName
 				FROM Songs AS s
 				JOIN SongTitles AS t ON (t.TitleNumber = s.TitleNumber)
-				JOIN Artists AS a ON (a.ArtistNumber = s.ArtistNumber1 OR )
+				JOIN Artists AS a ON (a.ArtistNumber = s.ArtistNumber1)
 				WHERE (NerveStatus = null OR NerveStatus = 0) AND Category=#{@@migrate_id.to_i};").to_a
 
 			result.each do | track |
