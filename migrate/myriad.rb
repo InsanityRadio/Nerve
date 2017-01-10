@@ -161,10 +161,10 @@ module Nerve; module Migrate
 			cart = @@audiowall.load_cart(cart_id)
 
 			raise "Unmatching title #{cart.title}, #{track['ItemTitle']}" \
-				if cart.title.downcase.strip.gsub(" ", "") != track['ItemTitle'].downcase.strip.gsub(" ", "")
+				if cart.title.downcase.gsub(/[^0-9a-z ]/i, '') != track['ItemTitle'].downcase.gsub(/[^0-9a-z ]/i, '')
 
 			raise "Unmatching artist #{cart.artist}, #{track['AritstName']}" \
-				if cart.artist.downcase.strip != track['ArtistName'].downcase.strip
+				if cart.artist.downcase.gsub(/[^0-9a-z ]/i, '') != track['ArtistName'].downcase.gsub(/[^0-9a-z ]/i, '')
 
 			data = {
 				"file" => aw_file,
