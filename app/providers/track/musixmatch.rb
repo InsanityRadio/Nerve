@@ -93,7 +93,7 @@ module Nerve
 						"artist" => track["artist_name"],
 						"album" => track["album_name"],
 						"explicit" => track["explicit"],
-						"exists" => Nerve::Services::Metadata.exists?(track["external_id"]),
+						"exists" => Nerve::Services::Metadata.exists?(track["commontrack_id"]),
 						"genre" => genre,
 						"year" => (track["first_release_date"][0..3] rescue nil),
 						"big" => track.to_json

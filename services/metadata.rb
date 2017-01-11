@@ -136,8 +136,7 @@ module Nerve
 
 			def self.exists? external_id
 
-				Database.query("SELECT COUNT(*) AS c
-					FROM `tracks` WHERE external_id = ?", external_id).first["c"] > 0
+				Nerve::Model::TrackProvider.count("t.external_id = ?", external_id) > 0
 
 			end
 

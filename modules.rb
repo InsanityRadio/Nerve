@@ -12,6 +12,8 @@ module Nerve
 		autoload :Simple, "auth/simple"
 		autoload :User, "auth/user"
 
+		autoload :Cortex, "auth/cortex"
+
 	end
 
 	module Job
@@ -79,6 +81,8 @@ module Nerve
 		autoload :Track, "app/models/track"
 		autoload :TrackProvider, "app/models/track_provider"
 
+		autoload :UserCacheProvider, "app/models/user_cache_provider"
+
 	end
 
 
@@ -88,6 +92,8 @@ module Nerve
 		autoload :Success, "app/exceptions/success"
 		autoload :Failure, "app/exceptions/failure"
 		autoload :Reset, "app/exceptions/reset"
+
+		autoload :NoSuchUser, "app/exceptions/no_such_user"
 
 	end
 

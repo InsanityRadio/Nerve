@@ -28,6 +28,10 @@ module Nerve
 				Nerve::Authentication::User.new(0, "", "", "", { :safety_net => false })
 			end
 
+			def redirect
+				nil
+			end
+
 			# Returns a list of users
 			def get_users
 

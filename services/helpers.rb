@@ -8,6 +8,12 @@ module Nerve
 				throw(:halt, [403, "Please authenticate\n"])
 			end
 
+			def protect_moderator!
+				return if session[:authenticated] and session[:user_id] != nil
+				user = Nerve::Services::Login.get_service.get_user session[:user_id]
+				throw(:halt, [403, "You are not a moderator!"]) if !user.moderator
+			end
+
 			def protect_json! 
 
 				protect!

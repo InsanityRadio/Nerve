@@ -9,7 +9,7 @@ module Nerve
 
 			# Array of Maps (of User objects and passwords) 
 			@@my_accounts = [{
-				:account => User.new(1, "dev", "Dev User", "studio", {}, true),
+				:account => User.new(1, "dev", "Dev User", "studio", {}, true, true),
 				:password => "e77989ed21758e78331b20e477fc5582" # MD5.
 			}]
 			

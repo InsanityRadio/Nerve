@@ -126,10 +126,12 @@ module Nerve; module Model
 			Database.query("UPDATE tracks SET
 				last_update=NOW(), title=?, intro_start=?, intro_end=?,
 				hook_start=?, hook_end=?, outro=?, status=?,
+				approved_by=?,
 				is_library = ?, is_automation = ?, playout_id = ?
 				WHERE id=?", 
 				@title, @intro_start, @intro_end,
 				@hook_start, @hook_end, @outro, @status,
+				@approved_by,
 				@is_library ? 1 : 0, @is_automation ? 1 : 0, @playout_id,
 				@id)
 
@@ -140,7 +142,11 @@ module Nerve; module Model
 		end
 
 		def approved_by
-			Nerve::Services::Login.get_service.get_user(@created_by) rescue created_by
+			Nerve::Services::Login.get_service.get_user(@approved_by) rescue nil
+		end
+
+		def approved_by= id
+			@approved_by = id
 		end
 
 		def to_json extended = false

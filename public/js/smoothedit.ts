@@ -114,11 +114,13 @@ class Deck {
 
 	}
 
-	load(track:Track, notify?:boolean, readonly:boolean = false){
+	load(track:Track, notify?:boolean, readonly?:boolean){
 
 		this.clear();
 
 		this.track = track;
+
+		console.log("RO", readonly);
 		this.source = new HTMLAudio(track);
 		this.source.onPlay(() => this.handlePlay());
 		this.source.onPause(() => this.handlePause());

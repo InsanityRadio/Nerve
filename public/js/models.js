@@ -63,6 +63,13 @@ var View = (function () {
             for (var j in this.listeners[i])
                 this.elements[i].removeEventListener(j, this.listeners[i][j], true);
     };
+    View.prototype.nullBind = function (name, element, serializable, def) {
+        if (serializable === void 0) { serializable = true; }
+        if (def === void 0) { def = undefined; }
+        if (document.getElementById(element) != null)
+            return this.bind(name, element, serializable, def);
+        this.elements[name] = null;
+    };
     View.prototype.bind = function (name, element, serializable, def) {
         if (serializable === void 0) { serializable = true; }
         if (def === void 0) { def = undefined; }
@@ -136,6 +143,8 @@ var View = (function () {
     };
     View.prototype.get = function (name, html) {
         if (html === void 0) { html = false; }
+        if (!this.elements[name])
+            return undefined;
         switch (this.elements[name][0]) {
             case "INPUT":
                 return this.elements[name][1].value;
@@ -152,6 +161,8 @@ var View = (function () {
     };
     View.prototype.set = function (name, value, html) {
         if (html === void 0) { html = false; }
+        if (!this.elements[name])
+            return undefined;
         switch (this.elements[name][0]) {
             case "INPUT":
                 this.elements[name][1].value = value;
@@ -468,31 +479,80 @@ var ErrorView = (function (_super) {
         this.bind("close", "error-close");
         this.bind("container", "error-container");
         this.bind("code", "error-code");
+        this.bind("view", "error-view");
         this.bind("message", "error-message");
         this.bind("title", "error-title");
     }
+    ErrorView.prototype.show = function () {
+        this.element("view").style.display = "block";
+    };
+    ErrorView.prototype.hide = function () {
+        this.element("view").style.display = "none";
+    };
     return ErrorView;
+}(View));
+var QueryView = (function (_super) {
+    __extends(QueryView, _super);
+    function QueryView() {
+        _super.call(this, "Query");
+        this.bind("go", "confirm-go");
+        this.bind("close", "confirm-close");
+        this.bind("container", "error-container");
+        this.bind("view", "confirm-view");
+        this.bind("message", "confirm-message");
+        this.bind("title", "confirm-title");
+    }
+    QueryView.prototype.show = function () {
+        this.element("view").style.display = "block";
+    };
+    QueryView.prototype.hide = function () {
+        this.element("view").style.display = "none";
+    };
+    return QueryView;
 }(View));
 var ErrorPage = (function () {
     function ErrorPage() {
         var _this = this;
-        this.view = new ErrorView();
+        this.errorView = new ErrorView();
+        this.queryView = new QueryView();
         this.total = 0;
-        this.view.listen("close", "click", function () { return _this.click(); });
+        this.errorView.listen("close", "click", function () { return _this.click(); });
+        this.queryView.listen("go", "click", function () { return _this.click(true); });
+        this.queryView.listen("close", "click", function () { return _this.click(false); });
     }
     ErrorPage.prototype.setError = function (error) {
         this.error = error;
-        this.view.set("title", this.error.title);
-        this.view.set("code", this.error.code);
-        this.view.set("message", this.error.message);
+        var type = this.error.type;
+        if (type == "query")
+            this.renderQuery(error);
+        else
+            this.renderError(error);
     };
     ErrorPage.prototype.setStackDepth = function (total) {
         this.total = total;
         var opacity = total / (total + 1) * 0.8;
-        this.view.element("container").style.backgroundColor = "rgba(0, 0, 0, " + opacity + ")";
+        this.errorView.element("container").style.backgroundColor = "rgba(0, 0, 0, " + opacity + ")";
     };
-    ErrorPage.prototype.click = function () {
-        this.error.handler();
+    ErrorPage.prototype.renderError = function (error) {
+        this.errorView.set("title", this.error.title);
+        this.errorView.set("code", this.error.code);
+        this.errorView.set("message", this.error.message);
+        this.errorView.show();
+        this.queryView.hide();
+    };
+    ErrorPage.prototype.renderQuery = function (query) {
+        this.queryView.set("title", this.error.title);
+        this.queryView.set("message", this.error.message);
+        this.errorView.hide();
+        this.queryView.show();
+    };
+    ErrorPage.prototype.click = function (result) {
+        if (this.error.type == "query") {
+            this.error.handler(result);
+            this.error.requestClose();
+        }
+        else
+            this.error.handler();
     };
     ErrorPage.prototype.open = function () {
     };
@@ -513,9 +573,23 @@ var Errors = (function () {
             handler = function () { return _this.dismiss(); };
         if (!title)
             title = fatal ? "Fatal Error" : "Error";
-        var error = { title: title, code: code, message: message, fatal: fatal, handler: handler };
+        var error = { type: "error", title: title, code: code, message: message, fatal: fatal, handler: handler };
         this.errors.push(error);
         console.error(error);
+        this.page.listener.setStackDepth(this.errors.length);
+        this.page.show();
+        if (this.page.listener.error == null)
+            this.dismiss();
+    };
+    Errors.query = function (message, title, handler) {
+        var _this = this;
+        if (handler === void 0) { handler = null; }
+        if (handler == null)
+            handler = function () { return _this.dismiss(); };
+        if (!title)
+            title = "Query";
+        var query = { type: "query", title: title, message: message, handler: handler, requestClose: function () { return _this.dismiss(); } };
+        this.errors.push(query);
         this.page.listener.setStackDepth(this.errors.length);
         this.page.show();
         if (this.page.listener.error == null)
@@ -559,35 +633,20 @@ var Library = (function () {
         if (Array.isArray(data)) {
             var tracks = [];
             for (var i in data) {
-                tracks.push(new Track(data[i]));
+                tracks.push(new this.trackType(data[i]));
                 tracks[tracks.length - 1].status = -1;
             }
         }
         else {
-            var tracks = new Track(data);
+            var tracks = new this.trackType(data);
             tracks.status = -1;
         }
         return tracks;
     };
     Library.source = null;
+    Library.trackType = Track;
     return Library;
 }());
-var GlobalLibrary = (function (_super) {
-    __extends(GlobalLibrary, _super);
-    function GlobalLibrary() {
-        _super.apply(this, arguments);
-    }
-    GlobalLibrary.source = "/metadata/";
-    return GlobalLibrary;
-}(Library));
-var MyLibrary = (function (_super) {
-    __extends(MyLibrary, _super);
-    function MyLibrary() {
-        _super.apply(this, arguments);
-    }
-    MyLibrary.source = "/upload/";
-    return MyLibrary;
-}(Library));
 var ExtendableDataSource = (function () {
     function ExtendableDataSource(ref) {
     }
@@ -652,6 +711,51 @@ var Track = (function (_super) {
     Track.source = "/upload/file/";
     return Track;
 }(ExtendableDataSource));
+var PreTrack = (function (_super) {
+    __extends(PreTrack, _super);
+    function PreTrack(ref) {
+        _super.call(this);
+        this.id = ref.id;
+        this.externalID = ref.external_id;
+        this.cacheID = ref.cache_id;
+        this.title = ref.title;
+        this.artist = ref.artist;
+        this.album = ref.album;
+        this.artistID = ref.artist_id;
+        this.albumID = ref.album_id;
+        this.length = parseFloat(ref.length);
+        this.explicit = ref.explicit;
+        this.exists = ref.exists;
+    }
+    PreTrack.prototype.getLyrics = function (callback) {
+        var _this = this;
+        this.getExtended(function (source) {
+            callback(_this.extended["lyrics"]);
+        });
+    };
+    PreTrack.prototype.getAlternateMetadata = function () {
+        this;
+    };
+    PreTrack.source = null;
+    return PreTrack;
+}(ExtendableDataSource));
+var GlobalLibrary = (function (_super) {
+    __extends(GlobalLibrary, _super);
+    function GlobalLibrary() {
+        _super.apply(this, arguments);
+    }
+    GlobalLibrary.source = "/metadata/";
+    GlobalLibrary.trackType = PreTrack;
+    return GlobalLibrary;
+}(Library));
+var MyLibrary = (function (_super) {
+    __extends(MyLibrary, _super);
+    function MyLibrary() {
+        _super.apply(this, arguments);
+    }
+    MyLibrary.source = "/upload/";
+    return MyLibrary;
+}(Library));
 /**
  * A collection represents any set of tracks. Edit pages, search, moderation, you name it.
  */

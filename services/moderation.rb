@@ -14,7 +14,7 @@ module Nerve
 
 			get '/moderation/pending/' do 
 
-				protect_json!
+				protect_moderator!
 				COUNT = 20; page = params['page'] || 0
 
 				tracks = Nerve::Model::TrackProvider.where("
@@ -26,6 +26,7 @@ module Nerve
 
 			post '/moderation/approve/:id' do | id |
 
+				protect_moderator!
 				raise "Incorrect/empty CSRF key" \
 					if session[:token].empty? || params['token'] != session[:token]
 
@@ -33,7 +34,14 @@ module Nerve
 				# Check for "allow during day/automation"
 
 				# Set track status to 4
+				track = Nerve::Model::TrackProvider.from_id(id)
+				track.status = 4
+				track.approved_by = session[:user_id]
+				track.save
 				# Queue for job
+
+				Nerve::Job::Transfer.create({
+					"track_id" => id})
 
 				return { "success" => 1 }.to_json
 
@@ -41,10 +49,15 @@ module Nerve
 
 			post '/moderation/reject/:id' do | id |
 
+				protect_moderator!
 				raise "Incorrect/empty CSRF key" \
 					if session[:token].empty? || params['token'] != session[:token]
 
 				# Set status to 2
+				track = Nerve::Model::TrackProvider.from_id(id)
+				track.status = 2
+				track.approved_by = session[:user_id]
+				track.save
 
 				return { "success" => 1 }.to_json
 

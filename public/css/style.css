@@ -424,7 +424,7 @@ table.list tr.status-10 td:first-child:before {
 	width: 48px;
 }
 
-#error-container {
+.coverall {
 	background: rgba(0, 0, 0, 0.4);
 	height: 100%;
 	left: 0;
@@ -434,33 +434,33 @@ table.list tr.status-10 td:first-child:before {
 	z-index: 9999;
 }
 
-#error {
+.coverall .all {
 	background: #FFF;
-	height: 200px;
+	min-height: 200px;
 	left: 0;
-	margin: -100px 0 0;
+	margin: -130px 0 0;
 	position: absolute;
 	top: 50%;
 	width: 100%;
 }
 
-#error > div {
+.coverall .all > div {
 	margin: 30px auto;
 	width: 500px;
 	position: relative;
-	height: 150px;
+	min-height: 150px;
 }
 
-#error h1 {
+.coverall .all h1 {
 	font-weight: normal;
 	margin-bottom: 10px;
 }
 
-#error p {
+.coverall .all p {
 	font-size: 14pt;
 }
 
-#error em {
+.coverall .all em {
 	color: #999;
 	font-size: 9pt;
 	position: absolute;
@@ -468,14 +468,16 @@ table.list tr.status-10 td:first-child:before {
 	right: 0;
 }
 
-#error button {
-	position: absolute;
-	bottom: 0;
-	right: 0;
+.coverall .all button {
+	margin: 20px 10px 20px 0;
+}
+
+.coverall .all button:not(:first-of-type) {
+	right: 90px;
 }
 
 button.button {
-	background: #FA7D0F;
+	background: #ED974C;
 	border: 1px solid #C96812;
 	border-radius: 2px;
 	color: #FFF;
@@ -492,6 +494,20 @@ button.button:active {
 	background: #BA5D0B;
 	border-color: #783800;
 	color: rgba(255, 255, 255, 0.8);
+}
+
+button.button.grey {
+	background: #888;
+	border-color: #555;
+}
+
+button.button.grey:hover {
+	border-color: #222;
+}
+
+button.button.grey:active {
+	background: #4A4A4A;
+	border-color: #222;
 }
 
 table.grid {

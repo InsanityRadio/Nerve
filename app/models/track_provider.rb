@@ -13,7 +13,7 @@ module Nerve; module Model
 
 		def self.all
 
-			where("")
+			where("1=1")
 
 		end
 
@@ -25,6 +25,17 @@ module Nerve; module Model
 				LEFT JOIN `albums` a ON a.id = t.album 
 				LEFT JOIN `artists` r ON r.id = t.artist 
 				WHERE #{where};", *params).to_a.map { | a | self.from a }
+
+		end
+
+		def self.count where, *params
+
+			Database.query("SELECT COUNT(*) AS c FROM (
+				SELECT t.*, a.name AS album_name, r.name AS artist_name
+				FROM `tracks` t
+				LEFT JOIN `albums` a ON a.id = t.album 
+				LEFT JOIN `artists` r ON r.id = t.artist 
+				WHERE #{where}) x;", *params).first["c"].to_i
 
 		end
 

@@ -75,9 +75,9 @@ var Deck = (function () {
     }
     Deck.prototype.load = function (track, notify, readonly) {
         var _this = this;
-        if (readonly === void 0) { readonly = false; }
         this.clear();
         this.track = track;
+        console.log("RO", readonly);
         this.source = new HTMLAudio(track);
         this.source.onPlay(function () { return _this.handlePlay(); });
         this.source.onPause(function () { return _this.handlePause(); });
