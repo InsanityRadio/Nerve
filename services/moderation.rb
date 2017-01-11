@@ -15,7 +15,7 @@ module Nerve
 			get '/moderation/pending/' do 
 
 				protect_moderator!
-				COUNT = 20; page = params['page'] || 0
+				COUNT = 60; page = params['page'] || 0
 
 				tracks = Nerve::Model::TrackProvider.where("
 					t.status = 3
