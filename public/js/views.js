@@ -68,7 +68,7 @@ var UploadListPage = (function (_super) {
         var a = [], b = [];
         for (var i in scope.tracks) {
             var track = scope.tracks[i];
-            if (track.status < 3 && track.status != 1)
+            if (track.status < 3)
                 a.push({
                     track: track,
                     message: track.status == 3 ? "Sent back" : "Metadata",
