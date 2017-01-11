@@ -21,7 +21,7 @@ module Nerve; module Job
 			begin
 
 				@track_id = options["track_id"]
-				track = Nerve::Module::TrackProvider.from_id options["track_id"]
+				track = Nerve::Model::TrackProvider.from_id options["track_id"]
 				@original_status = track.status
 
 				track.status = 10

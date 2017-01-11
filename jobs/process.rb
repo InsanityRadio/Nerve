@@ -271,7 +271,9 @@ module Nerve; module Job
 			ext_artist_id = data["big"] ? data["big"]["artist_id"] : 0
 			ext_album_id = data["big"] ? data["big"]["album_id"] : 0
 
+			puts "Explicit: #{data["explicit"]}, #{options["cache_id"]}"
 			explicit = (data["explicit"].to_i | (options["cache_id"] == -1 ? 1 : 0)) == 1
+			puts "#{explicit}"
 			
 			# For some reason, versions of libsndfile don't like parsing files with ID3 tags(?!)
 			# => we have to do it after
