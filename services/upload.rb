@@ -118,7 +118,7 @@ module Nerve
 					track = Nerve::Playout::Track.from_id id
 
 					raise "You do not have permission to modify this track." \
-						if !user.admin and user.id != track.created_by
+						if !user.moderator and user.id != track.created_by
 
 					raise "You must select an end type!" \
 						unless [0, 1, 2].include? params['end_type'].to_i
@@ -203,10 +203,13 @@ module Nerve
 				track = Nerve::Playout::Track.from_id id
 
 				raise "You do not have permission to delete this track." \
-					if !user.admin and user.id != track.created_by
+					if !user.moderator and user.id != track.created_by
 
 				#raise "Track has already been uploaded to the playout system. Please ensure you remove it from there" \
 				#	if track.status > 4
+
+				local_path = $config["export"]["directory"] + "/" + track.local_path
+				File.unlink(local_path) rescue nil
 
 				Database.query("DELETE FROM tracks WHERE id=?;", id)
 
