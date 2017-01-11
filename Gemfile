@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 #ruby '>=2'
 
+gem 'oauth2'
 gem 'sinatra', require: 'sinatra/base'
 gem 'sinatra-reloader'
 gem 'erubis'

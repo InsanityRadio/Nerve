@@ -152,8 +152,14 @@ var EditPage = (function () {
         this.view.set("title", track.title);
         this.view.set("artist", track.artist);
         this.view.set("lyrics", "");
-        this.view.element("save-publish").disabled = "disabled";
-        this.view.element("save-publish").querySelector("i").className = "fa fa-floppy-o";
+        if (track.extro_start != 0) {
+            this.saved = 1;
+            this.handleSave();
+        }
+        else {
+            this.view.element("save-publish").disabled = "disabled";
+            this.view.element("save-publish").querySelector("i").className = "fa fa-floppy-o";
+        }
         track.getLyrics(function (lyrics) {
             if (lyrics == false)
                 lyrics = "No lyric data available.";
@@ -270,6 +276,10 @@ var EditPage = (function () {
     };
     EditPage.prototype.publish = function () {
         var _this = this;
+        Errors.query(Language.get("COMPLIANCE_CONFIRM"), "Compliance", function (c) { return (c && _this.confirmPublish()); });
+    };
+    EditPage.prototype.confirmPublish = function () {
+        var _this = this;
         Pages.pages["preload"].show();
         var data = this.view.serialize();
         data["token"] = $config.key;
@@ -311,9 +321,9 @@ var UploadView = (function (_super) {
     __extends(UploadView, _super);
     function UploadView() {
         _super.call(this, "Upload");
-        this.bind("override_bitrate", "override-bitrate");
-        this.bind("override_compressor", "override-compressor");
-        this.bind("upload_library", "upload-library");
+        this.nullBind("override_bitrate", "override-bitrate");
+        this.nullBind("override_compressor", "override-compressor");
+        this.nullBind("upload_library", "upload-library");
         this.bind("progress", "song-upload-progress", false);
         this.bind("status", "song-upload-status", false);
         this.bind("file", "song-upload-main", false);
@@ -327,6 +337,7 @@ var UploadPage = (function () {
         this.view.listen("file", "change", function (event) { return _this.selectFile(event.target.files[0]); });
     }
     UploadPage.prototype.open = function () {
+        this.view.element("file").disabled = false;
     };
     UploadPage.prototype.close = function () {
     };
@@ -361,7 +372,7 @@ var UploadPage = (function () {
         });
     };
     UploadPage.prototype.abort = function () {
-        this.view.element("file").disabled = null;
+        this.view.element("file").disabled = false;
     };
     UploadPage.prototype.upload = function (file, result) {
         var _this = this;
@@ -435,8 +446,9 @@ var ModerationViewView = (function (_super) {
 var ModerationViewPage = (function () {
     function ModerationViewPage() {
         var _this = this;
-        this.player = new Deck(document.getElementById("screen-mv-deck"), null, true);
+        this.player = new Deck(document.getElementById("screen-mv-deck"));
         this.view = new ModerationViewView();
+        this.types = ["intro", "hook", "extro"];
         this.view.listen("reject", "click", function (e) {
             _this.reject();
         });
@@ -454,10 +466,12 @@ var ModerationViewPage = (function () {
     };
     ModerationViewPage.prototype.load = function (track) {
         var _this = this;
+        this.track = track;
         Pages.pages["preload"].hide();
         this.view.set("title", track.title);
         this.view.set("artist", track.artist);
         this.view.set("lyrics", "");
+        console.log(track);
         track.getLyrics(function (lyrics) {
             if (lyrics == false)
                 lyrics = "No lyric data available.";
@@ -468,17 +482,45 @@ var ModerationViewPage = (function () {
             _this.view.set("lyrics-caption", "Lyrics (" + lyrics[1] +
                 " flagged word" + (lyrics[1] != 1 ? "s" : "") + "):");
         });
-        this.player.load(track);
+        this.view.element("approve").disabled = false;
+        this.view.element("reject").disabled = false;
+        this.player.load(track, null, true);
         document.documentElement.addEventListener("keydown", this.listener = function (e) { return _this.keyPressListener(e); });
+        setTimeout(function () { return _this.fillMarkers(); }, 1);
+    };
+    ModerationViewPage.prototype.set = function (key, value) {
+        var type = this.types.indexOf(key.split("_")[0]);
+        if (type == -1)
+            throw new Error("Can't set " + key + " as there's no such property");
+        var segment = this.player.waveform.segments.getSegments()[type];
+        segment[key.split("_")[1] + "Time"] = value;
+        this.player.waveform.waveform.segments.updateSegments();
+    };
+    ModerationViewPage.prototype.fillMarkers = function () {
+        var _this = this;
+        console.log(this.player, this.player.waveform);
+        var waveform = this.player.waveform;
+        if (!waveform.waveform.origWaveformData ||
+            !waveform.waveform.origWaveformData.adapter.data.buffer.byteLength ||
+            !waveform.player.getDuration())
+            return setTimeout(function () { return _this.fillMarkers(); }, 100);
+        Pages.pages["preload"].hide();
+        console.log("Setting markers");
+        for (var t = 0; t < this.types.length * 2; t++) {
+            var type = this.types[t / 2 | 0] + "_" + ((t % 2) ? "end" : "start");
+            if (this.track[type] != null)
+                this.set(type, this.track[type]);
+        }
     };
     ModerationViewPage.prototype.keyPressListener = function (e) {
-        console.log("Press", document.activeElement);
+        console.log("Press", document.activeElement, e);
         if (document.activeElement != document.body &&
             document.activeElement != window)
             return;
-        console.log(e);
-        if (e.charCode == 32) {
+        if (e.keyCode == 32 || e.charCode == 32) {
             this.player.source.playing() ? this.player.pause() : this.player.play();
+            e.preventDefault();
+            return false;
         }
     };
     ModerationViewPage.prototype.close = function () {
@@ -486,17 +528,18 @@ var ModerationViewPage = (function () {
         this.player.eject();
     };
     ModerationViewPage.prototype.edit = function () {
-        console.log("EDITING...");
+        Pages.show("uploadEdit", { track: this.track });
     };
     ModerationViewPage.prototype.approve = function () {
         var _this = this;
         this.view.element("approve").disabled = "disabled";
+        this.view.element("reject").disabled = "disabled";
         Pages.pages["preload"].show();
         var data = this.view.serialize();
         data["token"] = $config.key;
         this.approved = true;
         new HTTP.POST("/moderation/approve/" + this.id, function (scope) {
-            _this.handleSave(scope);
+            _this.handleApprove(scope);
         }, function (scope) {
             _this.approved = false;
             try {
@@ -505,24 +548,40 @@ var ModerationViewPage = (function () {
             catch (e) {
                 var message = "No description available, error " + scope.xml.status;
             }
-            Errors.push("SAVE-FAIL", "Couldn't approve track: " + message, true);
+            Errors.push("APPROVE-FAIL", "Couldn't approve track: " + message, true);
             Pages.pages["preload"].hide();
         }).send(data, "application/x-www-form-urlencoded");
     };
     ModerationViewPage.prototype.handleApprove = function (scope) {
-        Pages.pages["preload"].hide();
-        this.view.element("approve").disabled = "";
+        Pages.show("moderation");
     };
     ModerationViewPage.prototype.reject = function () {
+        var _this = this;
         // meow
-        console.log("REJECTING...");
+        this.view.element("approve").disabled = "disabled";
+        this.view.element("reject").disabled = "disabled";
+        var data = this.view.serialize();
+        data["token"] = $config.key;
+        new HTTP.POST("/moderation/reject/" + this.id, function (scope) {
+            Pages.show("moderation");
+        }, function (scope) {
+            _this.approved = false;
+            try {
+                var message = JSON.parse(scope.xml.responseText).message;
+            }
+            catch (e) {
+                var message = "No description available, error " + scope.xml.status;
+            }
+            Errors.push("REJECT-FAIL", "Couldn't reject track: " + message, true);
+            Pages.pages["preload"].hide();
+        }).send(data, "application/x-www-form-urlencoded");
     };
     ModerationViewPage.prototype.remove = function () {
         var test = confirm("Are you absolutely sure you want to delete this track?");
         if (!test)
             return;
         Pages.pages["preload"].show();
-        new HTTP.POST("/upload/delete/" + this.id, function () { return Pages.show("uploadList"); }, function () { return false; }).
+        new HTTP.POST("/upload/delete/" + this.id, function () { return Pages.show("uploadList"); }, function () { return Errors.push("DELETE_FAIL", "Delete failed"); }).
             send({ key: $config.key }, "application/x-www-form-urlencoded");
     };
     return ModerationViewPage;

@@ -1,6 +1,6 @@
 // This is totally free for you to rip off. See the Nerve LICENSE. Never know, this might prove useful to someone. 
 
-interface Window { escape:any; jsmediatags:any; _:any; $config:any; }
+interface Window { escape:any; jsmediatags:any; _:any; $config:any; $lang:any; }
 interface HTMLCanvasElement { cwidth:number; cheight:number; }
 
 var $config:any;
@@ -80,6 +80,15 @@ class View {
 		for(var i in this.listeners)
 			for(var j in this.listeners[i])
 				this.elements[i].removeEventListener(j, this.listeners[i][j], true);
+
+	}
+
+	nullBind(name: string, element:HTMLElement|string, serializable:boolean = true, def:string = undefined):boolean {
+
+		if(document.getElementById(element) != null)
+			return this.bind(name, element, serializable, def);
+
+		this.elements[name] = null;
 
 	}
 
@@ -185,6 +194,9 @@ class View {
 
 	get(name:string, html:boolean = false):string|boolean|number {
 
+		if(!this.elements[name])
+			return undefined;
+
 		switch(this.elements[name][0]){
 			case "INPUT":
 				return this.elements[name][1].value;
@@ -203,6 +215,9 @@ class View {
 	}
 
 	set(name:string, value:any, html:boolean = false):void {
+
+		if(!this.elements[name])
+			return undefined;
 
 		switch(this.elements[name][0]){
 			case "INPUT":
@@ -621,7 +636,7 @@ module Utilities {
 
 }
 
-class ErrorView extends View {
+class ErrorView implements IPage extends View {
 
 	constructor() {
 
@@ -630,31 +645,71 @@ class ErrorView extends View {
 		this.bind("close", "error-close");
 		this.bind("container", "error-container");
 		this.bind("code", "error-code");
+		this.bind("view", "error-view");
 		this.bind("message", "error-message");
 		this.bind("title", "error-title");
 
+	}
+
+	show() {
+		this.element("view").style.display = "block";
+	}
+
+	hide() {
+		this.element("view").style.display = "none";
+	}
+
+}
+
+class QueryView implements IPage extends View {
+
+	constructor() {
+
+		super("Query");
+
+		this.bind("go", "confirm-go");
+		this.bind("close", "confirm-close");
+		this.bind("container", "error-container");
+		this.bind("view", "confirm-view");
+		this.bind("message", "confirm-message");
+		this.bind("title", "confirm-title");
+
+	}
+
+	show() {
+		this.element("view").style.display = "block";
+	}
+
+	hide() {
+		this.element("view").style.display = "none";
 	}
 
 }
 
 class ErrorPage implements IPage {
 
-	protected view:ErrorView = new ErrorView();
+	protected errorView:ErrorView = new ErrorView();
+	protected queryView:QueryView = new QueryView();
 	protected total:number = 0;
 
 	protected error:any;
 
 	constructor() {
-		this.view.listen("close", "click", () => this.click());
+		this.errorView.listen("close", "click", () => this.click());
+		this.queryView.listen("go", "click", () => this.click(true));
+		this.queryView.listen("close", "click", () => this.click(false));
 	}
 
 	setError(error:any) {
 
 		this.error = error;
 
-		this.view.set("title", this.error.title);
-		this.view.set("code", this.error.code);
-		this.view.set("message", this.error.message);
+		var type = this.error.type;
+
+		if(type == "query")
+			this.renderQuery(error);
+		else
+			this.renderError(error);
 
 	}
 
@@ -663,12 +718,31 @@ class ErrorPage implements IPage {
 		this.total = total;
 		var opacity:number = total / (total + 1) * 0.8;
 
-		this.view.element("container").style.backgroundColor = "rgba(0, 0, 0, " + opacity + ")";
+		this.errorView.element("container").style.backgroundColor = "rgba(0, 0, 0, " + opacity + ")";
 
 	}
 
-	click():void {
-		this.error.handler();
+	renderError(error:any) {
+		this.errorView.set("title", this.error.title);
+		this.errorView.set("code", this.error.code);
+		this.errorView.set("message", this.error.message);
+		this.errorView.show();
+		this.queryView.hide();
+	}
+
+	renderQuery(query:any) {
+		this.queryView.set("title", this.error.title);
+		this.queryView.set("message", this.error.message);
+		this.errorView.hide();
+		this.queryView.show();
+	}
+
+	click(result: boolean):void {
+		if(this.error.type == "query") {
+			this.error.handler(result);
+			this.error.requestClose();
+		} else
+			this.error.handler();
 	}
 
 	open():void {
@@ -696,10 +770,29 @@ class Errors {
 		if(!title)
 			title = fatal ? "Fatal Error" : "Error";
 
-		var error = { title: title, code: code, message: message, fatal: fatal, handler: handler };
+		var error = { type: "error", title: title, code: code, message: message, fatal: fatal, handler: handler };
 		this.errors.push(error);
 
 		console.error(error);
+
+		this.page.listener.setStackDepth(this.errors.length);
+		this.page.show();
+
+		if(this.page.listener.error == null)
+			this.dismiss();
+
+	}
+
+	public static query(message:string, title:string, handler:(result: boolean) => void = null) {
+
+		if(handler == null)
+			handler = () => this.dismiss();
+
+		if(!title)
+			title = "Query";
+
+		var query = { type: "query", title: title, message: message, handler: handler, requestClose: () => this.dismiss() };
+		this.errors.push(query);
 
 		this.page.listener.setStackDepth(this.errors.length);
 		this.page.show();
@@ -726,6 +819,7 @@ class Errors {
 class Library {
 
 	public static source:string = null;
+	public static trackType = Track;
 
 	static match(query:Object, callback:(result:any) => void) {
 
@@ -770,26 +864,18 @@ class Library {
 
 			var tracks = [];
 			for(var i in data){
-				tracks.push(new Track(data[i]));
+				tracks.push(new this.trackType(data[i]));
 				tracks[tracks.length - 1].status = -1;
 			}
 
 		} else {
-			var tracks = new Track(data);
+			var tracks = new this.trackType(data);
 			tracks.status = -1;
 		}
 		return tracks;
 
 	}
 
-}
-
-class GlobalLibrary extends Library{
-	public static source:string = "/metadata/";
-}
-
-class MyLibrary extends Library {
-	public static source:string = "/upload/";
 }
 
 class ExtendableDataSource {
@@ -916,6 +1002,73 @@ class Track extends ExtendableDataSource {
 
 	}
 
+}
+
+class PreTrack extends ExtendableDataSource {
+
+	id:number;
+	externalID:number;
+
+	cacheID:number;
+
+	title:string;
+	artist:string;
+	album:string;
+
+	artistID:string;
+	albumID:string;
+
+	exists:boolean;
+	explicit:boolean;
+
+	length:number;
+
+	protected static source:string = null;
+
+	constructor(ref:any) {
+
+		super();
+
+		this.id = ref.id;
+		this.externalID = ref.external_id;
+
+		this.cacheID = ref.cache_id;
+
+		this.title = ref.title;
+		this.artist = ref.artist;
+		this.album = ref.album;
+		this.artistID = ref.artist_id;
+		this.albumID = ref.album_id;
+
+		this.length = parseFloat(ref.length);
+		this.explicit = ref.explicit;
+		this.exists = ref.exists;
+
+	}
+
+	getLyrics(callback) {
+
+		this.getExtended((source:Track) => {
+			callback(this.extended["lyrics"]);
+		});
+
+	}
+
+	getAlternateMetadata() {
+
+		this;
+
+	}
+
+}
+
+class GlobalLibrary extends Library {
+	public static source:string = "/metadata/";
+	public static trackType = PreTrack;
+}
+
+class MyLibrary extends Library {
+	public static source:string = "/upload/";
 }
 
 

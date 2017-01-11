@@ -205,8 +205,13 @@ class EditPage implements IPage {
 		this.view.set("artist", track.artist);
 		this.view.set("lyrics", "");
 
-		this.view.element("save-publish").disabled = "disabled";
-		this.view.element("save-publish").querySelector("i").className = "fa fa-floppy-o";
+		if(track.extro_start != 0) {
+			this.saved = 1;
+			this.handleSave();
+		} else {
+			this.view.element("save-publish").disabled = "disabled";
+			this.view.element("save-publish").querySelector("i").className = "fa fa-floppy-o";
+		}
 
 		track.getLyrics((lyrics:string|boolean) => {
 
@@ -383,6 +388,12 @@ class EditPage implements IPage {
 
 	protected publish():void {
 
+		Errors.query(Language.get("COMPLIANCE_CONFIRM"), "Compliance", (c) => (c && this.confirmPublish()));
+
+	}
+
+	protected confirmPublish(): void {
+
 		Pages.pages["preload"].show();
 		var data = this.view.serialize();
 		data["token"] = $config.key;
@@ -450,9 +461,9 @@ class UploadView extends View {
 
 		super("Upload");
 
-		this.bind("override_bitrate", "override-bitrate");
-		this.bind("override_compressor", "override-compressor");
-		this.bind("upload_library", "upload-library");
+		this.nullBind("override_bitrate", "override-bitrate");
+		this.nullBind("override_compressor", "override-compressor");
+		this.nullBind("upload_library", "upload-library");
 
 		this.bind("progress", "song-upload-progress", false);
 		this.bind("status", "song-upload-status", false);
@@ -472,7 +483,7 @@ class UploadPage implements IPage {
 	}
 
 	open():void {
-
+		this.view.element("file").disabled = false;
 	}
 
 	close():void {
@@ -526,7 +537,7 @@ class UploadPage implements IPage {
 
 	protected abort() {
 
-		this.view.element("file").disabled = null;
+		this.view.element("file").disabled = false;
 
 	}
 
@@ -640,10 +651,11 @@ class ModerationViewView extends View {
 
 class ModerationViewPage implements IPage {
 
-	protected player:Deck = new Deck(document.getElementById("screen-mv-deck"), null, true);
+	protected player:Deck = new Deck(document.getElementById("screen-mv-deck"));
 	protected view:ModerationViewView = new ModerationViewView();
 
 	protected id:number;
+	private types:string[] = ["intro", "hook", "extro"];
 
 	constructor() {
 
@@ -670,10 +682,12 @@ class ModerationViewPage implements IPage {
 
 	load(track:Track):void {
 
+		this.track = track;
 		Pages.pages["preload"].hide();
 		this.view.set("title", track.title);
 		this.view.set("artist", track.artist);
 		this.view.set("lyrics", "");
+		console.log(track);
 
 		track.getLyrics((lyrics:string|boolean) => {
 
@@ -690,22 +704,59 @@ class ModerationViewPage implements IPage {
 
 		});
 
-		this.player.load(track);
+		this.view.element("approve").disabled = false;
+		this.view.element("reject").disabled = false;
+		this.player.load(track, null, true);
 		document.documentElement.addEventListener("keydown", this.listener = (e) => this.keyPressListener(e));
+		setTimeout(() => this.fillMarkers(), 1);
+
+	}
+
+	set(key:string, value:number) {
+
+		var type = this.types.indexOf(key.split("_")[0]);
+
+		if(type == -1)
+			throw new Error("Can't set " + key + " as there's no such property");
+
+		var segment = this.player.waveform.segments.getSegments()[type];
+		segment[key.split("_")[1] + "Time"] = value;
+
+		this.player.waveform.waveform.segments.updateSegments();
+
+	}
+	fillMarkers():void {
+
+		console.log(this.player, this.player.waveform);
+		var waveform = this.player.waveform;
+		if(!waveform.waveform.origWaveformData ||
+				!waveform.waveform.origWaveformData.adapter.data.buffer.byteLength ||
+				!waveform.player.getDuration())
+			return setTimeout(() => this.fillMarkers(), 100);
+
+		Pages.pages["preload"].hide();
+
+		console.log("Setting markers");
+
+		for(var t = 0; t < this.types.length * 2; t++) {
+			var type = this.types[t / 2 | 0] + "_" + ((t % 2) ? "end" : "start");
+			if(this.track[type] != null)
+				this.set(type, this.track[type]);
+		}
 
 	}
 
 	protected keyPressListener(e):void {
 
-		console.log("Press", document.activeElement)
+		console.log("Press", document.activeElement, e)
 		if(document.activeElement != document.body &&
 				document.activeElement != window)
 			return;
-
-		console.log(e);
-		if(e.charCode == 32) {
+		if(e.keyCode == 32 || e.charCode == 32) {
 
 			this.player.source.playing() ? this.player.pause() : this.player.play();
+			e.preventDefault();
+			return false;
 
 		}
 	}
@@ -718,12 +769,13 @@ class ModerationViewPage implements IPage {
 	}
 
 	protected edit(): void {
-		console.log("EDITING...");
+		Pages.show("uploadEdit", { track: this.track });
 	}
 
 	protected approve():void {
 
 		this.view.element("approve").disabled = "disabled";
+		this.view.element("reject").disabled = "disabled";
 		Pages.pages["preload"].show();
 
 		var data = this.view.serialize();
@@ -733,7 +785,7 @@ class ModerationViewPage implements IPage {
 
 		new HTTP.POST("/moderation/approve/" + this.id, (scope:HTTP.Request):void => {
 
-			this.handleSave(scope);
+			this.handleApprove(scope);
 
 		}, (scope:HTTP.Request) => {
 
@@ -745,7 +797,7 @@ class ModerationViewPage implements IPage {
 			}
 
 			Errors.push(
-				"SAVE-FAIL",
+				"APPROVE-FAIL",
 				"Couldn't approve track: " + message,
 				true);
 			Pages.pages["preload"].hide();
@@ -756,16 +808,39 @@ class ModerationViewPage implements IPage {
 
 	protected handleApprove(scope:HTTP.Request):void {
 
-		Pages.pages["preload"].hide();
-
-		this.view.element("approve").disabled = "";
+		Pages.show("moderation");
 
 	}
 
 	protected reject():void {
 
 		// meow
-		console.log("REJECTING...");
+		this.view.element("approve").disabled = "disabled";
+		this.view.element("reject").disabled = "disabled";
+
+		var data = this.view.serialize();
+		data["token"] = $config.key;
+
+		new HTTP.POST("/moderation/reject/" + this.id, (scope:HTTP.Request):void => {
+
+			Pages.show("moderation");
+
+		}, (scope:HTTP.Request) => {
+
+			this.approved = false;
+			try {
+				var message = JSON.parse(scope.xml.responseText).message;
+			} catch (e) {
+				var message = "No description available, error " + scope.xml.status;
+			}
+
+			Errors.push(
+				"REJECT-FAIL",
+				"Couldn't reject track: " + message,
+				true);
+			Pages.pages["preload"].hide();
+
+		}).send(data, "application/x-www-form-urlencoded");
 
 	}
 
@@ -776,7 +851,7 @@ class ModerationViewPage implements IPage {
 
 		Pages.pages["preload"].show();
 
-		new HTTP.POST("/upload/delete/" + this.id, () => Pages.show("uploadList"), () => false).
+		new HTTP.POST("/upload/delete/" + this.id, () => Pages.show("uploadList"), () => Errors.push("DELETE_FAIL", "Delete failed")).
 			send({key: $config.key}, "application/x-www-form-urlencoded");		
 
 	}

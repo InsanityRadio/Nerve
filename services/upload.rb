@@ -174,7 +174,9 @@ module Nerve
 
 				if track.is_safe
 
-					Database.query("UPDATE tracks SET status=4, approved_by=0 WHERE id=?;", id)
+					track.status = 4
+					track.approved_by = 0
+					track.save
 					Nerve::Job::Transfer.create({
 						"track_id" => id})
 
@@ -184,7 +186,8 @@ module Nerve
 
 					reason = track.why_unsafe
 
-					Database.query("UPDATE tracks SET status=3 WHERE id=?;", id)
+					track.status = 3
+					track.save
 					return { "success" => 1, "message" => "The track is now pending approval by a moderator, because #{reason}" }.to_json
 
 				end

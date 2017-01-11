@@ -49,6 +49,14 @@ module Nerve
 
 			end
 
+			get '/authorize' do
+
+				success = @@service.authorize session, params
+
+				redirect to('/')
+
+			end
+
 		end
 	end
 end

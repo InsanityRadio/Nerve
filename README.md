@@ -46,6 +46,12 @@ You'll need to create a rather large space for the "export" directory. I'll admi
 
 You'll also need to mount your playout drives on the "master" node
 
+
+## The Masterplan
+
+This project is a part of the [Insanity Tech Masterplan](https://wiki.insanityradio.com/wiki/Technical_Masterplan). 
+
+
 ## Quick Tasks / To-do
 
 - Create recall button on interface that invokes Nerve::Job::Recall

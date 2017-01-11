@@ -13,6 +13,8 @@ $config = YAML::load(File.read("config.yml"))
 $genres = YAML::load(File.read("genres.yml"))
 $env = {:slave => false}
 
+Resque::Plugins::Status::Hash.expire_in = (60 * 60) * 24
+
 module Nerve
 
 	class App < Sinatra::Application
@@ -43,11 +45,14 @@ module Nerve
 		get '/' do
 
 			content_type 'text/html'
-			return redirect to('/login.html') \
+
+			service = Nerve::Services::Login.get_service
+
+			return redirect to(service.redirect(session) || '/login.html') \
 				if !session[:authenticated] or !session[:user_id]
 
 			begin
-				@user = Nerve::Services::Login.get_service.get_user session[:user_id]
+				@user = service.get_user session[:user_id]
 			rescue
 				session.clear
 				return redirect to('/login.html')
