@@ -74,7 +74,7 @@ module Nerve; module Model
 		def get_metadata
 
 			result = Nerve::Services::Metadata.match_meta(@external_id, true, "external_id")
-			big = result["big"]
+			big = result["big"] rescue nil
 
 			lyrics = JSON.parse(big["lyrics"])[0] rescue ""
 
