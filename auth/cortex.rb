@@ -13,10 +13,14 @@ module Nerve
 			def initialize
 				super
 				@config = $config["security"]["oauth"]
-				@client = OAuth2::Client.new(@config["id"], @config["secret"],
+
+				options = {
 					:site => 'https://sso.cor.insanityradio.com/',
 					:authorize_url => @config["authorize"],
-					:token_url => @config["token"])
+					:token_url => @config["token"] }
+
+				options.merge! @config["options"] rescue {}
+				@client = OAuth2::Client.new(@config["id"], @config["secret"], options)
 
 			end
 
