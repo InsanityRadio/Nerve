@@ -44,10 +44,10 @@ module Nerve
 				else
 
 					data, track = @@METADATA.match_metadata(artist, album, track)
+					raise "404" if data == false or data["title"].to_s.empty?
 
 					lyrics = self.match_lyrics(data["artist"], data["album"], data["title"])
 
-					raise "404" if data == false or data["title"].to_s.empty?
 
 					data["lyrics"] = lyrics
 
