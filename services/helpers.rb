@@ -4,7 +4,7 @@ module Nerve
 
 			def protect!
 				return if session[:authenticated] and session[:user_id] != nil
-				redirect to('/login.html')
+				redirect to(service.redirect(session) || '/login.html')
 				throw(:halt, [403, "Please authenticate\n"])
 			end
 

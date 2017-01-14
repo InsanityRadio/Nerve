@@ -208,10 +208,7 @@ module Nerve
 				#raise "Track has already been uploaded to the playout system. Please ensure you remove it from there" \
 				#	if track.status > 4
 
-				local_path = $config["export"]["directory"] + "/" + track.local_path
-				File.unlink(local_path) rescue nil
-
-				Database.query("DELETE FROM tracks WHERE id=?;", id)
+				track.delete!
 
 				{ "success" => 1 }.to_json
 

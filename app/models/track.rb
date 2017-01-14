@@ -44,6 +44,7 @@ module Nerve; module Model
 
 			@upload_date = result["creation_date"]
 
+			@created_by = result["created_by"]
 			@approved_by = result["approved_by"]
 			@last_update = result["last_update"]
 
@@ -147,6 +148,14 @@ module Nerve; module Model
 
 		def approved_by= id
 			@approved_by = id
+		end
+
+		def delete!
+			local_path = $config["export"]["directory"] + "/" + track.local_path
+			File.unlink(local_path) rescue nil
+			File.unlink(local_path + ".ogg") rescue nil
+			File.unlink(local_path + ".dat") rescue nil
+			Database.query("DELETE FROM tracks WHERE id=?;", id)
 		end
 
 		def to_json extended = false
