@@ -55,10 +55,10 @@ module Nerve
 				@user = service.get_user session[:user_id]
 			rescue
 				session.clear
-				return redirect to('/login.html')
+				return redirect to(service.redirect(session) || '/login.html')
 			end
 
-			return redirect to('/login.html') \
+			return redirect to(service.redirect(session) || '/login.html') \
 				if !@user
 
 			@stats = {

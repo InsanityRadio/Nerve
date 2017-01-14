@@ -74,6 +74,7 @@ module Nerve
 
 			# Return the User object corresponding to the given ID. Necessary for sessions to work.
 			def get_user id
+				return get_nil_user if id == 0
 				Nerve::Model::UserCacheProvider.from_id id 
 			end
 
