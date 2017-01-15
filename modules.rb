@@ -69,6 +69,7 @@ module Nerve
 
 		autoload :Audio, "services/audio"
 		autoload :Helpers, "services/helpers"
+		autoload :Library, "services/library"
 		autoload :Login, "services/login"
 		autoload :Metadata, "services/metadata"
 		autoload :Moderation, "services/moderation"
