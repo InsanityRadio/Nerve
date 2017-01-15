@@ -72,6 +72,10 @@ module Nerve
 
 			end
 
+			def logout session
+				'https://sso.cor.insanityradio.com/ServiceLogout?tok=' + session[:code]
+			end
+
 			# Return the User object corresponding to the given ID. Necessary for sessions to work.
 			def get_user id
 				return get_nil_user if id == 0
