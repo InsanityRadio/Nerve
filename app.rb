@@ -37,6 +37,7 @@ module Nerve
 		use Nerve::Services::Metadata
 		use Nerve::Services::Moderation
 		use Nerve::Services::Upload
+		use Nerve::Services::Library
 
 		use Nerve::Services::Audio
 
