@@ -53,7 +53,7 @@ module Nerve
 
 				raise "Invalid token" if params[:token] != session[:token] or !defined? session[:token]
 
-				url = (@@service.logout(session) rescue '/')
+				url = (@@service.logout(session) || '/')
 				session.clear
 
 				redirect to(url)
