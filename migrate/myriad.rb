@@ -41,7 +41,7 @@ module Nerve; module Migrate
 				FROM Songs AS s
 				JOIN SongTitles AS t ON (t.TitleNumber = s.TitleNumber)
 				JOIN Artists AS a ON (a.ArtistNumber = s.ArtistNumber1)
-				WHERE (NerveStatus = null OR NerveStatus = 0) AND Category=#{@@migrate_id.to_i};").to_a
+				WHERE (NerveStatus = null OR NerveStatus = 0 OR NerveStatus = 8) AND Category=#{@@migrate_id.to_i};").to_a
 
 			result.each do | track |
 				begin
@@ -161,10 +161,10 @@ module Nerve; module Migrate
 			cart = @@audiowall.load_cart(cart_id)
 
 			raise "Unmatching title #{cart.title}, #{track['ItemTitle']}" \
-				if cart.title.downcase.gsub(/[^0-9a-z ]/i, '') != track['ItemTitle'].downcase.gsub(/[^0-9a-z ]/i, '')
+				if cart.title.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != track['ItemTitle'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
 
-			raise "Unmatching artist #{cart.artist}, #{track['AritstName']}" \
-				if cart.artist.downcase.gsub(/[^0-9a-z ]/i, '') != track['ArtistName'].downcase.gsub(/[^0-9a-z ]/i, '')
+			raise "Unmatching artist #{cart.artist}, #{track['ArtistName']}" \
+				if cart.artist.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != track['ArtistName'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
 
 			data = {
 				"file" => aw_file,

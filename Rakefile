@@ -1,4 +1,5 @@
 require 'resque/tasks'
+require 'pp'
 require './app'
 
 task :migrate do | t, args |
@@ -35,6 +36,22 @@ task :recall, :track_id do | t, args |
 
 end
 
+task :dump_new_cart, :cart_id do | t, args |
+
+	aw = Nerve::Playout::AudioWall.new $config["export"]["settings"]["path"], $config["export"]["settings"]["use_extended_path"]
+	aw.load_settings
+	pp aw.load_cart args[:cart_id].to_i
+
+end
+
+task :dump_old_cart, :cart_id do | t, args |
+
+	
+	aw = Nerve::Playout::AudioWall.new $config["migrate"]["audiowall"], $config["migrate"]["use_extended_path"]
+	aw.load_settings
+	pp aw.load_cart args[:cart_id].to_i
+
+end
 
 task :update_cart do | t, args |
 
