@@ -32,8 +32,7 @@
 			</ul>
 			<span><%= @stats[:total_uploads] %> tracks</span>
 			<div class="credits">
-				Proudly produced in England by Jamie &#9829;<br />
-				<a href="https://index.hm" target="_blank"><img src="https://cdn.index.hm/logo-dark.svg" width=50 /></a>
+				Proudly produced in-house in England
 			</div>
 		</div>
 		<div id="sidebar-upload" class="second-sidebar">
@@ -75,7 +74,7 @@
 			<div id="top">
 				<div class="profile">
 					<i class="fa fa-user" aria-hidden="true"></i>&nbsp;
-					<%= user.name %>
+					<%= user.name %> | <a href="/logout?token=<%= csrf_key %>">Log Out</a>
 				</div>
 			</div>
 

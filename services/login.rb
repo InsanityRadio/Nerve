@@ -49,6 +49,17 @@ module Nerve
 
 			end
 
+			get '/logout' do
+
+				raise "Invalid token" if params[:token] != session[:token] or !defined? session[:token]
+
+				url = (@@service.logout(session) rescue '/')
+				session.clear
+
+				redirect to(url)
+
+			end
+
 			get '/authorize' do
 
 				success = @@service.authorize session, params
