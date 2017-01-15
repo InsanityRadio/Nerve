@@ -102,7 +102,7 @@ module Nerve; module Model
 			return false if !lyrics or lyrics.to_s.empty?
 
 			# TODO: make this cleaner
-			lyrics.scan(r).size == 0 && !!lyrics && lyrics != ""
+			lyrics.scan(r).size == 0 && !!lyrics && lyrics != "" && lyrics != "No lyrics available."
 
 		end
 
@@ -116,7 +116,7 @@ module Nerve; module Model
 			s = lyrics.scan(r)
 
 			return "it contains (at least one) expletive (#{s[0]})" if s.size > 0
-			return "no lyrics were found" if !lyrics
+			return "no lyrics were found" if !lyrics or lyrics == "No lyrics available."
 
 			false
 
