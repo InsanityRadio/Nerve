@@ -4,6 +4,7 @@ module Nerve
 	module Database
 
 		@@connection = nil
+		@@query_count = 0
 
 		def self.connect!
 
@@ -16,10 +17,16 @@ module Nerve
 
 		def self.query q, *params
 
-			self.connect! if !@@connection
+			if !@@connection or @@query_count > 1000
+				self.connect!
+				@query_count = 0
+			end
+
+			@@query_count += 1
 
 			query = @@connection.prepare(q)
-			query.execute(*params)
+			result = query.execute(*params)
+			result.to_a
 
 		end
 

@@ -533,3 +533,14 @@ table.grid td {
 	background: #FFFED1;
 	border-color: #E0D589;
 }
+
+.querybox {
+	text-align: center;
+	margin: 20px 0 10px;
+}
+#screen-upload-copy-query {
+	font-size: 12pt;
+}
+#screen-upload-copy-search {
+	font-size: 12pt;
+}
