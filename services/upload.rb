@@ -99,6 +99,14 @@ module Nerve
 				@@audiowall.load_settings
 				file_path = @@audiowall.get_audio_path(cart_id)
 
+				temp_file  = Dir::Tmpname.create('nerve.tmp', $config["import"]["temp"]) { |path| path }
+				temp_file += ".mp3"
+				fdata = File.read(file_path)
+
+				File.open(temp_file, "wb") do | f |
+					f.write fdata.force_encoding("BINARY")
+				end
+
 				meta = Nerve::Services::Metadata::match(
 					cart_data['artist'],
 					'',
@@ -119,7 +127,7 @@ module Nerve
 					if cart.artist.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['artist'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
 
 				data = {
-					"file" => file_path,
+					"file" => temp_file,
 					"user_id" => session[:user_id],
 					"cache_id" => meta['cache_id'],
 					"ext_id" => "C" + cart_id.to_s,
