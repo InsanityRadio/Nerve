@@ -42,6 +42,8 @@ module Nerve
 
 				raise "Error loading stuff" if response.parsed['success'] != 1
 
+				raise "Account disabled" if session[:user]["groups"][8].nil?
+
 				session[:user] = response.parsed['user']
 
 				session[:user_id] = session[:user]['id']
@@ -60,9 +62,15 @@ module Nerve
 
 				moderator = @config["groups"]["moderator"].to_s
 				admin = @config["groups"]["admin"].to_s
+				specialist = @config["groups"]["specialist"].to_s
 
 				user.moderator = !session[:user]["groups"][moderator].nil?
 				user.admin = !session[:user]["groups"][admin].nil?
+
+				if !session[:user]["groups"][specialist].nil?
+					user.permissions[:override_bitrate] = true
+					user.permissions[:override_compressor] = true
+				end
 
 				user.save!
 
