@@ -334,9 +334,9 @@ module Nerve; module Playout
 				while !fh.eof?
 					data = fh.read(300)
 					cart = Cart.from_data(start_cart + c, data, self)
+					c += 1
 					next if cart.title == ""
 					carts << cart
-					c += 1
 				end
 
 			end
