@@ -14,7 +14,7 @@
 
 			format = "wav"
 
-			cut_point = extro + 4.0
+			cut_point = extro + 5.0
 
 			command = ["sox", "-r", "44.1k", "-S", input, "-t", format, output]
 			command += ["fade", "0", cut_point.to_s, "1.5t"]
