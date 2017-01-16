@@ -42,7 +42,7 @@ module Nerve
 
 				raise "Error loading stuff" if response.parsed['success'] != 1
 
-				raise "Account disabled" if session[:user]["groups"][8].nil?
+				raise "Account disabled" if response.parsed['user']["groups"]["8"].nil?
 
 				session[:user] = response.parsed['user']
 
