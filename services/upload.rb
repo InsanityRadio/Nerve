@@ -120,6 +120,8 @@ module Nerve
 
 				cart = @@audiowall.load_cart(cart_id)
 
+				puts "Cart #{cart_id}"
+
 				raise "Unmatching title #{cart.title}, #{meta['title']} - contact Head of Computing" \
 					if cart.title.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['title'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
 
