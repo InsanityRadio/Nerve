@@ -48,6 +48,10 @@
 					<img src="theme/library.svg" />
 					Upload Song
 				</a></li>
+				<li><a href="" data-href="uploadCopy">
+					<i class="fa fa-copy" aria-hidden="true"></i>
+					Copy Song
+				</a></li>
 				<li><a href="" data-href="uploadSweeper" style="pointer-events: none; opacity: 0.3 !important; color: #000 !important; cursor: default !important; background: none !important">
 					<img src="theme/link.svg" />
 					Upload Sweeper
@@ -122,10 +126,12 @@
 					</label>
 					<input id="song-upload-main" type="file" accept=".mp3,.m4a,.ogg,.oga,.flac,.wav" style="display: none" />
 					<br />
-	<% if user.admin %>
+	<% if user.permissions[:override_bitrate] %>
 					<input type="checkbox" name="override-bitrate" id="override-bitrate" value="1" />
 					<label for="override-bitrate">Override Minimum Bitrate / Sample Rate</label><br />
 	<!-- TODO: add if statement/advanced permissions (Specialist use case?) -->
+	<% end %>
+	<% if user.permissions[:override_compressor] %>
 					<input type="checkbox" name="override-compressor" id="override-compressor" value="1" />
 					<label for="override-compressor">Disable Compression</label>
 					<p>(Don't check unless you know what you're doing - for example classical music)</p>
@@ -287,6 +293,26 @@
 
 			</div>
 
+
+			<div class="screen" id="screen-upload-copy">
+
+				<input id="screen-upload-copy-query" /> <button id="screen-upload-copy-search"><i class="fa fa-search" aria-hidden="true"></i></button>
+
+				<table class="list first">
+					<tr>
+						<th></th>
+						<th style="width: 30%">Title</th>
+						<th style="width: 20%">Artist</th>
+						<th style="width: 15%">Date</th>
+						<th style="width: 10%"></th>
+						<th></th>
+					</th>
+					<tbody id="screen-upload-copy-list">
+
+					</tbody>
+				</table>
+
+			</div>
 
 			<!--
 		   	******************************

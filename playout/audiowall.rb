@@ -320,6 +320,32 @@ module Nerve; module Playout
 
 		end
 
+		def load_all_carts
+
+			raise "Not yet supported" if @settings[:individual_carts]
+			carts = []
+
+			(1..11).each do | c | 
+
+				start_cart = ((c - 1) * 1000) + 1
+				fh = File.open(get_nearly_full_path(start_cart) + "/Carts#{c}.LST", "r")
+				c = 0
+
+				while !fh.eof?
+					data = fh.read(300)
+					cart = Cart.from_data(start_cart + c, data, self)
+					next if cart.title == ""
+					carts << cart
+					c += 1
+				end
+
+			end
+
+			carts
+
+		end
+
+
 		def purge id
 
 			if @settings[:individual_carts]

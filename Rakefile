@@ -53,6 +53,23 @@ task :dump_old_cart, :cart_id do | t, args |
 
 end
 
+task :cache_migrate do | t, args |
+
+	aw = Nerve::Playout::AudioWall.new $config["migrate"]["audiowall"], $config["migrate"]["use_extended_path"]
+	aw.load_settings
+
+	carts = aw.load_all_carts
+
+	carts.each do | c |
+		Nerve::Database.query("INSERT INTO migrate_cache (cart_id, title, artist, description)
+			VALUES(?, ?, ?, ?)", c.cart_id, c.title, c.artist, c.description)
+	end
+	puts "Inserted #{carts.length}"
+
+	p carts.length
+
+end
+
 task :update_cart do | t, args |
 
 	Nerve::Job::UpdateCart.create

@@ -590,6 +590,131 @@ class UploadPage implements IPage {
 
 }
 
+class UploadCopyView extends View {
+
+	constructor() {
+
+		super("UploadCopy");
+		this.bind("search-action", "screen-upload-copy-search");
+		this.bind("search-text", "screen-upload-copy-query");
+
+		this.bind("table", "screen-upload-copy-list");
+
+	}
+
+}
+
+
+class UploadCopyPage extends ListPage {
+
+	view:UploadCopyView = new UploadCopyView();
+	tracks:object = [];
+
+
+	constructor():void {
+		this.view.listen("search-action", "click", (event:Event) => this.search(this.view.get("search-text")));
+	}
+
+	public open(data):void {
+
+	}
+	public search(query:string):void {
+
+		console.log("Searching for ", query);
+		var page = 0, count = 50;
+		var req = new HTTP.GET("/migrate/search/?query=" + escape(query) + "&page=" + page + "&count=" + count,
+				(scope:HTTP.Request):void => {
+
+			// Yay. We have the data.
+			this.tracks = [];
+			var data = JSON.parse(scope.xml.responseText);
+			for(var i in data) {
+				var track = new Track(data[i]);
+				track.cart_id = data[i].cart_id;
+				this.tracks.push(track);
+			}
+
+			this.load(this);
+
+		}, function(scope:HTTP.Request) {
+
+			Errors.push(
+				"LOAD-FAIL",
+				"Failed to load listings. Server returned " + scope.xml.status,
+				true);
+
+		});
+
+	}	
+
+	protected load(scope:Collection) {
+
+		var table = this.view.element("table"); //document.getElementById("screen-upload-copy-list");
+		var list = [];
+
+		for(var i in scope.tracks) {
+
+			var track = scope.tracks[i];
+
+			list.push({
+				track: track,
+				message: track.cart_id,
+				click: true });
+	
+		}
+
+		this.draw(table, list);
+
+	}
+
+	protected click(track:Track) {
+
+		Pages.show("uploadSong2", { track: track });
+
+	}
+
+}
+
+class Upload2Page extends UploadPage {
+
+	open(data:object): void {
+		var track = data.track;
+		if(!track)
+			throw new Exception("SHIT");
+
+		GlobalLibrary.match(tags, (result:any) => {
+
+			if(result == null){
+			
+				if(!confirm("I couldn't find this song in any big databases, so it will have to be moderated. Continue?"))
+					return this.abort();
+
+				result = {
+					id: -1,
+					cacheID: -1,
+					external_id: -1,
+					title: track.title,
+					artist: [track.artist],
+					album: [""], //track.album],
+					explicit: 1
+				};
+
+			}
+
+			if(result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
+				return this.abort();
+
+			if(result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
+				return this.abort();
+
+			this.upload(file, result);
+
+		});
+
+	}
+
+}
+
 class ModerationPage extends ListPage {
 
 	public open(data):void {
@@ -870,6 +995,9 @@ class Pages {
 		uploadList: new Page(document.getElementById("screen-upload-list"), document.getElementById("sidebar-upload"), "upload", new UploadListPage()),
 
 		uploadEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-upload"), "upload", new EditPage()),
+
+		uploadCopy: new Page(document.getElementById("screen-upload-copy"), document.getElementById("sidebar-upload"), "upload", new UploadCopyPage()),
+		//uploadSong2: new Page(document.getElementById("screen-upload-two"), document.getElementById("sidebar-upload"), "upload", new Upload2Page()),
 
 		//libraryEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-edit"), "library"),
 
