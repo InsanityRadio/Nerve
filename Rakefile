@@ -62,7 +62,9 @@ task :cache_migrate do | t, args |
 
 	carts.each do | c |
 		Nerve::Database.query("INSERT INTO migrate_cache (cart_id, title, artist, description)
-			VALUES(?, ?, ?, ?)", c.cart_id, c.title, c.artist, c.description)
+			VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE SET title=?, artist=?, description=?",
+			c.cart_id, c.title, c.artist, c.description,
+			c.title, c.artist, c.description)
 	end
 	puts "Inserted #{carts.length}"
 
