@@ -151,11 +151,11 @@ module Nerve; module Model
 		end
 
 		def delete!
-			local_path = $config["export"]["directory"] + "/" + track.local_path
+			local_path = $config["export"]["directory"] + "/" + @local_path
 			File.unlink(local_path) rescue nil
 			File.unlink(local_path + ".ogg") rescue nil
 			File.unlink(local_path + ".dat") rescue nil
-			Database.query("DELETE FROM tracks WHERE id=?;", id)
+			Database.query("DELETE FROM tracks WHERE id=?;", @id)
 		end
 
 		def to_json extended = false
