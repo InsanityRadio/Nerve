@@ -18,7 +18,7 @@ module Nerve
 
 		def self.query q, *params
 
-			if !@@connection or @@query_count > 1000
+			if !@@connection or @@query_count > 10000
 				self.connect!
 				@query_count = 0
 			end
