@@ -20,8 +20,9 @@ module Nerve
 
 			if !@@connection or @@query_count > 10000
 				sleep 0.5
+				puts "reconnecting"
+				@@query_count = 0
 				self.connect!
-				@query_count = 0
 			end
 
 			@@query_count += 1
