@@ -675,41 +675,75 @@ class UploadCopyPage extends ListPage {
 
 }
 
+class Upload2View extends View {
+
+	constructor() {
+
+		super("Upload2");
+
+		this.nullBind("override_bitrate", "override-bitrate2");
+		this.nullBind("override_compressor", "override-compressor2");
+		this.nullBind("upload_library", "upload-library2");
+
+		this.bind("progress", "song-upload2-progress", false);
+		this.bind("status", "song-upload2-status", false);
+
+		this.bind("button", "upload-big-button", false);
+
+	}
+
+}
+
 class Upload2Page extends UploadPage {
 
+	view:Upload2View = new Upload2View();
+	uploading:boolean = false;
+
+	constructor() {
+		this.view.listen("button", "click", (event:Event) => this.go());
+	}
+
 	open(data:object): void {
-		var track = data.track;
-		if(!track)
+
+		this.uploading = false;
+		var track = this.track = data.track;
+		if(!track) {
 			throw new Exception("SHIT");
+			Errors.push;
+		}
 
-		GlobalLibrary.match(tags, (result:any) => {
+		this.view.set("status", this.track.title + " - " + this.track.artist + "; ready for upload");
 
-			if(result == null){
-			
-				if(!confirm("I couldn't find this song in any big databases, so it will have to be moderated. Continue?"))
-					return this.abort();
+	}
 
-				result = {
-					id: -1,
-					cacheID: -1,
-					external_id: -1,
-					title: track.title,
-					artist: [track.artist],
-					album: [""], //track.album],
-					explicit: 1
-				};
+	go():void {
 
-			}
+		if(this.uploading)
+			return;
+		var track = this.track;
 
-			if(result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
-				return this.abort();
+		this.upload(null, this.track.cart_id);
 
-			if(result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
-				return this.abort();
+	}
 
-			this.upload(file, result);
+	protected upload(file:File, cart_id:number) {
 
-		});
+		this.uploading = true;
+		var u = new HTTP.Upload(
+			"/upload/migrate/",
+			(data:Object) => this.uploadDone(data),
+			(percent:number, message:string) => this.uploadProgress(percent, message),
+			(e:Error) => this.uploadError(e));
+
+		var fd = new FormData();
+
+		fd.append("cart_id", cart_id);
+
+		fd.append("override_bitrate", this.view.get("override_bitrate"));
+		fd.append("override_compressor", this.view.get("override_compressor"));
+		fd.append("upload_library", this.view.get("upload_library"));
+
+		u.send(fd, true);
 
 	}
 
@@ -997,7 +1031,7 @@ class Pages {
 		uploadEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-upload"), "upload", new EditPage()),
 
 		uploadCopy: new Page(document.getElementById("screen-upload-copy"), document.getElementById("sidebar-upload"), "upload", new UploadCopyPage()),
-		//uploadSong2: new Page(document.getElementById("screen-upload-two"), document.getElementById("sidebar-upload"), "upload", new Upload2Page()),
+		uploadSong2: new Page(document.getElementById("screen-upload2-song"), document.getElementById("sidebar-upload"), "upload", new Upload2Page()),
 
 		//libraryEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-edit"), "library"),
 

@@ -400,7 +400,7 @@ module HTTP {
 			this.file = file;
 			if(!this.isReady) return;
 
-			var xml = new POST(this.path + "/upload/do/", (scope:Request) => this.done(scope), (e) => this.error(e));
+			var xml = new POST(this.path + "do/", (scope:Request) => this.done(scope), (e) => this.error(e));
 			xml.xml.upload.onprogress = (e:Event) => this.uploadProgress(e.loaded / e.total * 100);
 
 			if(form == null)
@@ -433,7 +433,7 @@ module HTTP {
 
 		protected getStatus() {
 
-			var xml = new GET(this.path + "/upload/status/" + this.token, (scope:Request) => {
+			var xml = new GET(this.path + "status/" + this.token, (scope:Request) => {
 
 				var data = JSON.parse(scope.xml.responseText);
 				this.uploadProgress(100 + data.percent, data.message);

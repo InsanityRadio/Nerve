@@ -298,7 +298,7 @@ var HTTP;
             this.file = file;
             if (!this.isReady)
                 return;
-            var xml = new POST(this.path + "/upload/do/", function (scope) { return _this.done(scope); }, function (e) { return _this.error(e); });
+            var xml = new POST(this.path + "do/", function (scope) { return _this.done(scope); }, function (e) { return _this.error(e); });
             xml.xml.upload.onprogress = function (e) { return _this.uploadProgress(e.loaded / e.total * 100); };
             if (form == null)
                 form = new FormData();
@@ -320,7 +320,7 @@ var HTTP;
         };
         Upload.prototype.getStatus = function () {
             var _this = this;
-            var xml = new GET(this.path + "/upload/status/" + this.token, function (scope) {
+            var xml = new GET(this.path + "status/" + this.token, function (scope) {
                 var data = JSON.parse(scope.xml.responseText);
                 _this.uploadProgress(100 + data.percent, data.message);
                 if (data.running)
