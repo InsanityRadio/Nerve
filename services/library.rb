@@ -21,6 +21,24 @@ module Nerve
 			end
 
 
+			get '/migrate/search/' do
+
+				protect_json!
+				query = params['query']
+				COUNT = 60; page = params['page'] || 0
+
+				tracks = Nerve::Database.query("SELECT *, MATCH (title, artist, description)
+					AGAINST (? IN NATURAL LANGUAGE MODE) AS sc 
+					FROM migrate_cache
+					WHERE match (title, artist, description) AGAINST (? IN NATURAL LANGUAGE MODE)
+					AND cart_id >= 4000
+					ORDER BY sc DESC
+					LIMIT #{(page * COUNT).to_i}, #{COUNT}", query, query);
+
+				tracks.to_a.to_json
+
+			end
+
 		end
 	end
 end

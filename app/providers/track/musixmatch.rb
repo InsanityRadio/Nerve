@@ -19,7 +19,8 @@ module Nerve
 					}
 					uri.query = URI::encode_www_form(params)
 
-					data = JSON.parse(uri.open.read)
+					data = uri.open.read
+					data = JSON.parse(data)
 
 					return false if data["message"]["header"]["status_code"] != 200 or \
 						data["message"]["header"]["confidence"] < 700
@@ -43,7 +44,8 @@ module Nerve
 					}
 					uri.query = URI::encode_www_form(params)
 
-					data = JSON.parse(uri.open.read)
+					data = uri.open.read
+					data = JSON.parse(data)
 
 					return false if data["message"]["body"]["track_list"].length == 0
 

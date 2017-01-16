@@ -401,6 +401,94 @@ var UploadPage = (function () {
     };
     return UploadPage;
 }());
+var UploadCopyView = (function (_super) {
+    __extends(UploadCopyView, _super);
+    function UploadCopyView() {
+        _super.call(this, "UploadCopy");
+        this.bind("search-action", "screen-upload-copy-search");
+        this.bind("search-text", "screen-upload-copy-query");
+        this.bind("table", "screen-upload-copy-list");
+    }
+    return UploadCopyView;
+}(View));
+var UploadCopyPage = (function (_super) {
+    __extends(UploadCopyPage, _super);
+    function UploadCopyPage() {
+        var _this = this;
+        this.view = new UploadCopyView();
+        this.tracks = [];
+        this.view.listen("search-action", "click", function (event) { return _this.search(_this.view.get("search-text")); });
+    }
+    UploadCopyPage.prototype.open = function (data) {
+    };
+    UploadCopyPage.prototype.search = function (query) {
+        var _this = this;
+        console.log("Searching for ", query);
+        var page = 0, count = 50;
+        var req = new HTTP.GET("/migrate/search/?query=" + escape(query) + "&page=" + page + "&count=" + count, function (scope) {
+            // Yay. We have the data.
+            _this.tracks = [];
+            var data = JSON.parse(scope.xml.responseText);
+            for (var i in data) {
+                var track = new Track(data[i]);
+                track.cart_id = data[i].cart_id;
+                _this.tracks.push(track);
+            }
+            _this.load(_this);
+        }, function (scope) {
+            Errors.push("LOAD-FAIL", "Failed to load listings. Server returned " + scope.xml.status, true);
+        });
+    };
+    UploadCopyPage.prototype.load = function (scope) {
+        var table = this.view.element("table"); //document.getElementById("screen-upload-copy-list");
+        var list = [];
+        for (var i in scope.tracks) {
+            var track = scope.tracks[i];
+            list.push({
+                track: track,
+                message: track.cart_id,
+                click: true });
+        }
+        this.draw(table, list);
+    };
+    UploadCopyPage.prototype.click = function (track) {
+        Pages.show("uploadSong2", { track: track });
+    };
+    return UploadCopyPage;
+}(ListPage));
+var Upload2Page = (function (_super) {
+    __extends(Upload2Page, _super);
+    function Upload2Page() {
+        _super.apply(this, arguments);
+    }
+    Upload2Page.prototype.open = function (data) {
+        var _this = this;
+        var track = data.track;
+        if (!track)
+            throw new Exception("SHIT");
+        GlobalLibrary.match(tags, function (result) {
+            if (result == null) {
+                if (!confirm("I couldn't find this song in any big databases, so it will have to be moderated. Continue?"))
+                    return _this.abort();
+                result = {
+                    id: -1,
+                    cacheID: -1,
+                    external_id: -1,
+                    title: track.title,
+                    artist: [track.artist],
+                    album: [""],
+                    explicit: 1
+                };
+            }
+            if (result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
+                return _this.abort();
+            if (result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
+                return _this.abort();
+            _this.upload(file, result);
+        });
+    };
+    return Upload2Page;
+}(UploadPage));
 var ModerationPage = (function (_super) {
     __extends(ModerationPage, _super);
     function ModerationPage() {
@@ -615,6 +703,8 @@ var Pages = (function () {
         uploadSweeper: new Page(document.getElementById("screen-upload-sweeper"), document.getElementById("sidebar-upload"), "upload"),
         uploadList: new Page(document.getElementById("screen-upload-list"), document.getElementById("sidebar-upload"), "upload", new UploadListPage()),
         uploadEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-upload"), "upload", new EditPage()),
+        uploadCopy: new Page(document.getElementById("screen-upload-copy"), document.getElementById("sidebar-upload"), "upload", new UploadCopyPage()),
+        //uploadSong2: new Page(document.getElementById("screen-upload-two"), document.getElementById("sidebar-upload"), "upload", new Upload2Page()),
         //libraryEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-edit"), "library"),
         moderation: new Page(document.getElementById("screen-moderation"), document.getElementById("sidebar-moderation"), null, new ModerationPage()),
         moderationView: new Page(document.getElementById("screen-moderation-view"), document.getElementById("sidebar-moderation"), "moderation", new ModerationViewPage()),
