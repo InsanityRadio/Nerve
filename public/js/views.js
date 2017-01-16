@@ -456,36 +456,52 @@ var UploadCopyPage = (function (_super) {
     };
     return UploadCopyPage;
 }(ListPage));
+var Upload2View = (function (_super) {
+    __extends(Upload2View, _super);
+    function Upload2View() {
+        _super.call(this, "Upload2");
+        this.nullBind("override_bitrate", "override-bitrate2");
+        this.nullBind("override_compressor", "override-compressor2");
+        this.nullBind("upload_library", "upload-library2");
+        this.bind("progress", "song-upload2-progress", false);
+        this.bind("status", "song-upload2-status", false);
+        this.bind("button", "upload-big-button", false);
+    }
+    return Upload2View;
+}(View));
 var Upload2Page = (function (_super) {
     __extends(Upload2Page, _super);
     function Upload2Page() {
-        _super.apply(this, arguments);
+        var _this = this;
+        this.view = new Upload2View();
+        this.uploading = false;
+        this.view.listen("button", "click", function (event) { return _this.go(); });
     }
     Upload2Page.prototype.open = function (data) {
-        var _this = this;
-        var track = data.track;
-        if (!track)
+        this.uploading = false;
+        var track = this.track = data.track;
+        if (!track) {
             throw new Exception("SHIT");
-        GlobalLibrary.match(tags, function (result) {
-            if (result == null) {
-                if (!confirm("I couldn't find this song in any big databases, so it will have to be moderated. Continue?"))
-                    return _this.abort();
-                result = {
-                    id: -1,
-                    cacheID: -1,
-                    external_id: -1,
-                    title: track.title,
-                    artist: [track.artist],
-                    album: [""],
-                    explicit: 1
-                };
-            }
-            if (result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
-                return _this.abort();
-            if (result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
-                return _this.abort();
-            _this.upload(file, result);
-        });
+            Errors.push;
+        }
+        this.view.set("status", this.track.title + " - " + this.track.artist + "; ready for upload");
+    };
+    Upload2Page.prototype.go = function () {
+        if (this.uploading)
+            return;
+        var track = this.track;
+        this.upload(null, this.track.cart_id);
+    };
+    Upload2Page.prototype.upload = function (file, cart_id) {
+        var _this = this;
+        this.uploading = true;
+        var u = new HTTP.Upload("/upload/migrate/", function (data) { return _this.uploadDone(data); }, function (percent, message) { return _this.uploadProgress(percent, message); }, function (e) { return _this.uploadError(e); });
+        var fd = new FormData();
+        fd.append("cart_id", cart_id);
+        fd.append("override_bitrate", this.view.get("override_bitrate"));
+        fd.append("override_compressor", this.view.get("override_compressor"));
+        fd.append("upload_library", this.view.get("upload_library"));
+        u.send(fd, true);
     };
     return Upload2Page;
 }(UploadPage));
@@ -704,7 +720,7 @@ var Pages = (function () {
         uploadList: new Page(document.getElementById("screen-upload-list"), document.getElementById("sidebar-upload"), "upload", new UploadListPage()),
         uploadEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-upload"), "upload", new EditPage()),
         uploadCopy: new Page(document.getElementById("screen-upload-copy"), document.getElementById("sidebar-upload"), "upload", new UploadCopyPage()),
-        //uploadSong2: new Page(document.getElementById("screen-upload-two"), document.getElementById("sidebar-upload"), "upload", new Upload2Page()),
+        uploadSong2: new Page(document.getElementById("screen-upload2-song"), document.getElementById("sidebar-upload"), "upload", new Upload2Page()),
         //libraryEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-edit"), "library"),
         moderation: new Page(document.getElementById("screen-moderation"), document.getElementById("sidebar-moderation"), null, new ModerationPage()),
         moderationView: new Page(document.getElementById("screen-moderation-view"), document.getElementById("sidebar-moderation"), "moderation", new ModerationViewPage()),

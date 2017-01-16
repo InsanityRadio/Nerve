@@ -32,7 +32,7 @@ module Nerve
 				protect_json!
 				raise "Slave servers/workers not yet implemented" if $config["import"]["workers"].length > 2
 
-				{"path" => "http://" + request.host_with_port}.to_json  
+				{"path" => "http://" + request.host_with_port + "/upload/"}.to_json  
 
 			end
 
@@ -79,6 +79,65 @@ module Nerve
 
 			end
 
+			get '/upload/migrate/path/' do 
+
+				protect_json!
+				raise "Slave servers/workers not yet implemented" if $config["import"]["workers"].length > 2
+
+				{"path" => "http://" + request.host_with_port + "/upload/migrate/"}.to_json  
+
+			end
+
+			post '/upload/migrate/do/' do
+
+				cart_id = params["cart_id"].to_i
+				data = Database.query("SELECT * FROM migrate_cache WHERE cart_id=?", cart_id).to_a
+				next if data.length == 0 or cart_id == 0
+				cart_data = data[0]
+
+				@@audiowall = Nerve::Playout::AudioWall.new $config["migrate"]["audiowall"], $config["migrate"]["use_extended_path"]
+				@@audiowall.load_settings
+				file_path = @@audiowall.get_audio_path(cart_id)
+
+				meta = Nerve::Services::Metadata::match(
+					cart_data['artist'],
+					'',
+					cart_data['title']) rescue nil
+
+				meta = {
+					'title' => cart_data['title'],
+					'artist' => cart_data['artist'],
+					'album' => '',
+					'cache_id' => -1} if !meta
+
+				cart = @@audiowall.load_cart(cart_id)
+
+				raise "Unmatching title #{cart.title}, #{meta['title']} - contact Head of Computing" \
+					if cart.title.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['title'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
+
+				raise "Unmatching artist #{cart.artist}, #{meta['artist']}" \
+					if cart.artist.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['artist'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
+
+				data = {
+					"file" => file_path,
+					"user_id" => session[:user_id],
+					"cache_id" => meta['cache_id'],
+					"ext_id" => "C" + cart_id.to_s,
+					"artist" => meta['artist'],
+					"title" => meta['title'],
+					"album" => meta['album'],
+					"override_bitrate" => (
+						params['override_bitrate'] == "true" and
+						@user.permissions[:override_bitrate]), # TODO: check user can do that
+					"override_compressor" => params['override_compressor'] == "true",
+					"upload_library" => params['upload_library'] == "true",
+				}
+
+				data["explicit"] = meta['cache_id'] == -1 ? 1 : 0
+				{:token => Nerve::Job::Process.create(data)}.to_json
+
+			end
+
 			get '/upload/status/:uuid' do | uuid |
 
 				protect_json!
@@ -92,6 +151,21 @@ module Nerve
 				}.to_json
 
 			end
+
+			get '/upload/migrate/status/:uuid' do | uuid |
+
+				protect_json!
+
+				status = Resque::Plugins::Status::Hash.get(uuid)
+
+				{
+					:running => status.queued? || status.working?,
+					:percent => status.pct_complete,
+					:message => status.queued? ? "Queued. You can leave it and come back later if you like." : status.message
+				}.to_json
+
+			end
+
 
 			get '/upload/file/:id' do | id |
 
