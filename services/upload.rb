@@ -97,10 +97,11 @@ module Nerve
 
 				@@audiowall = Nerve::Playout::AudioWall.new $config["migrate"]["audiowall"], $config["migrate"]["use_extended_path"]
 				@@audiowall.load_settings
+
 				file_path = @@audiowall.get_audio_path(cart_id)
 
 				temp_file  = Dir::Tmpname.create('nerve.tmp', $config["import"]["temp"]) { |path| path }
-				temp_file += ".mp3"
+				temp_file += ".wav"
 				fdata = File.read(file_path)
 
 				File.open(temp_file, "wb") do | f |

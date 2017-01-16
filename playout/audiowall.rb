@@ -294,7 +294,13 @@ module Nerve; module Playout
 		end
 
 		def get_audio_path cart_id
-			return get_full_path(cart_id) + ".WAV" # TODO
+			extensions = ["WAV", "OGG", "MP3"]
+			extensions.each do | e | 
+				eg = get_full_path(cart_id) + "." + e # TODO
+				next unless File.exists? eg
+				return eg
+			end
+			raise "wtf"
 		end
 
 		def generate_name cart_id
