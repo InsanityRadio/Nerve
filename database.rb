@@ -8,6 +8,7 @@ module Nerve
 
 		def self.connect!
 
+			(@@connection.close rescue nil) if @@connection 
 			@@connection = Mysql2::Client.new $config["database"]["mysql2"].merge({:reconnect => true})
 
 			@@connection.query "SELECT 1 FROM nerve_cache LIMIT 1;" rescue \
