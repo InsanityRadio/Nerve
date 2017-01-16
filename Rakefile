@@ -57,6 +57,8 @@ task :cache_migrate do | t, args |
 
 	aw = Nerve::Playout::AudioWall.new $config["migrate"]["audiowall"], $config["migrate"]["use_extended_path"]
 	aw.load_settings
+	
+	Nerve::Database.query("TRUNCATE migrate_cache;")
 
 	carts = aw.load_all_carts
 
