@@ -207,11 +207,11 @@ class EditPage implements IPage {
 
 		console.log(track);
 		console.log(track.extro_start);
-		if(track.extro_start != 0) {
+		if(track.extro_start != 0 && track.extro_start != null) {
 			this.saved = 1;
 			this.handleSave();
 		} else {
-			this.view.element("save-publish").disabled = "disabled";
+//			this.view.element("save-publish").disabled = "disabled";
 			this.view.element("save-publish").querySelector("i").className = "fa fa-floppy-o";
 		}
 
