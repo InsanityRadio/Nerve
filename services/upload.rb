@@ -129,6 +129,9 @@ module Nerve
 				#raise "Unmatching artist #{cart.artist}, #{meta['artist']}" \
 				#	if cart.artist.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['artist'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
 
+				login_service = Nerve::Services::Login.get_service
+				@user = login_service.get_user(session[:user_id]) rescue login_service.get_nil_user
+
 				data = {
 					"file" => temp_file,
 					"user_id" => session[:user_id],
