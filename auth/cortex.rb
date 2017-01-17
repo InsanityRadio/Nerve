@@ -70,6 +70,9 @@ module Nerve
 				if !session[:user]["groups"][specialist].nil?
 					user.permissions[:override_bitrate] = true
 					user.permissions[:override_compressor] = true
+				else
+					user.permissions[:override_bitrate] = false
+					user.permissions[:override_compressor] = false
 				end
 
 				user.save!
