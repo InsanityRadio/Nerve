@@ -490,11 +490,27 @@ var Upload2Page = (function (_super) {
         }
         this.view.set("status", this.track.title + " - " + this.track.artist + "; ready for upload");
     };
+    Upload2Page.prototype.abort = function () {
+        Pages.show("uploadCopy");
+    };
     Upload2Page.prototype.go = function () {
+        var _this = this;
         if (this.uploading)
             return;
         var track = this.track;
-        this.upload(null, this.track.cart_id);
+        // We only care if it exists to be honest
+        var data = {
+            title: track.title,
+            artist: track.artist,
+            album: track.album
+        };
+        GlobalLibrary.match(data, function (result) {
+            if (result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
+                return _this.abort();
+            if (result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
+                return _this.abort();
+            _this.upload(null, _this.track.cart_id);
+        });
     };
     Upload2Page.prototype.upload = function (file, cart_id) {
         var _this = this;

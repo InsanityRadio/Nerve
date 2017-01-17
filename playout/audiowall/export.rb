@@ -45,7 +45,7 @@
 
 		end
 
-		def _run track
+		def _run track, cart_id = nil
 
 			@audiowall = Nerve::Playout::AudioWall.new
 			@audiowall.load_settings
@@ -59,7 +59,7 @@
 			begin
 				#Dir::chdir $config["export"]["settings"]["path"] do 
 					
-					cart_id = @audiowall.get_cart_id(track)
+					cart_id = @audiowall.get_cart_id(track) unless cart_id
 					prefix = @audiowall.get_full_path(cart_id)
 
 					genres = $config["export"]["settings"]["genre"]
@@ -74,7 +74,8 @@
 					# Lock the "cart_id". Only supported on Audio Walls with individual LSTs
 					# (do this by writing the LST file, prevents Myriad writing to it).
 					# binwrite allows us to actually export proper binary.
-					File.binwrite(@lst_path = prefix + ".LST", cart.to_data)
+
+					@audiowall.save cart_id, cart
 
 					# convert to the final wav and do the fade out ending, this is fast.
 					# the fade out in the future will be based on the end type

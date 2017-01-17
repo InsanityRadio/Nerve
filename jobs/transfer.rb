@@ -36,7 +36,11 @@ module Nerve; module Job
 				track.status = 10
 				track.save
 
-				_run track
+				if options["force_cart_id"]
+					_run track, options["force_cart_id"].to_i
+				else
+					_run track
+				end
 
 				track.status = 5
 				track.save

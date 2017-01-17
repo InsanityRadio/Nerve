@@ -721,13 +721,33 @@ class Upload2Page extends UploadPage {
 
 	}
 
+	abort() {
+		Pages.show("uploadCopy");
+	}
+
 	go():void {
 
 		if(this.uploading)
 			return;
 		var track = this.track;
 
-		this.upload(null, this.track.cart_id);
+		// We only care if it exists to be honest
+		var data = {
+			title: track.title,
+			artist: track.artist,
+			album: track.album
+		}
+		GlobalLibrary.match(data, (result:any) => {
+
+			if(result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
+				return this.abort();
+
+			if(result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
+				return this.abort();
+
+			this.upload(null, this.track.cart_id);
+
+		});
 
 	}
 
