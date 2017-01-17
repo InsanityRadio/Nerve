@@ -50,8 +50,8 @@ module Nerve; module Playout
 				# again, so three different lengths in total??
 				cart.length, length = data[282..289].unpack "ff"
 
-				cart.type = data[198]
-				cart.genre = data[199]
+				cart.type = data[198].unpack("c")[0]
+				cart.genre = data[199].unpack("c")[0]
 
 				cart
 
@@ -160,8 +160,6 @@ module Nerve; module Playout
 				:total_carts => (data.match(/NoCarts=([0-9]+)/)[1].to_i rescue 0)
 			}
 
-
-			pp @settings
 
 		end
 
@@ -315,9 +313,11 @@ module Nerve; module Playout
 				file_name = get_full_path(id) + ".LST"
 				data = File.read(file_name, :encoding => "ASCII-8BIT")
 			else 
-				fh = File.open(get_nearly_full_path(id) + "/Carts#{[11, ((id - 1) / 1000) + 1].min}.LST", "r")
+				file, offset = get_master_cart(id)
+
+				fh = File.open(file, "r")
 				i = id - 1
-				fh.seek(300 * (i > 10000 ? i - 10000 : (i % 1000)))
+				fh.seek(offset)
 				data = fh.read(300)
 				fh.close
 			end
@@ -326,15 +326,17 @@ module Nerve; module Playout
 
 		end
 
+
 		def load_all_carts
 
 			raise "Not yet supported" if @settings[:individual_carts]
 			carts = []
 
-			(1..11).each do | c | 
+			(1..99).each do | c | 
 
 				start_cart = ((c - 1) * 1000) + 1
-				fh = File.open(get_nearly_full_path(start_cart) + "/Carts#{c}.LST", "r")
+
+				fh = File.open(get_master_cart((c - 1) * 1000)[0], "r")
 				c = 0
 
 				while !fh.eof?
@@ -348,6 +350,40 @@ module Nerve; module Playout
 			end
 
 			carts
+
+		end
+
+		def save cart_id, cart
+
+			data = cart.to_data
+			if @settings[:individual_carts]
+				File.binwrite(@lst_path = prefix + ".LST", cart.to_data)
+			else
+				#file = get_nearly_full_path(id) + "/Carts#{[11, ((id - 1) / 1000) + 1].min}.LST"
+				file, index = get_master_cart(cart_id)
+
+				raise "Cart integrity error (#{data.length})" if data.length != 380
+				data = data[0..299]
+				puts "writing to #{file}, #{index}"
+				IO.binwrite(file, data, index)
+
+			end
+
+		end
+
+		# returns file, index
+		def get_master_cart id
+
+			i = id - 1
+			if @audiowall_root.length > 12 and id > 10000
+				file = get_nearly_full_path(id) + "Carts" + [100, ((id - 1) / 1000) + 1].min.to_s + ".LST"
+				index = 300 * (i > 99000 ? i - 99000 : (i % 1000))
+				return file, index
+			else
+				file = get_nearly_full_path(id) + "Carts" + [11, ((id - 1) / 1000) + 1].min.to_s + ".LST"
+				index = 300 * (i > 10000 ? i - 10000 : (i % 1000))
+				return file, index
+			end
 
 		end
 
@@ -394,7 +430,6 @@ module Nerve; module Playout
 			end
 
 			fh.seek(0)
-			p fh.read(10)
 			fh.close()
 
 
