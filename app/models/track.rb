@@ -54,8 +54,10 @@ module Nerve; module Model
 			@intro_start = result["intro_start"].to_f  if result["intro_start"] != nil
 			@intro_end   = result["intro_end"].to_f    if result["intro_end"] != nil
 			@hook_start  = result["hook_start"].to_f   if result["hook_start"] != nil
-			@hook_end    =  result["hook_end"].to_f    if result["hook_end"] != nil
+			@hook_end    = result["hook_end"].to_f     if result["hook_end"] != nil
 			@outro       = result["outro"].to_f        if result["intro_start"] != nil
+
+			@end_type    = result["end_type"].to_f
 
 			@bitrate, @sample_rate = result["bitrate"], result["sample_rate"]
 
@@ -126,12 +128,12 @@ module Nerve; module Model
 
 			Database.query("UPDATE tracks SET
 				last_update=NOW(), title=?, intro_start=?, intro_end=?,
-				hook_start=?, hook_end=?, outro=?, status=?,
+				hook_start=?, hook_end=?, outro=?, status=?, end_type=?
 				approved_by=?,
 				is_library = ?, is_automation = ?, playout_id = ?
 				WHERE id=?", 
 				@title, @intro_start, @intro_end,
-				@hook_start, @hook_end, @outro, @status,
+				@hook_start, @hook_end, @outro, @status, @end_type,
 				@approved_by,
 				@is_library ? 1 : 0, @is_automation ? 1 : 0, @playout_id,
 				@id)
@@ -175,7 +177,8 @@ module Nerve; module Model
 				"upload_date" => @upload_date.iso8601,
 				"is_library" => @is_library,
 				"is_automation" => @is_automation,
-				"playout_id" => @playout_id
+				"playout_id" => @playout_id,
+				"end_type" => @end_type
 			}
 
 			# Extended means lyrics and such 

@@ -268,6 +268,7 @@ class EditPage implements IPage {
 			if(this.track[type] != null)
 				this.set(type, this.track[type]);
 		}
+		this.view.set("end_type", this.track.endType);
 
 		console.log(this.track);
 		if(this.track.extro_start == 0 || this.track.extro_start == null)
@@ -290,6 +291,8 @@ class EditPage implements IPage {
 		this.player.waveform.on('segments.dragged', (segment) => {
 
 			var id = parseInt(segment.id.substr(7));
+
+			this.handleChange(null);
 
 			this.set(this.types[id] + "_start", segment.startTime);
 
@@ -803,6 +806,7 @@ class ModerationViewView extends View {
 		this.bind("reject", "mv-reject");
 		this.bind("edit", "mv-edit");
 		this.bind("delete", "mv-delete");
+		this.bind("download", "mv-download");
 
 		this.bind("lyrics-caption", "mv-lyrics-caption");
 
@@ -830,6 +834,8 @@ class ModerationViewPage implements IPage {
 
 		this.view.listen("edit", "click", (e:Event) => this.edit());
 		this.view.listen("delete", "click", (e:Event) => this.remove());
+
+		this.view.listen("download", "click", (e:Event) => this.download());
 
 	}
 
@@ -931,6 +937,10 @@ class ModerationViewPage implements IPage {
 
 	protected edit(): void {
 		Pages.show("uploadEdit", { track: this.track });
+	}
+
+	protected download(): void {
+		window.open("/audio/get/" + this.id, "_blank");
 	}
 
 	protected approve():void {

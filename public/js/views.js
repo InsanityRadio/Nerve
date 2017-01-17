@@ -198,6 +198,7 @@ var EditPage = (function () {
             if (this.track[type] != null)
                 this.set(type, this.track[type]);
         }
+        this.view.set("end_type", this.track.endType);
         console.log(this.track);
         if (this.track.extro_start == 0 || this.track.extro_start == null)
             this.calculateExtro();
@@ -212,6 +213,7 @@ var EditPage = (function () {
         var _this = this;
         this.player.waveform.on('segments.dragged', function (segment) {
             var id = parseInt(segment.id.substr(7));
+            _this.handleChange(null);
             _this.set(_this.types[id] + "_start", segment.startTime);
             // Don't set the finish for extro - it doesn't actually do anything
             if (id == 2)
@@ -545,6 +547,7 @@ var ModerationViewView = (function (_super) {
         this.bind("reject", "mv-reject");
         this.bind("edit", "mv-edit");
         this.bind("delete", "mv-delete");
+        this.bind("download", "mv-download");
         this.bind("lyrics-caption", "mv-lyrics-caption");
     }
     return ModerationViewView;
@@ -563,6 +566,7 @@ var ModerationViewPage = (function () {
         });
         this.view.listen("edit", "click", function (e) { return _this.edit(); });
         this.view.listen("delete", "click", function (e) { return _this.remove(); });
+        this.view.listen("download", "click", function (e) { return _this.download(); });
     }
     ModerationViewPage.prototype.open = function (data) {
         var _this = this;
@@ -635,6 +639,9 @@ var ModerationViewPage = (function () {
     };
     ModerationViewPage.prototype.edit = function () {
         Pages.show("uploadEdit", { track: this.track });
+    };
+    ModerationViewPage.prototype.download = function () {
+        window.open("/audio/get/" + this.id, "_blank");
     };
     ModerationViewPage.prototype.approve = function () {
         var _this = this;
