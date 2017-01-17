@@ -128,7 +128,7 @@ module Nerve; module Model
 
 			Database.query("UPDATE tracks SET
 				last_update=NOW(), title=?, intro_start=?, intro_end=?,
-				hook_start=?, hook_end=?, outro=?, status=?, end_type=?
+				hook_start=?, hook_end=?, outro=?, status=?, end_type=?,
 				approved_by=?,
 				is_library = ?, is_automation = ?, playout_id = ?
 				WHERE id=?", 
