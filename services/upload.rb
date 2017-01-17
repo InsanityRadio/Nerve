@@ -126,8 +126,8 @@ module Nerve
 				raise "Unmatching title #{cart.title}, #{meta['title']} - contact Head of Computing" \
 					if cart.title.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['title'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
 
-				raise "Unmatching artist #{cart.artist}, #{meta['artist']}" \
-					if cart.artist.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['artist'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
+				#raise "Unmatching artist #{cart.artist}, #{meta['artist']}" \
+				#	if cart.artist.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['artist'].downcase.gsub(/[^0-9a-z]/i, '')[0..15]
 
 				data = {
 					"file" => temp_file,
