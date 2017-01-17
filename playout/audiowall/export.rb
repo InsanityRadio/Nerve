@@ -68,8 +68,8 @@
 
 					cart = Nerve::Playout::AudioWall::Cart.new track
 
-					raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \
-						unless @audiowall.settings[:individual_carts]
+					#raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \
+					#	unless @audiowall.settings[:individual_carts]
 
 					# Lock the "cart_id". Only supported on Audio Walls with individual LSTs
 					# (do this by writing the LST file, prevents Myriad writing to it).
