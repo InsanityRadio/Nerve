@@ -203,7 +203,7 @@ class View {
 			case "CHECK":
 				return this.elements[name][1][html ? "value" : "checked"];
 			case "SELECT":
-				return this.elements[name][1].options[this.elements[name][1].selectedIndex].value;
+				return this.elements[name][1].value;
 			default:
 				return this.elements[name][1][html ? "innerHTML" : "textContent"];
 		}
@@ -226,6 +226,16 @@ class View {
 			case "CHECK":
 				this.elements[name][1][html ? "value" : "checked"] = value;
 				break;
+			case "SELECT":
+				var options = this.elements[name][1].options;
+				for(var i in options) {
+					if((html ? options[i].label : options[i].value) == value) {
+						console.log(options[i].index);
+						this.elements[name][1].selectedIndex = options[i].index;
+					}
+				}
+				break;
+				//this.elements[name][1].value = value;
 			default:
 				if(html)
 					return this.elements[name][1].innerHTML = value;
@@ -956,6 +966,8 @@ class Track extends ExtendableDataSource {
 
 	length:number;
 
+	endType:number;
+
 	protected static source:string = "/upload/file/";
 
 	constructor(ref:any) {
@@ -985,6 +997,8 @@ class Track extends ExtendableDataSource {
 		this.intro_start = ref.intro_start, this.intro_end = ref.intro_end;
 		this.hook_start = ref.hook_start, this.hook_end = ref.hook_end;
 		this.extro_start = ref.extro_start;
+
+		this.endType = ref.end_type;
 
 	}
 

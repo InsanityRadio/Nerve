@@ -4,6 +4,7 @@ require 'bundler'
 require 'resque'
 require 'sinatra'
 require 'sinatra/reloader'
+require 'sinatra/xsendfile'
 require 'yaml'
 
 require './modules'
@@ -12,6 +13,7 @@ Bundler.require
 $config = YAML::load(File.read("config.yml"))
 $genres = YAML::load(File.read("genres.yml"))
 $env = {:slave => false}
+
 
 Resque::Plugins::Status::Hash.expire_in = (60 * 60) * 24
 
@@ -24,12 +26,18 @@ module Nerve
 			enable :sessions
 
 			set :views => File.dirname(__FILE__) 
+			set :environment, ($config["environment"].to_sym rescue :development)
 
 			set :sessions,
 				:httponly     => true,
 				:secure       => false, #production?,
 				:expire_after => 31557600, # 1 year
 				:secret       => "1234" #ENV['SESSION_SECRET']
+		end
+
+		configure :production do
+			Sinatra::Xsendfile.replace_send_file! 
+			set :xsf_header, 'X-Accel-Redirect' 
 		end
 
 

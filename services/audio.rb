@@ -10,13 +10,14 @@ module Nerve
 
 			include Helpers
 			include Nerve::Database
+			helpers Sinatra::Xsendfile
 
 			get '/audio/get/:id' do | id |
 
 				path = Database.query("SELECT local_path FROM `tracks` WHERE id=?", id)
 				path = $config["export"]["directory"] + "/" + path.first["local_path"]
 
-				send_file(path, :type => "audio/flac", :disposition => 'inline')
+				send_file(path, :type => "audio/flac", :disposition => params[:force] == '1' ? 'attachment' : 'inline')
 
 			end
 

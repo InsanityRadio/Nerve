@@ -1,6 +1,8 @@
 host: nerve.insanityradio.com
 slave: false
 
+environment: production
+
 station_name: Insanity Radio 103.2FM
 contact_email: computing@insanityradio.com
 
