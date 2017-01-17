@@ -152,6 +152,8 @@ var EditPage = (function () {
         this.view.set("title", track.title);
         this.view.set("artist", track.artist);
         this.view.set("lyrics", "");
+        console.log(track);
+        console.log(track.extro_start);
         if (track.extro_start != 0) {
             this.saved = 1;
             this.handleSave();
