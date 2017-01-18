@@ -78,7 +78,7 @@ task :update_song do | t, args |
 	songs = Nerve::Model::TrackProvider.all
 
 	songs.each do | s |
-		Nerve::Job::
+		#Nerve::Job::
 	end
 
 end
