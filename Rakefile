@@ -24,8 +24,7 @@ end
 task :transfer, :track_id do | t, args |
 
 	Nerve::Job::Transfer.create({
-		"track_id" => args[:track_id],
-		"category_id" => 8}) 
+		"track_id" => args[:track_id]}) 
 
 end
 
@@ -57,7 +56,7 @@ task :cache_migrate do | t, args |
 
 	aw = Nerve::Playout::AudioWall.new $config["migrate"]["audiowall"], $config["migrate"]["use_extended_path"]
 	aw.load_settings
-	
+
 	Nerve::Database.query("TRUNCATE migrate_cache;")
 
 	carts = aw.load_all_carts
@@ -71,6 +70,16 @@ task :cache_migrate do | t, args |
 	puts "Inserted #{carts.length}"
 
 	p carts.length
+
+end
+
+task :update_song do | t, args |
+	
+	songs = Nerve::Model::TrackProvider.all
+
+	songs.each do | s |
+		Nerve::Job::
+	end
 
 end
 
