@@ -182,7 +182,7 @@ module Nerve; module Playout
 			(0..10000).each do | e |
 				c_id = find_cart_index start, genre[1].to_i
 				return c_id \
-					unless File.exist?(get_nearly_full_path(c_id) + "/" + generate_name(c_id) + ".LST")
+					unless load_cart(c_id).title != ""
 				start += 1
 				fill_file
 			end
@@ -399,7 +399,16 @@ module Nerve; module Playout
 				File.unlink(audio_name)
 
 			else
-				raise "TO-DO: deletion from master cartfiles"
+
+				file, index = get_master_cart(id)
+				blank = Cart.new 
+				raise "Bad cart" if blank.to_data.length != 380
+
+				IO.binwrite(file, blank.to_data[0..299], index)
+
+				audio_name = get_audio_path(id)
+				File.unlink(audio_name)
+
 			end			
 
 		end
