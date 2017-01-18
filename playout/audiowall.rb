@@ -33,6 +33,11 @@ module Nerve; module Playout
 
 			end
 
+			def blank!
+				@title = @artist = @description = ""
+				@hook_start = @hook_end = @intro_start = @intro_end = @extro_start = @extro_end = @length = @type = @genre = 0
+			end
+
 			def self.from_data id, data, audiowall
 
 				cart = self.new
@@ -401,7 +406,8 @@ module Nerve; module Playout
 			else
 
 				file, index = get_master_cart(id)
-				blank = Cart.new 
+				blank = Cart.new
+				blank.blank!
 				raise "Bad cart" if blank.to_data.length != 380
 
 				IO.binwrite(file, blank.to_data[0..299], index)
