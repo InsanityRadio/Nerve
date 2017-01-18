@@ -144,16 +144,19 @@ module Nerve; module Playout; class AudioWall
 			result.do rescue nil
 			position = (result.to_a[0]["Position"] + 1) rescue 1
 
-			result = @conn.execute(sprintf("INSERT INTO SongDeck (Category, CategoryIndex, Position,
-				ItemNumber, CurTimesTested, AvgTimesTestedBeforeSchedule, NumTimesInAverage)
+			begin
+				result = @conn.execute(sprintf("INSERT INTO SongDeck (Category, CategoryIndex, Position,
+					ItemNumber, CurTimesTested, AvgTimesTestedBeforeSchedule, NumTimesInAverage)
 
-				VALUES ('%s', 1, '%s', '%s', 0, 0, 0);",
+					VALUES ('%s', 1, '%s', '%s', 0, 0, 0);",
 
-				category_id, position, item_number
+					category_id, position, item_number
 
-			))
+				)) 
 
-			result.do
+				result.do
+			rescue
+			end
 
 		end
 
@@ -220,15 +223,19 @@ module Nerve; module Playout; class AudioWall
 
 		def delete_track track
 
-			result = @conn.execute(sprintf("SELECT HDReference FROM Songs WHERE ItemNumber=%i AND
+			result = @conn.execute(sprintf("SELECT ItemNumber, HDReference FROM Songs WHERE ItemNumber=%i AND
 				ExternalReference='%s';",
 				track.playout_id.to_i, @conn.escape('Nerve_' + track.id.to_s)))
 
 			return false if result.to_a.length != 1
+			item_number = result.to_a[0]["ItemNumber"].to_i
 			cart_number = result.to_a[0]["HDReference"].to_i
 
 			@conn.execute(sprintf("DELETE FROM Songs WHERE HDReference='%i';",
 				cart_number)).do
+
+			@conn.execute(sprintf("DELETE FROM SongDeck WHERE ItemNumber='%i';",
+				item_number)).do
 
 
 			return cart_number
