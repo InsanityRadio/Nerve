@@ -380,7 +380,7 @@ module Nerve; module Playout
 		def get_master_cart id
 
 			i = id - 1
-			if @use_extended_path and id > 10000
+			if @extended_paths and id > 10000
 				file = get_nearly_full_path(id) + "Carts" + [100, ((id - 1) / 1000) + 1].min.to_s + ".LST"
 				index = 300 * (i > 99000 ? i - 99000 : (i % 1000))
 				return file, index
