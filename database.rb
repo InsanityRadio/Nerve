@@ -1,4 +1,5 @@
 require 'mysql2'
+require 'timeout'
 
 module Nerve
 	module Database
@@ -9,7 +10,16 @@ module Nerve
 		def self.connect!
 
 			(@@connection.close rescue nil) if @@connection 
-			@@connection = Mysql2::Client.new $config["database"]["mysql2"].merge({:reconnect => true})
+
+			begin
+				Timeout::timeout(3) { 
+					@@connection = Mysql2::Client.new $config["database"]["mysql2"].merge({:reconnect => true})
+				}
+			rescue Timeout::Error
+				puts "Failed to connect to database"
+				sleep 0.1
+				retry
+			end
 
 			@@connection.query "SELECT 1 FROM nerve_cache LIMIT 1;" rescue \
 				abort("This doesn't look like a Nerve database. Install it?")
@@ -23,6 +33,7 @@ module Nerve
 				puts "reconnecting"
 				@@query_count = 0
 				self.connect!
+				puts "connected"
 			end
 
 			@@query_count += 1

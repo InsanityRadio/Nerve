@@ -20,7 +20,7 @@ class ListPage implements IPage {
 
 			list.push({
 				track: track,
-				message: "",
+				message: [""],
 				click: true });
 
 		}
@@ -50,8 +50,11 @@ class ListPage implements IPage {
 			htmlRow.insertCell(2).textContent = track.artist;
 			htmlRow.insertCell(3).textContent = track.uploadDate.toLocaleDateString() + " " +
 				track.uploadDate.toLocaleTimeString();
-			htmlRow.insertCell(4).textContent = tracks[i].message;
-			htmlRow.insertCell(5);
+			var extra = tracks[i].message;
+			for(var j = 0; j < extra.length; j++)
+				htmlRow.insertCell(4+j).textContent = tracks[i].message[j];
+
+			htmlRow.insertCell(4 + j);
 			htmlRow["track"] = track;
 
 			if(tracks[i].click) {
@@ -92,14 +95,14 @@ class UploadListPage extends ListPage {
 			if(track.status < 3)
 				a.push({
 					track: track,
-					message: track.status == 3 ? "Sent back" : "Metadata",
+					message: [track.status == 3 ? "Sent back" : "Metadata"],
 					click: true });
 
 			console.log(track.status);
 
 			b.push({
 				track: track,
-				message: track.status == 2 ? "Rejected" : (track.approved ? "Yes" : "Not yet"),
+				message: [track.status == 2 ? "Rejected" : (track.approved ? "Yes" : "Not yet")],
 				click: track.status <= 2 || track.status == 10,
 				classList: ["status-" + track.status]});
 
@@ -663,7 +666,7 @@ class UploadCopyPage extends ListPage {
 
 			list.push({
 				track: track,
-				message: track.cart_id,
+				message: [track.cart_id],
 				click: true });
 	
 		}
@@ -793,7 +796,9 @@ class ModerationPage extends ListPage {
 
 			list.push({
 				track: track,
-				message: track.status == 2 ? "Explicit Lyrics" : "Unusual File",
+				message: [
+					track.status == 2 ? "Explicit Lyrics" : "Unusual File",
+					track.createdBy.name],
 				click: true });
 	
 		}

@@ -709,6 +709,7 @@ var Track = (function (_super) {
         this.hook_start = ref.hook_start, this.hook_end = ref.hook_end;
         this.extro_start = ref.extro_start;
         this.endType = ref.end_type;
+        this.createdBy = ref.created_by;
     }
     Track.prototype.getLyrics = function (callback) {
         var _this = this;

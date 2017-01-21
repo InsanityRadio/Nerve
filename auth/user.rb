@@ -46,6 +46,14 @@ module Nerve
 				Nerve::Model::TrackProvider.where("t.created_by = ?", @id)
 			end
 
+			def to_json state = nil
+				{
+					"id" => @id,
+					"username" => @username,
+					"name" => @name
+				}.to_json
+			end
+
 		end
 	end
 end
