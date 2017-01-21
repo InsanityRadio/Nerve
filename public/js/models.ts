@@ -1000,6 +1000,8 @@ class Track extends ExtendableDataSource {
 
 		this.endType = ref.end_type;
 
+		this.createdBy = ref.created_by;
+
 	}
 
 	getLyrics(callback) {

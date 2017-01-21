@@ -209,10 +209,10 @@ module Nerve
 						if !user.moderator and user.id != track.created_by.id
 
 					raise "You must select an end type!" \
-						unless [0, 1, 2].include? params['end_type'].to_i
+						unless [1, 2, 3].include? params['end_type'].to_i
 
 					# Reject artist name changes
-					raise "Artist name changing isn't yet supported, sorry!" \
+					raise "Artist name changing isn't supported yet (sorry)!" \
 						if params['artist'] != track.artist
 
 					if params['title'] != track.title

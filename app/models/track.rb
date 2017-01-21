@@ -162,6 +162,8 @@ module Nerve; module Model
 
 		def to_json extended = false
 
+			@user = created_by
+
 			data = {
 				"id" => @id,
 				"external_id" => @external_id, 
@@ -178,7 +180,8 @@ module Nerve; module Model
 				"is_library" => @is_library,
 				"is_automation" => @is_automation,
 				"playout_id" => @playout_id,
-				"end_type" => @end_type
+				"end_type" => @end_type,
+				"created_by" => @user,
 			}
 
 			# Extended means lyrics and such 

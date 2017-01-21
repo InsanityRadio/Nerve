@@ -1,3 +1,4 @@
+require 'date'
 require 'rubygems'
 require 'yaml'
 require 'pp'
@@ -187,7 +188,7 @@ module Nerve; module Playout
 			(0..10000).each do | e |
 				c_id = find_cart_index start, genre[1].to_i
 				return c_id \
-					unless load_cart(c_id).title != ""
+					unless ["", "DELETED CART"].include? load_cart(c_id).title
 				start += 1
 				fill_file
 			end
@@ -393,29 +394,39 @@ module Nerve; module Playout
 		end
 
 
-		def purge id
+		def purge id, force = false
 
-			if @settings[:individual_carts]
+			blank = Cart.new
+			blank.blank!
 
-				chunk_name = get_full_path(id) + ".LST"
-				audio_name = get_audio_path(id)
+			# We shouldn't reuse carts for ~30 days. They will be replaced and may be re-scheduled
 
-				File.unlink(chunk_name)
-				File.unlink(audio_name)
+			if !force
+				blank.title = "*DELETED CART*"
+				blank.artist = Time.now.strftime("%Y-%m-%d")
+				blank.description = "DO NOT REUSE"
+			end
 
-			else
+			raise "Bad cart" if blank.to_data.length != 380
 
-				file, index = get_master_cart(id)
-				blank = Cart.new
-				blank.blank!
-				raise "Bad cart" if blank.to_data.length != 380
+			save id, blank
 
-				IO.binwrite(file, blank.to_data[0..299], index)
+			audio_name = get_audio_path(id)
+			File.unlink(audio_name)
 
-				audio_name = get_audio_path(id)
-				File.unlink(audio_name)
+		end
 
-			end			
+		def clean!
+
+			carts = load_all_carts
+			carts.each do | c |
+				next unless c.title == "*DELETED CART*" and c.title == "DO NOT REUSE"
+				begin
+					date = Date.strptime(c.artist, '%Y-%m-%d')
+					next unless date > Date.today - 40
+					purge c.cart_id, true
+				rescue; end
+			end
 
 		end
 
