@@ -188,7 +188,7 @@ module Nerve; module Playout
 			(0..10000).each do | e |
 				c_id = find_cart_index start, genre[1].to_i
 				return c_id \
-					unless ["", "DELETED CART"].include? load_cart(c_id).title
+					if ["", "*DELETED CART*"].include? load_cart(c_id).title
 				start += 1
 				fill_file
 			end
