@@ -243,6 +243,7 @@ module Nerve
 				raise "Incorrect/empty CSRF key" \
 					if session[:token].empty? || params['token'] != session[:token]
 
+
 				# This method call takes no parameters as everything is saved before its published
 				# Now we're certain the metadata is correct, we can do final checks to see if the
 				#  track should be moderated. 
@@ -259,6 +260,9 @@ module Nerve
 				# If not explicit, set status to 4 and queue as a Job::Transfer.
 
 				track = Nerve::Playout::Track.from_id id
+
+				raise "Missing extro" if track.outro == 0 || track.outro == nil
+				raise "Missing end type" if track.end_type == 0 || track.end_type == nil
 
 				if track.is_safe
 
