@@ -269,7 +269,7 @@ module Nerve; module Playout
 				File.open(c, "rb") do | f |
 					while (buffer = f.read(300)) do 
 						cart_id += 1
-						cart = Cart.from_data cart_id, data, self
+						cart = Cart.from_data cart_id, buffer, self
 						found_carts << cart_id if ["", "*DELETED CART*"].include? cart.title or cart.length > 0
 					end
 				end
