@@ -276,7 +276,10 @@ module Nerve; module Playout
 					while (buffer = f.read(300)) do 
 						cart_id += 1
 
-						found_carts << cart_id if buffer[200..259] != "\0" * 60
+						# 3 checks to see if the cart is safe
+						found_carts << cart_id if buffer[198..199] == "\xFF\xFF".b \
+							and buffer[200..259] != "\0" * 60 \
+							and buffer[0..59] != (" " * 60)
 					end
 				end
 			end
