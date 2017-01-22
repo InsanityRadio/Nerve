@@ -187,6 +187,7 @@ module Nerve; module Playout
 			start = genre[0].to_i
 			(0..10000).each do | e |
 				c_id = find_cart_index start, genre[1].to_i
+				p "#{c_id}"
 				return c_id \
 					if ["", "*DELETED CART*"].include? load_cart(c_id).title
 				start += 1
@@ -421,7 +422,7 @@ module Nerve; module Playout
 
 			carts = load_all_carts
 			carts.each do | c |
-				next unless c.title == "*DELETED CART*" and c.title == "DO NOT REUSE"
+				next unless c.title == "*DELETED CART*" and c.description == "DO NOT REUSE"
 				begin
 					date = Date.strptime(c.artist, '%Y-%m-%d')
 					next unless date > Date.today - 40
