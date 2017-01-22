@@ -12,6 +12,7 @@ gem 'resque'
 gem 'resque-status'
 gem 'thin'
 gem 'mysql2'
+gem 'unidecode'
 
 gem 'musicbrainz'
 gem 'tiny_tds'
