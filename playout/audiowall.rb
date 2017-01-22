@@ -386,6 +386,7 @@ module Nerve; module Playout
 				FileUtils.touch(file)
 
 			end
+			FileUtils.touch(prefix + ".INI")
 
 		end
 

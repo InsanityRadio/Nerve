@@ -67,6 +67,7 @@
 
 
 					cart = Nerve::Playout::AudioWall::Cart.new track
+					cart.length = cart.extro_end = cart.extro_start + 5.0
 
 					#raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \
 					#	unless @audiowall.settings[:individual_carts]
