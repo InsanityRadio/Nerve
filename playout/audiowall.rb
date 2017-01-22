@@ -218,7 +218,12 @@ module Nerve; module Playout
 			initial_cart = file_offset * 8
 
 			# read the index file
-			fh = File.open(@audiowall_root_1 + "audiowall-index.dat", "r:ASCII-8BIT")
+			begin
+				fh = File.open(@audiowall_root_1 + "audiowall-index.dat", "r:ASCII-8BIT")
+			rescue
+				fill_file
+				fh = File.open(@audiowall_root_1 + "audiowall-index.dat", "r:ASCII-8BIT")
+			end
 			block = 8 # bytes to read per operation. higher is probably faster to an extent
 
 			fh.seek(file_offset)
