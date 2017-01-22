@@ -187,10 +187,8 @@ module Nerve; module Playout
 			start = genre[0].to_i
 			(0..10000).each do | e |
 				c_id = find_cart_index start, genre[1].to_i
-				cart = load_cart(c_id)
 				return c_id \
-					if ["", "*DELETED CART*"].include? cart.title
-				puts "Wtf #{c_id}, #{cart.title}, #{cart.length}, #{cart.description}"
+					if ["", "*DELETED CART*"].include? load_cart(c_id).title
 				start += 1
 				fill_file
 			end
@@ -271,8 +269,8 @@ module Nerve; module Playout
 				File.open(c, "rb") do | f |
 					while (buffer = f.read(300)) do 
 						cart_id += 1
-						cart = Cart.from_data cart_id, buffer, self
-						found_carts << cart_id if ["", "*DELETED CART*"].include? cart.title or cart.length > 0
+
+						found_carts << cart_id if buffer[200..259] != "\0" * 60
 					end
 				end
 			end
