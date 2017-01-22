@@ -373,6 +373,8 @@ module Nerve; module Playout
 		def save cart_id, cart
 
 			data = cart.to_data
+			prefix = get_full_path(cart_id)
+
 			if @settings[:individual_carts]
 				File.binwrite(@lst_path = prefix + ".LST", cart.to_data)
 			else
