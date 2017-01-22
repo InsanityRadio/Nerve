@@ -278,8 +278,8 @@ module Nerve; module Playout
 
 						# 3 checks to see if the cart is safe
 						found_carts << cart_id if buffer[198..199] != "\xFF\xFF".b \
-							and buffer[200..259] != "\0" * 60 \
-							and buffer[0..59] != (" " * 60)
+							or buffer[200..259] != "\0" * 60 \
+							or buffer[0..59] != (" " * 60)
 					end
 				end
 			end
