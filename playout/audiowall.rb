@@ -1,6 +1,7 @@
 require 'date'
 require 'rubygems'
 require 'yaml'
+require 'fileutils'
 require 'pp'
 
 # Export to the Myriad Audio Wall. I don't know if this has been done yet, I couldn't find any FOSS reference code.
@@ -382,6 +383,7 @@ module Nerve; module Playout
 				data = data[0..299]
 				puts "writing to #{file}, #{index}"
 				IO.binwrite(file, data, index)
+				FileUtils.touch(file)
 
 			end
 
