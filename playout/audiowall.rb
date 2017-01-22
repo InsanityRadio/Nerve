@@ -446,6 +446,7 @@ module Nerve; module Playout
 
 			generate_empty_file if !File.exist? @audiowall_root_1 + "audiowall-index.dat"
 
+			puts "Regenerating indexes"
 			carts = find_carts
 			fh = File.open(@audiowall_root_1 + "audiowall-index.dat", "r+:ASCII-8BIT")
 
