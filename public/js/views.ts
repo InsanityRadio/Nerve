@@ -826,6 +826,7 @@ class ModerationViewView extends View {
 		this.bind("lyrics", "mv-lyrics");
 		this.bind("end_type", "mv-extro");
 
+		this.bind("metadata", "mv-extra");
 
 		this.bind("approve", "mv-approve");
 		this.bind("reject", "mv-reject");
@@ -878,6 +879,12 @@ class ModerationViewPage implements IPage {
 		Pages.pages["preload"].hide();
 		this.view.set("title", track.title);
 		this.view.set("artist", track.artist);
+
+		track.getArtistPurity((explicit:boolean) => {
+			if(explicit)
+				this.view.set("metadata", "Other tracks by this artist may be explicit.");
+		})
+
 		this.view.set("lyrics", "");
 		console.log(track);
 

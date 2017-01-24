@@ -32,7 +32,7 @@ module Nerve
 
 				end
 
-				def self.search_metadata artist, album, track
+				def self.search_metadata artist, album, track, count = 10
 
 					uri = URI.parse("http://api.musixmatch.com/ws/1.1/track.search")
 
@@ -40,7 +40,8 @@ module Nerve
 						"apikey" => $config["search"]["musixmatch_key"],
 						"q_track" => track,
 						"q_album" => album,
-						"q_artist" => artist
+						"q_artist" => artist,
+						"page_size" => count
 					}
 					uri.query = URI::encode_www_form(params)
 

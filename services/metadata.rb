@@ -58,19 +58,10 @@ module Nerve
 
 			end
 
-			def self.search artist, album, track, enhanced = false, force = false
+			def self.search artist, album, track, enhanced = false, count = 10
 
 
-				results = @@METADATA.search_metadata(artist, album, track)
-
-				#lyrics = self.match_lyrics(data["artist"], data["album"], data["title"])
-
-				return false if results == false
-
-				#data["lyrics"] = lyrics
-
-				#data["cache_id"] = self.cache(data)
-				#data["big"] = enhanced ? data["big"] : nil
+				results = @@METADATA.search_metadata(artist, album, track, count)
 				return results
 
 			end
@@ -171,7 +162,21 @@ module Nerve
 				return status(404) if data == false
 				data.to_json
 
-			end			
+			end
+
+			get '/metadata/explicit_artist/' do
+
+				protect_json!
+
+				data = Metadata::search(params['artist'], '', '', false, 100)
+
+				@explicit = 0
+
+				data.each { | r | @explicit = 1 if r['explicit'] == 1 } if data != false
+
+				{ :explicit => @explicit }.to_json
+
+			end	
 
 		end
 	end

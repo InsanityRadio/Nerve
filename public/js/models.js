@@ -201,7 +201,7 @@ var View = (function () {
 var SerializeView = (function (_super) {
     __extends(SerializeView, _super);
     function SerializeView(name) {
-        _super.call(this, name);
+        return _super.call(this, name) || this;
     }
     SerializeView.prototype.serializeHook = function (name, serialize) {
         this.elements[name][1]["serialize"] = serialize;
@@ -248,12 +248,13 @@ var HTTP;
     var GET = (function (_super) {
         __extends(GET, _super);
         function GET(url, success, error) {
-            _super.call(this, url, success, error);
-            this.url = url;
-            this.success = success;
-            this.error = error;
-            this.METHOD = "GET";
-            this.send();
+            var _this = _super.call(this, url, success, error) || this;
+            _this.url = url;
+            _this.success = success;
+            _this.error = error;
+            _this.METHOD = "GET";
+            _this.send();
+            return _this;
         }
         return GET;
     }(Request));
@@ -261,8 +262,9 @@ var HTTP;
     var POST = (function (_super) {
         __extends(POST, _super);
         function POST() {
-            _super.apply(this, arguments);
-            this.METHOD = "POST";
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.METHOD = "POST";
+            return _this;
         }
         POST.prototype.send = function (form, contentType) {
             if (contentType === void 0) { contentType = "application/json"; }
@@ -485,13 +487,14 @@ var Utilities;
 var ErrorView = (function (_super) {
     __extends(ErrorView, _super);
     function ErrorView() {
-        _super.call(this, "Error");
-        this.bind("close", "error-close");
-        this.bind("container", "error-container");
-        this.bind("code", "error-code");
-        this.bind("view", "error-view");
-        this.bind("message", "error-message");
-        this.bind("title", "error-title");
+        var _this = _super.call(this, "Error") || this;
+        _this.bind("close", "error-close");
+        _this.bind("container", "error-container");
+        _this.bind("code", "error-code");
+        _this.bind("view", "error-view");
+        _this.bind("message", "error-message");
+        _this.bind("title", "error-title");
+        return _this;
     }
     ErrorView.prototype.show = function () {
         this.element("view").style.display = "block";
@@ -504,13 +507,14 @@ var ErrorView = (function (_super) {
 var QueryView = (function (_super) {
     __extends(QueryView, _super);
     function QueryView() {
-        _super.call(this, "Query");
-        this.bind("go", "confirm-go");
-        this.bind("close", "confirm-close");
-        this.bind("container", "error-container");
-        this.bind("view", "confirm-view");
-        this.bind("message", "confirm-message");
-        this.bind("title", "confirm-title");
+        var _this = _super.call(this, "Query") || this;
+        _this.bind("go", "confirm-go");
+        _this.bind("close", "confirm-close");
+        _this.bind("container", "error-container");
+        _this.bind("view", "confirm-view");
+        _this.bind("message", "confirm-message");
+        _this.bind("title", "confirm-title");
+        return _this;
     }
     QueryView.prototype.show = function () {
         this.element("view").style.display = "block";
@@ -613,10 +617,10 @@ var Errors = (function () {
         else
             this.page.listener.setError(this.errors.shift());
     };
-    Errors.page = new Page(document.getElementById("error-container"), null, null, new ErrorPage());
-    Errors.errors = [];
     return Errors;
 }());
+Errors.page = new Page(document.getElementById("error-container"), null, null, new ErrorPage());
+Errors.errors = [];
 var Library = (function () {
     function Library() {
     }
@@ -626,7 +630,10 @@ var Library = (function () {
         new HTTP.GET(this.source + query, function (scope) {
             callback(_this.result(scope));
         }, function (scope) {
-            Errors.push("SEARCH-FAIL", "Failed to search. Server returned " + scope.xml.status, true);
+            if (scope.xml.status == 404)
+                callback(null);
+            else
+                Errors.push("SEARCH-FAIL", "Failed to search. Server returned " + scope.xml.status, true);
         });
     };
     Library.search = function (query, callback) {
@@ -653,10 +660,10 @@ var Library = (function () {
         }
         return tracks;
     };
-    Library.source = null;
-    Library.trackType = Track;
     return Library;
 }());
+Library.source = null;
+Library.trackType = Track;
 var ExtendableDataSource = (function () {
     function ExtendableDataSource(ref) {
     }
@@ -684,32 +691,33 @@ var ExtendableDataSource = (function () {
             Errors.push("LOAD-FAIL", "Failed to load extended metadata. Server returned " + scope.xml.status, true);
         });
     };
-    ExtendableDataSource.source = null;
     return ExtendableDataSource;
 }());
+ExtendableDataSource.source = null;
 var Track = (function (_super) {
     __extends(Track, _super);
     function Track(ref) {
-        _super.call(this);
-        this.id = ref.id;
-        this.externalID = ref.external_id;
-        this.cacheID = ref.cache_id;
-        this.title = ref.title;
-        this.artist = ref.artist;
-        this.album = ref.album;
-        this.artistID = ref.artist_id;
-        this.albumID = ref.album_id;
-        this.length = parseFloat(ref.length);
-        this.status = ref.status;
-        this.approved = ref.approved == true;
-        this.uploadDate = new Date(ref.upload_date);
-        this.path = "/audio/preview/" + this.id;
-        this.waveform = "/audio/waveform/" + this.id;
-        this.intro_start = ref.intro_start, this.intro_end = ref.intro_end;
-        this.hook_start = ref.hook_start, this.hook_end = ref.hook_end;
-        this.extro_start = ref.extro_start;
-        this.endType = ref.end_type;
-        this.createdBy = ref.created_by;
+        var _this = _super.call(this) || this;
+        _this.id = ref.id;
+        _this.externalID = ref.external_id;
+        _this.cacheID = ref.cache_id;
+        _this.title = ref.title;
+        _this.artist = ref.artist;
+        _this.album = ref.album;
+        _this.artistID = ref.artist_id;
+        _this.albumID = ref.album_id;
+        _this.length = parseFloat(ref.length);
+        _this.status = ref.status;
+        _this.approved = ref.approved == true;
+        _this.uploadDate = new Date(ref.upload_date);
+        _this.path = "/audio/preview/" + _this.id;
+        _this.waveform = "/audio/waveform/" + _this.id;
+        _this.intro_start = ref.intro_start, _this.intro_end = ref.intro_end;
+        _this.hook_start = ref.hook_start, _this.hook_end = ref.hook_end;
+        _this.extro_start = ref.extro_start;
+        _this.endType = ref.end_type;
+        _this.createdBy = ref.created_by;
+        return _this;
     }
     Track.prototype.getLyrics = function (callback) {
         var _this = this;
@@ -717,27 +725,35 @@ var Track = (function (_super) {
             callback(_this.extended["lyrics"]);
         });
     };
+    Track.prototype.getArtistPurity = function (callback) {
+        new HTTP.GET("/metadata/explicit_artist/?artist=" + escape(this.artist), function (scope) {
+            var data = JSON.parse(scope.xml.responseText);
+            callback(data.explicit == 1);
+        }, function (scope) {
+        });
+    };
     Track.prototype.getAlternateMetadata = function () {
         this;
     };
-    Track.source = "/upload/file/";
     return Track;
 }(ExtendableDataSource));
+Track.source = "/upload/file/";
 var PreTrack = (function (_super) {
     __extends(PreTrack, _super);
     function PreTrack(ref) {
-        _super.call(this);
-        this.id = ref.id;
-        this.externalID = ref.external_id;
-        this.cacheID = ref.cache_id;
-        this.title = ref.title;
-        this.artist = ref.artist;
-        this.album = ref.album;
-        this.artistID = ref.artist_id;
-        this.albumID = ref.album_id;
-        this.length = parseFloat(ref.length);
-        this.explicit = ref.explicit;
-        this.exists = ref.exists;
+        var _this = _super.call(this) || this;
+        _this.id = ref.id;
+        _this.externalID = ref.external_id;
+        _this.cacheID = ref.cache_id;
+        _this.title = ref.title;
+        _this.artist = ref.artist;
+        _this.album = ref.album;
+        _this.artistID = ref.artist_id;
+        _this.albumID = ref.album_id;
+        _this.length = parseFloat(ref.length);
+        _this.explicit = ref.explicit;
+        _this.exists = ref.exists;
+        return _this;
     }
     PreTrack.prototype.getLyrics = function (callback) {
         var _this = this;
@@ -748,26 +764,26 @@ var PreTrack = (function (_super) {
     PreTrack.prototype.getAlternateMetadata = function () {
         this;
     };
-    PreTrack.source = null;
     return PreTrack;
 }(ExtendableDataSource));
+PreTrack.source = null;
 var GlobalLibrary = (function (_super) {
     __extends(GlobalLibrary, _super);
     function GlobalLibrary() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    GlobalLibrary.source = "/metadata/";
-    GlobalLibrary.trackType = PreTrack;
     return GlobalLibrary;
 }(Library));
+GlobalLibrary.source = "/metadata/";
+GlobalLibrary.trackType = PreTrack;
 var MyLibrary = (function (_super) {
     __extends(MyLibrary, _super);
     function MyLibrary() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    MyLibrary.source = "/upload/";
     return MyLibrary;
 }(Library));
+MyLibrary.source = "/upload/";
 /**
  * A collection represents any set of tracks. Edit pages, search, moderation, you name it.
  */
@@ -796,18 +812,20 @@ var Collection = (function () {
 var UploadCollection = (function (_super) {
     __extends(UploadCollection, _super);
     function UploadCollection() {
-        _super.apply(this, arguments);
-        this.base = "/upload/list/";
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.base = "/upload/list/";
+        return _this;
     }
-    UploadCollection.instance = new UploadCollection();
     return UploadCollection;
 }(Collection));
+UploadCollection.instance = new UploadCollection();
 var ModerationCollection = (function (_super) {
     __extends(ModerationCollection, _super);
     function ModerationCollection() {
-        _super.apply(this, arguments);
-        this.base = "/moderation/pending/";
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.base = "/moderation/pending/";
+        return _this;
     }
-    ModerationCollection.instance = new ModerationCollection();
     return ModerationCollection;
 }(Collection));
+ModerationCollection.instance = new ModerationCollection();
