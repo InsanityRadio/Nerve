@@ -20,7 +20,8 @@ var ListPage = (function () {
             list.push({
                 track: track,
                 message: [""],
-                click: true });
+                click: true
+            });
         }
         this.draw(table, list);
     };
@@ -62,7 +63,7 @@ var ListPage = (function () {
 var UploadListPage = (function (_super) {
     __extends(UploadListPage, _super);
     function UploadListPage() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     UploadListPage.prototype.load = function (scope) {
         var tableA = document.getElementById("screen-upload-list-alert");
@@ -74,13 +75,15 @@ var UploadListPage = (function (_super) {
                 a.push({
                     track: track,
                     message: [track.status == 3 ? "Sent back" : "Metadata"],
-                    click: true });
+                    click: true
+                });
             console.log(track.status);
             b.push({
                 track: track,
                 message: [track.status == 2 ? "Rejected" : (track.approved ? "Yes" : "Not yet")],
                 click: track.status <= 2 || track.status == 10,
-                classList: ["status-" + track.status] });
+                classList: ["status-" + track.status]
+            });
         }
         this.draw(tableA, a);
         this.draw(tableB, b);
@@ -90,28 +93,28 @@ var UploadListPage = (function (_super) {
 var EditView = (function (_super) {
     __extends(EditView, _super);
     function EditView() {
-        var _this = this;
-        _super.call(this, "Edit");
-        this.bind("title", "edit-title");
-        this.bind("artist", "edit-artist");
-        this.bind("lyrics", "edit-lyrics", false);
-        this.bind("end_type", "edit-extro");
-        this.bind("intro_start", "edit00-text", true, "-00:00");
-        this.bind("intro_end", "edit01-text", true, "-00:00");
-        this.bind("hook_start", "edit10-text", true, "-00:00");
-        this.bind("hook_end", "edit11-text", true, "-00:00");
-        this.bind("extro_start", "edit20-text", true, "-00:00");
+        var _this = _super.call(this, "Edit") || this;
+        _this.bind("title", "edit-title");
+        _this.bind("artist", "edit-artist");
+        _this.bind("lyrics", "edit-lyrics", false);
+        _this.bind("end_type", "edit-extro");
+        _this.bind("intro_start", "edit00-text", true, "-00:00");
+        _this.bind("intro_end", "edit01-text", true, "-00:00");
+        _this.bind("hook_start", "edit10-text", true, "-00:00");
+        _this.bind("hook_end", "edit11-text", true, "-00:00");
+        _this.bind("extro_start", "edit20-text", true, "-00:00");
         ["intro_start", "intro_end", "hook_start", "hook_end", "extro_start"].
             forEach(function (e) { return _this.serializeHook(e, function (s) { return _this.onSerialize(s); }); });
-        this.bind("intro_start_btn", "edit-is", false);
-        this.bind("intro_end_btn", "edit-ie", false);
-        this.bind("hook_start_btn", "edit-hs", false);
-        this.bind("hook_end_btn", "edit-he", false);
-        this.bind("extro_start_btn", "edit-es", false);
-        this.bind("save", "edit-save", false);
-        this.bind("save-publish", "edit-save-pub", false);
-        this.bind("delete", "edit-delete", false);
-        this.bind("lyrics-caption", "edit-lyrics-caption", false);
+        _this.bind("intro_start_btn", "edit-is", false);
+        _this.bind("intro_end_btn", "edit-ie", false);
+        _this.bind("hook_start_btn", "edit-hs", false);
+        _this.bind("hook_end_btn", "edit-he", false);
+        _this.bind("extro_start_btn", "edit-es", false);
+        _this.bind("save", "edit-save", false);
+        _this.bind("save-publish", "edit-save-pub", false);
+        _this.bind("delete", "edit-delete", false);
+        _this.bind("lyrics-caption", "edit-lyrics-caption", false);
+        return _this;
     }
     EditView.prototype.onSerialize = function (s) {
         var t = s.split(":");
@@ -326,13 +329,14 @@ var EditPage = (function () {
 var UploadView = (function (_super) {
     __extends(UploadView, _super);
     function UploadView() {
-        _super.call(this, "Upload");
-        this.nullBind("override_bitrate", "override-bitrate");
-        this.nullBind("override_compressor", "override-compressor");
-        this.nullBind("upload_library", "upload-library");
-        this.bind("progress", "song-upload-progress", false);
-        this.bind("status", "song-upload-status", false);
-        this.bind("file", "song-upload-main", false);
+        var _this = _super.call(this, "Upload") || this;
+        _this.nullBind("override_bitrate", "override-bitrate");
+        _this.nullBind("override_compressor", "override-compressor");
+        _this.nullBind("upload_library", "upload-library");
+        _this.bind("progress", "song-upload-progress", false);
+        _this.bind("status", "song-upload-status", false);
+        _this.bind("file", "song-upload-main", false);
+        return _this;
     }
     return UploadView;
 }(View));
@@ -410,10 +414,11 @@ var UploadPage = (function () {
 var UploadCopyView = (function (_super) {
     __extends(UploadCopyView, _super);
     function UploadCopyView() {
-        _super.call(this, "UploadCopy");
-        this.bind("search-action", "screen-upload-copy-search");
-        this.bind("search-text", "screen-upload-copy-query");
-        this.bind("table", "screen-upload-copy-list");
+        var _this = _super.call(this, "UploadCopy") || this;
+        _this.bind("search-action", "screen-upload-copy-search");
+        _this.bind("search-text", "screen-upload-copy-query");
+        _this.bind("table", "screen-upload-copy-list");
+        return _this;
     }
     return UploadCopyView;
 }(View));
@@ -421,9 +426,10 @@ var UploadCopyPage = (function (_super) {
     __extends(UploadCopyPage, _super);
     function UploadCopyPage() {
         var _this = this;
-        this.view = new UploadCopyView();
-        this.tracks = [];
-        this.view.listen("search-action", "click", function (event) { return _this.search(_this.view.get("search-text")); });
+        _this.view = new UploadCopyView();
+        _this.tracks = [];
+        _this.view.listen("search-action", "click", function (event) { return _this.search(_this.view.get("search-text")); });
+        return _this;
     }
     UploadCopyPage.prototype.open = function (data) {
     };
@@ -453,7 +459,8 @@ var UploadCopyPage = (function (_super) {
             list.push({
                 track: track,
                 message: [track.cart_id],
-                click: true });
+                click: true
+            });
         }
         this.draw(table, list);
     };
@@ -465,13 +472,14 @@ var UploadCopyPage = (function (_super) {
 var Upload2View = (function (_super) {
     __extends(Upload2View, _super);
     function Upload2View() {
-        _super.call(this, "Upload2");
-        this.nullBind("override_bitrate", "override-bitrate2");
-        this.nullBind("override_compressor", "override-compressor2");
-        this.nullBind("upload_library", "upload-library2");
-        this.bind("progress", "song-upload2-progress", false);
-        this.bind("status", "song-upload2-status", false);
-        this.bind("button", "upload-big-button", false);
+        var _this = _super.call(this, "Upload2") || this;
+        _this.nullBind("override_bitrate", "override-bitrate2");
+        _this.nullBind("override_compressor", "override-compressor2");
+        _this.nullBind("upload_library", "upload-library2");
+        _this.bind("progress", "song-upload2-progress", false);
+        _this.bind("status", "song-upload2-status", false);
+        _this.bind("button", "upload-big-button", false);
+        return _this;
     }
     return Upload2View;
 }(View));
@@ -479,9 +487,10 @@ var Upload2Page = (function (_super) {
     __extends(Upload2Page, _super);
     function Upload2Page() {
         var _this = this;
-        this.view = new Upload2View();
-        this.uploading = false;
-        this.view.listen("button", "click", function (event) { return _this.go(); });
+        _this.view = new Upload2View();
+        _this.uploading = false;
+        _this.view.listen("button", "click", function (event) { return _this.go(); });
+        return _this;
     }
     Upload2Page.prototype.open = function (data) {
         this.uploading = false;
@@ -530,7 +539,7 @@ var Upload2Page = (function (_super) {
 var ModerationPage = (function (_super) {
     __extends(ModerationPage, _super);
     function ModerationPage() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     ModerationPage.prototype.open = function (data) {
         var _this = this;
@@ -545,8 +554,10 @@ var ModerationPage = (function (_super) {
                 track: track,
                 message: [
                     track.status == 2 ? "Explicit Lyrics" : "Unusual File",
-                    track.createdBy.name],
-                click: true });
+                    track.createdBy.name
+                ],
+                click: true
+            });
         }
         this.draw(table, list);
     };
@@ -558,17 +569,19 @@ var ModerationPage = (function (_super) {
 var ModerationViewView = (function (_super) {
     __extends(ModerationViewView, _super);
     function ModerationViewView() {
-        _super.call(this, "ModerationView");
-        this.bind("title", "mv-title");
-        this.bind("artist", "mv-artist");
-        this.bind("lyrics", "mv-lyrics");
-        this.bind("end_type", "mv-extro");
-        this.bind("approve", "mv-approve");
-        this.bind("reject", "mv-reject");
-        this.bind("edit", "mv-edit");
-        this.bind("delete", "mv-delete");
-        this.bind("download", "mv-download");
-        this.bind("lyrics-caption", "mv-lyrics-caption");
+        var _this = _super.call(this, "ModerationView") || this;
+        _this.bind("title", "mv-title");
+        _this.bind("artist", "mv-artist");
+        _this.bind("lyrics", "mv-lyrics");
+        _this.bind("end_type", "mv-extro");
+        _this.bind("metadata", "mv-extra");
+        _this.bind("approve", "mv-approve");
+        _this.bind("reject", "mv-reject");
+        _this.bind("edit", "mv-edit");
+        _this.bind("delete", "mv-delete");
+        _this.bind("download", "mv-download");
+        _this.bind("lyrics-caption", "mv-lyrics-caption");
+        return _this;
     }
     return ModerationViewView;
 }(View));
@@ -600,6 +613,10 @@ var ModerationViewPage = (function () {
         Pages.pages["preload"].hide();
         this.view.set("title", track.title);
         this.view.set("artist", track.artist);
+        track.getArtistPurity(function (explicit) {
+            if (explicit)
+                _this.view.set("metadata", "Other tracks by this artist may be explicit.");
+        });
         this.view.set("lyrics", "");
         console.log(track);
         track.getLyrics(function (lyrics) {
@@ -740,25 +757,25 @@ var Pages = (function () {
         if (!noState)
             history.pushState({ pageName: pageName, parameter: parameter }, window.title, "#");
     };
-    // Incoming super scary typedef
-    Pages.pages = {
-        preload: new Page(document.getElementById("screen-load"), null),
-        upload: new Page(document.getElementById("screen-upload"), document.getElementById("sidebar-upload")),
-        uploadSong: new Page(document.getElementById("screen-upload-song"), document.getElementById("sidebar-upload"), "upload", new UploadPage()),
-        uploadSweeper: new Page(document.getElementById("screen-upload-sweeper"), document.getElementById("sidebar-upload"), "upload"),
-        uploadList: new Page(document.getElementById("screen-upload-list"), document.getElementById("sidebar-upload"), "upload", new UploadListPage()),
-        uploadEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-upload"), "upload", new EditPage()),
-        uploadCopy: new Page(document.getElementById("screen-upload-copy"), document.getElementById("sidebar-upload"), "upload", new UploadCopyPage()),
-        uploadSong2: new Page(document.getElementById("screen-upload2-song"), document.getElementById("sidebar-upload"), "upload", new Upload2Page()),
-        //libraryEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-edit"), "library"),
-        moderation: new Page(document.getElementById("screen-moderation"), document.getElementById("sidebar-moderation"), null, new ModerationPage()),
-        moderationView: new Page(document.getElementById("screen-moderation-view"), document.getElementById("sidebar-moderation"), "moderation", new ModerationViewPage()),
-    };
-    Pages.menu = document.querySelector("#sidebar .menu");
-    Pages.currentPage = null;
-    Pages.buttons = [];
     return Pages;
 }());
+// Incoming super scary typedef
+Pages.pages = {
+    preload: new Page(document.getElementById("screen-load"), null),
+    upload: new Page(document.getElementById("screen-upload"), document.getElementById("sidebar-upload")),
+    uploadSong: new Page(document.getElementById("screen-upload-song"), document.getElementById("sidebar-upload"), "upload", new UploadPage()),
+    uploadSweeper: new Page(document.getElementById("screen-upload-sweeper"), document.getElementById("sidebar-upload"), "upload"),
+    uploadList: new Page(document.getElementById("screen-upload-list"), document.getElementById("sidebar-upload"), "upload", new UploadListPage()),
+    uploadEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-upload"), "upload", new EditPage()),
+    uploadCopy: new Page(document.getElementById("screen-upload-copy"), document.getElementById("sidebar-upload"), "upload", new UploadCopyPage()),
+    uploadSong2: new Page(document.getElementById("screen-upload2-song"), document.getElementById("sidebar-upload"), "upload", new Upload2Page()),
+    //libraryEdit: new Page(document.getElementById("screen-edit"), document.getElementById("sidebar-edit"), "library"),
+    moderation: new Page(document.getElementById("screen-moderation"), document.getElementById("sidebar-moderation"), null, new ModerationPage()),
+    moderationView: new Page(document.getElementById("screen-moderation-view"), document.getElementById("sidebar-moderation"), "moderation", new ModerationViewPage()),
+};
+Pages.menu = document.querySelector("#sidebar .menu");
+Pages.currentPage = null;
+Pages.buttons = [];
 var App = (function () {
     function App() {
         this.hook();

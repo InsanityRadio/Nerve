@@ -304,7 +304,6 @@
 							<table class="meta"><tr>
 								<td></td>
 								<td>00:00</td>
-								<td rowspan=2><span class="volume"><span class="bit"></span></span></td>
 							</tr><tr>
 								<td></td>
 								<td>00:00</td>
@@ -315,9 +314,9 @@
 							<button class="pause"><i class="fa fa-pause"></i></button>
 							<button class="reset"><i class="fa fa-step-backward"></i></button>
 							<button class="eject" disabled><i class="fa fa-eject"></i></button>
-						</td><td style="width: 200px">
+						</td><td style="width: 100px">
 							<div id="edit-warnings"></div>
-						</td><td style="width: 650px; text-align: right; padding-right: 10px"><br />
+						</td><td style="width: 650px; text-align: right; padding-right: 10px; vertical-align: top"><br />
 							<select id="edit-extro" style="font-size: 12pt; padding: 2px 8px">
 								<option value="0" selected disabled>How does the song end?&nbsp;&nbsp;&nbsp;</option>
 								<option value="1">Just Ends (fast)</option>
@@ -419,6 +418,7 @@
 							<input type="text" id="mv-title" value="Unknown Title" disabled="disabled" />
 							<input type="text" id="mv-artist" value="Unknown Title" disabled="disabled" />
 
+							<p id="mv-extra" style="font-weight: bold; color: #C00;"></p>
 							<br />
 							<b id="mv-lyrics-caption">Lyrics:</b>
 							<div class="lyrics-portal">
@@ -445,7 +445,7 @@
 							<button class="eject" disabled><i class="fa fa-eject"></i></button>
 						</td><td style="width: 200px">
 							<p id="mv-extro">Ends (fast)</p>
-						</td><td style="width: 650px; text-align: right; padding-right: 10px"><br />
+						</td><td style="width: 300px; text-align: right; padding-right: 10px; vertical-align: top"><br />
 
 							<button class="sect" id="mv-reject" disabled><i class="fa fa-times" style="font-size: 30pt" aria-hidden="true"></i></button>
 

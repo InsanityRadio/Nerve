@@ -840,10 +840,13 @@ class Library {
 
 		}, function(scope:HTTP.Request) {
 
-			Errors.push(
-				"SEARCH-FAIL",
-				"Failed to search. Server returned " + scope.xml.status,
-				true);
+			if(scope.xml.status == 404)
+				callback(null);
+			else
+				Errors.push(
+					"SEARCH-FAIL",
+					"Failed to search. Server returned " + scope.xml.status,
+					true);
 
 		});
 
@@ -1009,6 +1012,18 @@ class Track extends ExtendableDataSource {
 		this.getExtended((source:Track) => {
 			callback(this.extended["lyrics"]);
 		});
+
+	}
+
+	getArtistPurity(callback) {
+
+		new HTTP.GET("/metadata/explicit_artist/?artist=" + escape(this.artist), (scope:HTTP.Request):void => {
+
+			var data = JSON.parse(scope.xml.responseText);
+			callback(data.explicit == 1);
+
+		}, function(scope:HTTP.Request) {
+		});		
 
 	}
 
