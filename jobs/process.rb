@@ -266,7 +266,7 @@ module Nerve; module Job
 				data = Nerve::Services::Metadata.match_meta options["cache_id"], true
 			end
 
-			genre = data["genre"]
+			genre = data["genre"] rescue 34
 
 			ext_artist_id = data["big"] ? data["big"]["artist_id"] : 0
 			ext_album_id = data["big"] ? data["big"]["album_id"] : 0
