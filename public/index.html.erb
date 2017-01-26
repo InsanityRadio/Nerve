@@ -23,7 +23,7 @@
 					<img src="theme/browse.svg" style="width: 43%; margin-bottom: 5px; padding-right: 2px" />
 					Browse
 				</a></li>
-<% if user.admin %>
+<% if user.moderator %>
 				<li data-balloon="<%= @stats[:pending_moderation] %>"><a href="" data-href="moderation">
 					<img src="theme/moderate.svg" style="width: 43%; margin-bottom: 5px; padding-right: 2px" />
 					Moderation
@@ -67,10 +67,12 @@
 					<img src="theme/library.svg" />
 					Pending Uploads
 				</a></li>
+<% if user.admin %>
 				<li><a href="" data-href="uploadSong">
 					<i class="fa fa-users" aria-hidden="true"></i>
 					Users
 				</a></li>
+<% end %>
 			</ul>
 		</div>
 		<div id="body">
