@@ -268,12 +268,10 @@ module Nerve; module Job
 
 			genre = data["genre"] rescue 34
 
-			ext_artist_id = data["big"] ? data["big"]["artist_id"] : 0 rescue 0
-			ext_album_id = data["big"] ? data["big"]["album_id"] : 0 rescue 0
+			ext_artist_id = data["big"] ? data["big"]["artist_id"] : nil rescue nil
+			ext_album_id = data["big"] ? data["big"]["album_id"] : nil rescue nil
 
-			puts "Explicit: #{data["explicit"]}, #{options["cache_id"]}" rescue nil
 			explicit = (data["explicit"].to_i | (options["cache_id"] == -1 ? 1 : 0)) == 1 rescue 1
-			puts "#{explicit}"
 			
 			# For some reason, versions of libsndfile don't like parsing files with ID3 tags(?!)
 			# => we have to do it after
@@ -281,12 +279,19 @@ module Nerve; module Job
 
 			@is_filtered = explicit
 
-			Database.query("INSERT INTO `artists`
-				(external_id, name, created_by) VALUES (?, ?, ?)
-				ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id);",
-				ext_artist_id, data["artist"], options["user_id"])
+			if ext_artist_id == nil
+				Database.query("INSERT INTO `artists`
+					(external_id, name, created_by) VALUES (?, ?, ?)
+					ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id);",
+					ext_artist_id, data["artist"], options["user_id"])
 
-			artist_id = Database.last_id
+				artist_id = Database.last_id
+			else
+				Database.query("INSERT INTO `artists`
+					(external_id, name, created_by) VALUES (NULL, ?, ?);",
+					data["artist"], options["user_id"])
+				artist_id = Database.last_id
+			end
 
 			Database.query("INSERT INTO `albums`
 				(external_id, artist, name, created_by) VALUES (?, ?, ?, ?)
