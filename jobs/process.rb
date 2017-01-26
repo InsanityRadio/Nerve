@@ -271,7 +271,7 @@ module Nerve; module Job
 			ext_artist_id = data["big"] ? data["big"]["artist_id"] : 0 rescue 0
 			ext_album_id = data["big"] ? data["big"]["album_id"] : 0 rescue 0
 
-			puts "Explicit: #{data["explicit"]}, #{options["cache_id"]}"
+			puts "Explicit: #{data["explicit"]}, #{options["cache_id"]}" rescue nil
 			explicit = (data["explicit"].to_i | (options["cache_id"] == -1 ? 1 : 0)) == 1 rescue 1
 			puts "#{explicit}"
 			
