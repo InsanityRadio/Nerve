@@ -86,7 +86,7 @@ module Nerve; module Model
 					rescue "No lyrics available."
 			end
 
-			[result, lyrics, result["year"]]
+			[result, lyrics, (result["year"] rescue nil)]
 
 		end
 
