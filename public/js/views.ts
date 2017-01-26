@@ -1055,7 +1055,7 @@ class ModerationViewPage implements IPage {
 		Pages.pages["preload"].show();
 
 		new HTTP.POST("/upload/delete/" + this.id, () => Pages.show("uploadList"), () => Errors.push("DELETE_FAIL", "Delete failed")).
-			send({key: $config.key}, "application/x-www-form-urlencoded");		
+			send({token: $config.key}, "application/x-www-form-urlencoded");		
 
 	}
 

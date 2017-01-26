@@ -732,7 +732,7 @@ var ModerationViewPage = (function () {
             return;
         Pages.pages["preload"].show();
         new HTTP.POST("/upload/delete/" + this.id, function () { return Pages.show("uploadList"); }, function () { return Errors.push("DELETE_FAIL", "Delete failed"); }).
-            send({ key: $config.key }, "application/x-www-form-urlencoded");
+            send({ token: $config.key }, "application/x-www-form-urlencoded");
     };
     return ModerationViewPage;
 }());
