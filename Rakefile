@@ -79,7 +79,7 @@ task :update_all do | t, args |
 
 	songs.each do | s |
 		Nerve::Job::Update.create({
-			"track_id" => songs.id})
+			"track_id" => s.id})
 	end
 
 end
