@@ -153,8 +153,9 @@
 
 				@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
 				cart_id = track.playout_id[0] == "C" ? track.playout_id[1..-1].to_i : @database.get_cart(track)
-
 				prefix = @audiowall.get_full_path(cart_id)
+				local_path = $config["export"]["directory"] + "/" + track.local_path
+
 
 				genres = $config["export"]["settings"]["genre"]
 				puts "Writing to cart #{cart_id}, genre #{track.genre}, #{genres[track.genre]}, #{prefix}"
@@ -162,7 +163,6 @@
 				tmp_files << (file = local_path + ".upload.wav")
 				a = fade_end(local_path, file, cart.extro_start)
 				raise a unless a == true
-
 				raise "Cart appears to have gone from playout system." unless File.exist?(prefix + ".LST")
 
 				File.binwrite(@lst_path = prefix + ".LST", cart.to_data)			
