@@ -166,13 +166,11 @@
 				raise a unless a == true
 				raise "Cart appears to have gone from playout system." unless File.exist?(prefix + ".LST")
 
-				File.binwrite(@lst_path = prefix + ".LST", cart.to_data)			
+				cart = Nerve::Playout::AudioWall::Cart.new track
+				@audiowall.save cart_id, cart
 
-				# upload the WAV to the Audio Wall
 				FileUtils.cp(file, @final_path = prefix + ".WAV", :preserve => false)
 				FileUtils.rm(file)
-
-				cart = Nerve::Playout::AudioWall::Cart.new track
 
 				#raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \
 				#	unless @audiowall.settings[:individual_carts]
