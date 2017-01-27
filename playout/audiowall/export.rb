@@ -146,6 +146,7 @@
 		def _update track 
 
 			# Update LST chunk for this track
+			tmp_files = []
 			begin
 
 				@audiowall = Nerve::Playout::AudioWall.new

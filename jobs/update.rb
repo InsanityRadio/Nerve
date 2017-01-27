@@ -43,6 +43,7 @@ module Nerve; module Job
 				puts "Failed to update #{track.id}"
 				pp $!
 				pp $?
+				raise $!
 
 			ensure
 				# do clean up here
