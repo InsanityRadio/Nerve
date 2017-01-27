@@ -18,10 +18,11 @@ module Nerve; module Job
 		# This job updates cart files that may have somehow become corrupted. All of them. 
 		def perform
 
-			track = Nerve::Model::TrackProvider.by_id options["track_id"]
+			track = Nerve::Model::TrackProvider.from_id options["track_id"]
 
 			begin
 
+				raise "This track shouldn't be updated" if track.status != 5
 				@original_status = track.status
 
 				track.status = 10
