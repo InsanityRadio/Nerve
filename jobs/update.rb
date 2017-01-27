@@ -18,38 +18,35 @@ module Nerve; module Job
 		# This job updates cart files that may have somehow become corrupted. All of them. 
 		def perform
 
-			tracks = Nerve::Model::TrackProvider.all
+			track = Nerve::Model::TrackProvider.by_id options["track_id"]
 
-			tracks.each do | track | 
+			begin
 
-				begin
+				@original_status = track.status
 
-					@original_status = track.status
+				track.status = 10
+				track.save
 
-					track.status = 10
+				_update track
+
+				track.status = 5
+				track.save
+
+			rescue
+
+				if track != nil
+					track.status = @original_status
 					track.save
-
-					_update track
-
-					track.status = 5
-					track.save
-
-				rescue
-
-					if track != nil
-						track.status = @original_status
-						track.save
-					end
-
-					puts "Failed to update #{track.id}"
-					pp $!
-					pp $?
-
-				ensure
-					# do clean up here
 				end
 
+				puts "Failed to update #{track.id}"
+				pp $!
+				pp $?
+
+			ensure
+				# do clean up here
 			end
+
 
 		end
 
