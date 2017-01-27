@@ -73,18 +73,21 @@ task :cache_migrate do | t, args |
 
 end
 
-task :update_song do | t, args |
+task :update_all do | t, args |
 	
-	songs = Nerve::Model::TrackProvider.all
+	songs = Nerve::Model::TrackProvider.where ""
 
 	songs.each do | s |
-		#Nerve::Job::
+		Nerve::Job::Update.create({
+			"track_id" => songs.id})
 	end
 
 end
 
-task :update_cart do | t, args |
+task :update, :track_id do | t, args |
 
-	Nerve::Job::UpdateCart.create
+	Nerve::Job::Update.create({
+		"track_id" => args[:track_id] })
 
 end
+
