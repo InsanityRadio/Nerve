@@ -146,31 +146,50 @@
 		def _update track 
 
 			# Update LST chunk for this track
+			begin
 
-			@audiowall = Nerve::Playout::AudioWall.new
-			@audiowall.load_settings
+				@audiowall = Nerve::Playout::AudioWall.new
+				@audiowall.load_settings
 
-			@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
-			cart_id = track.playout_id[0] == "C" ? track.playout_id[1..-1].to_i : @database.get_cart(track)
+				@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
+				cart_id = track.playout_id[0] == "C" ? track.playout_id[1..-1].to_i : @database.get_cart(track)
 
-			prefix = @audiowall.get_full_path(cart_id)
+				prefix = @audiowall.get_full_path(cart_id)
 
-			genres = $config["export"]["settings"]["genre"]
-			puts "Writing to cart #{cart_id}, genre #{track.genre}, #{genres[track.genre]}, #{prefix}"
+				genres = $config["export"]["settings"]["genre"]
+				puts "Writing to cart #{cart_id}, genre #{track.genre}, #{genres[track.genre]}, #{prefix}"
+
+				tmp_files << (file = local_path + ".upload.wav")
+				a = fade_end(local_path, file, cart.extro_start)
+				raise a unless a == true
+
+				raise "Cart appears to have gone from playout system." unless File.exist?(prefix + ".LST")
+
+				File.binwrite(@lst_path = prefix + ".LST", cart.to_data)			
+
+				# upload the WAV to the Audio Wall
+				FileUtils.cp(file, @final_path = prefix + ".WAV", :preserve => false)
+				FileUtils.rm(file)
+
+				cart = Nerve::Playout::AudioWall::Cart.new track
+
+				#raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \
+				#	unless @audiowall.settings[:individual_carts]
+
+				# Lock the "cart_id". Only supported on Audio Walls with individual LSTs
+				# (do this by writing the LST file, prevents Myriad writing to it).
+				# binwrite allows us to actually export proper binary.
 
 
-			cart = Nerve::Playout::AudioWall::Cart.new track
+			rescue 
 
-			#raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \
-			#	unless @audiowall.settings[:individual_carts]
+				raise $!
 
-			# Lock the "cart_id". Only supported on Audio Walls with individual LSTs
-			# (do this by writing the LST file, prevents Myriad writing to it).
-			# binwrite allows us to actually export proper binary.
+			ensure
 
-			raise "Cart appears to have gone from playout system." unless File.exist?(prefix + ".LST")
+				tmp_files.each { | t | File.unlink(t) rescue nil }
 
-			File.binwrite(@lst_path = prefix + ".LST", cart.to_data)			
+			end
 
 		end
 
