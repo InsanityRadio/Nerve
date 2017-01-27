@@ -67,7 +67,7 @@
 
 
 					cart = Nerve::Playout::AudioWall::Cart.new track
-					cart.length = cart.extro_end = cart.extro_start + 5.0
+					#cart.length = cart.extro_end = cart.extro_start + 5.0
 
 					#raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \
 					#	unless @audiowall.settings[:individual_carts]
@@ -81,7 +81,7 @@
 					# convert to the final wav and do the fade out ending, this is fast.
 					# the fade out in the future will be based on the end type
 					tmp_files << (file = local_path + ".upload.wav")
-					a = fade_end(local_path, file, track.outro)
+					a = fade_end(local_path, file, cart.extro_start)
 
 					p "b"
 					raise a unless a == true
