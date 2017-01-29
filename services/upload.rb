@@ -217,7 +217,7 @@ module Nerve
 
 					if params['title'] != track.title
 						track.title = params['title'] 
-						track.explicit = 1
+						track.set_unsafe
 					end
 
 					track.end_type = params['end_type'].to_i
