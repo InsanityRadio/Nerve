@@ -108,6 +108,10 @@ module Nerve; module Model
 
 		end
 
+		def set_unsafe
+			@explicit = 1
+		end
+
 		def why_unsafe
 
 			return "determined as risky during upload" if @status == 0 # only works before submission
@@ -129,12 +133,12 @@ module Nerve; module Model
 			Database.query("UPDATE tracks SET
 				last_update=NOW(), title=?, intro_start=?, intro_end=?,
 				hook_start=?, hook_end=?, outro=?, status=?, end_type=?,
-				approved_by=?,
+				approved_by=?, explicit=?, 
 				is_library = ?, is_automation = ?, playout_id = ?
 				WHERE id=?", 
 				@title, @intro_start, @intro_end,
 				@hook_start, @hook_end, @outro, @status, @end_type,
-				@approved_by,
+				@approved_by, @explicit ? 1 : 0,
 				@is_library ? 1 : 0, @is_automation ? 1 : 0, @playout_id,
 				@id)
 

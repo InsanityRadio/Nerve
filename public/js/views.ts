@@ -126,6 +126,8 @@ class EditView extends SerializeView {
 		this.bind("lyrics", "edit-lyrics", false);
 		this.bind("end_type", "edit-extro");
 
+		this.bind("title_edit", "edit-title-button");
+
 		this.bind("intro_start", "edit00-text", true, "-00:00");
 		this.bind("intro_end", "edit01-text", true, "-00:00");
 		this.bind("hook_start", "edit10-text", true, "-00:00");
@@ -177,6 +179,9 @@ class EditPage implements IPage {
 		this.view.listen("hook_end_btn", "click", (e:Event) => this.handleClick(e));
 		this.view.listen("extro_start_btn", "click", (e:Event) => this.handleClick(e));
 
+		this.view.listen("title", "keypress", (e:Event) => (e.keyCode == 13 || e.which == 13) && this.saveEditTitle(e));
+		this.view.listen("title_edit", "click", (e:Event) => this.handleEditTitle(e));
+
 		this.view.listen("save", "click", (e:Event) => {
 			this.save();
 		});
@@ -195,6 +200,7 @@ class EditPage implements IPage {
 		document.body.scrollTop = document.documentElement.scrollTop = 0;
 		Pages.pages["preload"].show();
 		this.id = data.track.id;
+		this.endEditTitle();
 		this.view.reset();
 		Track.load(data.track.id, (track:Track) => this.load(track));
 
@@ -327,6 +333,37 @@ class EditPage implements IPage {
 		this.view.element("save").disabled = "";
 		this.view.element("save-publish").disabled = "";
 		this.view.element("save-publish").querySelector("i").className = "fa fa-floppy-o";
+	}
+
+	protected handleEditTitle(e:Event) {
+		if(this.view.element("title_edit").querySelector("i").className != "fa fa-check") {
+			this.startEditTitle();
+		} else {
+			this.saveEditTitle();
+		}
+	}
+
+	protected startEditTitle() {
+		this.view.element("title").disabled = false;
+		this.view.element("title").focus();
+		this.view.element("title_edit").querySelector("i").className = "fa fa-check";
+	}
+
+	protected saveEditTitle() {
+		this.endEditTitle();
+		var title = this.view.get("title");
+		if(title == this.track.title)
+			return;
+		if(title == "")
+			return this.view.set("title", this.track.title);
+
+		this.handleChange()
+
+	}
+
+	protected endEditTitle() {
+		this.view.element("title").disabled = 'disabled';
+		this.view.element("title_edit").querySelector("i").className = "fa fa-pencil";
 	}
 
 	protected keyPressListener(e):void {

@@ -98,6 +98,7 @@ var EditView = (function (_super) {
         _this.bind("artist", "edit-artist");
         _this.bind("lyrics", "edit-lyrics", false);
         _this.bind("end_type", "edit-extro");
+        _this.bind("title_edit", "edit-title-button");
         _this.bind("intro_start", "edit00-text", true, "-00:00");
         _this.bind("intro_end", "edit01-text", true, "-00:00");
         _this.bind("hook_start", "edit10-text", true, "-00:00");
@@ -133,6 +134,8 @@ var EditPage = (function () {
         this.view.listen("hook_start_btn", "click", function (e) { return _this.handleClick(e); });
         this.view.listen("hook_end_btn", "click", function (e) { return _this.handleClick(e); });
         this.view.listen("extro_start_btn", "click", function (e) { return _this.handleClick(e); });
+        this.view.listen("title", "keypress", function (e) { return (e.keyCode == 13 || e.which == 13) && _this.saveEditTitle(e); });
+        this.view.listen("title_edit", "click", function (e) { return _this.handleEditTitle(e); });
         this.view.listen("save", "click", function (e) {
             _this.save();
         });
@@ -147,6 +150,7 @@ var EditPage = (function () {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
         Pages.pages["preload"].show();
         this.id = data.track.id;
+        this.endEditTitle();
         this.view.reset();
         Track.load(data.track.id, function (track) { return _this.load(track); });
     };
@@ -239,6 +243,32 @@ var EditPage = (function () {
         this.view.element("save").disabled = "";
         this.view.element("save-publish").disabled = "";
         this.view.element("save-publish").querySelector("i").className = "fa fa-floppy-o";
+    };
+    EditPage.prototype.handleEditTitle = function (e) {
+        if (this.view.element("title_edit").querySelector("i").className != "fa fa-check") {
+            this.startEditTitle();
+        }
+        else {
+            this.saveEditTitle();
+        }
+    };
+    EditPage.prototype.startEditTitle = function () {
+        this.view.element("title").disabled = false;
+        this.view.element("title").focus();
+        this.view.element("title_edit").querySelector("i").className = "fa fa-check";
+    };
+    EditPage.prototype.saveEditTitle = function () {
+        this.endEditTitle();
+        var title = this.view.get("title");
+        if (title == this.track.title)
+            return;
+        if (title == "")
+            return this.view.set("title", this.track.title);
+        this.handleChange();
+    };
+    EditPage.prototype.endEditTitle = function () {
+        this.view.element("title").disabled = 'disabled';
+        this.view.element("title_edit").querySelector("i").className = "fa fa-pencil";
     };
     EditPage.prototype.keyPressListener = function (e) {
         if (document.activeElement != document.body &&
