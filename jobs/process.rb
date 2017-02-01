@@ -41,7 +41,7 @@ module Nerve; module Job
 			result = _sys('sox', '--i', file)
 			raise "Failed to read file information! #{result[2]}" unless result[0]
 
-			bit_rate    = result[1].match(/Bit Rate\s+: ([0-9]+)k/)[1].to_i rescue Float::INFINITY  # if it's empty, it's likely VBR. Let's give the benefit of the doubt
+			bit_rate    = result[1].match(/Bit Rate\s+: ([0-9]+)k/)[1].to_i rescue 99999  # if it's empty, it's likely VBR. Let's give the benefit of the doubt
 			sample_rate = result[1].match(/Sample Rate\s+: ([0-9]+)/)[1].to_i
 			length      = result[1].match(/ ([0-9]+) samples/)[1].to_f / sample_rate
 
@@ -73,7 +73,7 @@ module Nerve; module Job
 
 
 
-			[bit_rate, sample_rate, length]
+			[true_freq, sample_rate, length]
 
 		end
 
