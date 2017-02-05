@@ -168,7 +168,6 @@ var EditPage = (function () {
             this.handleSave();
         }
         else {
-            //			this.view.element("save-publish").disabled = "disabled";
             this.saved = 0;
             this.view.element("save-publish").querySelector("i").className = "fa fa-floppy-o";
         }
@@ -218,6 +217,7 @@ var EditPage = (function () {
         var buffer = waveform.waveform.origWaveformData.adapter.data.buffer.slice(0);
         var extroTime = Utilities.Audio.getExtro(buffer, waveform.player.getDuration());
         this.set("extro_start", extroTime);
+        this.handleChange();
     };
     EditPage.prototype.addPlayerListeners = function () {
         var _this = this;

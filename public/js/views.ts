@@ -220,9 +220,9 @@ class EditPage implements IPage {
 			this.saved = 2;
 			this.handleSave();
 		} else {
-//			this.view.element("save-publish").disabled = "disabled";
 			this.saved = 0;
 			this.view.element("save-publish").querySelector("i").className = "fa fa-floppy-o";
+//			this.view.element("save-publish").disabled = "disabled";
 		}
 
 		track.getLyrics((lyrics:string|boolean) => {
@@ -293,6 +293,7 @@ class EditPage implements IPage {
 		var extroTime = Utilities.Audio.getExtro(buffer, waveform.player.getDuration());
 
 		this.set("extro_start", extroTime);
+		this.handleChange();
 
 	}
 
