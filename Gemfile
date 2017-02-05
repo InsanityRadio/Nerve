@@ -14,5 +14,6 @@ gem 'thin'
 gem 'mysql2'
 gem 'unidecode'
 
+gem 'fuzzy-string-match'
 gem 'musicbrainz'
 gem 'tiny_tds'
