@@ -128,11 +128,11 @@ module Nerve
 
 				raise "Unmatching title #{cart.title}, #{meta['title']} - contact Head of Computing" \
 					if cart.title.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['title'].downcase.gsub(/[^0-9a-z]/i, '')[0..15] \
-						and @@string_matcher.distance(cart.title, meta['title']) < 0.8
+						and @@string_matcher.getDistance(cart.title, meta['title']) < 0.8
 
 				raise "Unmatching artist #{cart.artist}, #{meta['artist']}" \
 					if cart.artist.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['artist'].downcase.gsub(/[^0-9a-z]/i, '')[0..15] \
-						and @@string_matcher.distance(cart.artist, meta['artist']) < 0.8
+						and @@string_matcher.getDistance(cart.artist, meta['artist']) < 0.8
 
 				login_service = Nerve::Services::Login.get_service
 				@user = login_service.get_user(session[:user_id]) rescue login_service.get_nil_user
