@@ -117,7 +117,7 @@ module Nerve
 
 					data["external_id"],
 					data["title"], data["artist"], data["album"],
-					data["explicit"], data["genre"], data["year"], data["big"],
+					data["explicit"], data["genre"], data["year"] == '' ? 0 : data["year"], data["big"],
 					data["lyrics"], data["big"]	)
 
 				Database.last_id
