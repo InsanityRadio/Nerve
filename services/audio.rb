@@ -19,7 +19,7 @@ module Nerve
 
 				ext = File.extname(path)
 
-				send_file(path, :type => Rack::Mime::MIME_TYPES[ext] || "application/octet-data", :disposition => params[:force] == '1' ? 'attachment' : 'inline', :filename => "#{id}#{ext}}")
+				send_file(path, :type => Rack::Mime::MIME_TYPES[ext] || "application/octet-data", :disposition => params[:force] == '1' ? 'attachment' : 'inline', :filename => "#{id}#{ext}")
 
 			end
 
