@@ -17,7 +17,9 @@ module Nerve
 				path = Database.query("SELECT local_path FROM `tracks` WHERE id=?", id)
 				path = $config["export"]["directory"] + "/" + path.first["local_path"]
 
-				send_file(path, :type => "audio/flac", :disposition => params[:force] == '1' ? 'attachment' : 'inline', :filename => "#{id}.#{$config["import"]["transport_format"]}")
+				ext = File.extname(path)
+
+				send_file(path, :type => Rack::Mime::MIME_TYPES[ext] || "application/octet-data", :disposition => params[:force] == '1' ? 'attachment' : 'inline', :filename => "#{id}#{ext}}")
 
 			end
 
