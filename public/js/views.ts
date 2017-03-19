@@ -781,10 +781,10 @@ class Upload2Page extends UploadPage {
 		}
 		GlobalLibrary.match(data, (result:any) => {
 
-			if(result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
+			if(result && result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
 				return this.abort();
 
-			if(result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
+			if(result && result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
 				return this.abort();
 
 			this.upload(null, this.track.cart_id);

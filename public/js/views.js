@@ -547,9 +547,9 @@ var Upload2Page = (function (_super) {
             album: track.album
         };
         GlobalLibrary.match(data, function (result) {
-            if (result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
+            if (result && result.exists && !confirm("This already seems to exist on the system! Do you really want to (re-)upload it?"))
                 return _this.abort();
-            if (result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
+            if (result && result.explicit && !confirm("This song might be explicit. Are you sure it's safe to upload?"))
                 return _this.abort();
             _this.upload(null, _this.track.cart_id);
         });
