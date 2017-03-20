@@ -717,6 +717,7 @@ var Track = (function (_super) {
         _this.extro_start = ref.extro_start;
         _this.endType = ref.end_type;
         _this.createdBy = ref.created_by;
+        _this.flagged = ref.flagged;
         return _this;
     }
     Track.prototype.getLyrics = function (callback) {

@@ -139,6 +139,11 @@
 					<p>(Don't check unless you know what you're doing - for example classical music)</p>
 	<% end %>
 
+	<% if user.permissions[:instrumental] %>
+					<input type="checkbox" name="upload-instrumental" id="upload-instrumental" value="1" />
+					<label for="upload-instrumental">Instrumental</label><br />
+	<% end %>
+
 					<input type="checkbox" checked name="upload-library" id="upload-library" value="1" />
 					<label for="upload-library">Add To Library</label>
 					<p>(Uncheck if you don't want this song to be available to everyone)</p>
@@ -198,6 +203,11 @@
 					<input type="checkbox" name="override-compressor" id="override-compressor2" value="1" />
 					<label for="override-compressor2">Disable Compression</label>
 					<p>(Don't check unless you know what you're doing - for example classical music)</p>
+	<% end %>
+
+	<% if user.permissions[:instrumental] %>
+					<input type="checkbox" name="upload-instrumental2" id="upload-instrumental2" value="1" />
+					<label for="upload-instrumental2">Instrumental</label><br />
 	<% end %>
 
 					<input type="checkbox" checked name="upload-library" id="upload-library2" value="1" />
@@ -447,11 +457,13 @@
 							<button class="eject" disabled><i class="fa fa-eject"></i></button>
 						</td><td style="width: 200px">
 							<p id="mv-extro">Ends (fast)</p>
-						</td><td style="width: 300px; text-align: right; padding-right: 10px; vertical-align: top"><br />
+						</td><td style="width: 400px; text-align: right; padding-right: 10px; vertical-align: top"><br />
 
-							<button class="sect" id="mv-reject" disabled><i class="fa fa-times" style="font-size: 30pt" aria-hidden="true"></i></button>
+							<button class="sect" id="mv-flag" title="Flag for a second look by an administrator" disabled><i class="fa fa-flag" style="font-size: 30pt" aria-hidden="true"></i></button>
 
-							<button class="sect" id="mv-approve" disabled><i class="fa fa-upload" style="font-size: 30pt" aria-hidden="true"></i></button>
+							<button class="sect" id="mv-reject" title="Reject track" disabled><i class="fa fa-times" style="font-size: 30pt" aria-hidden="true"></i></button>
+
+							<button class="sect" id="mv-approve" title="Approve track" disabled><i class="fa fa-upload" style="font-size: 30pt" aria-hidden="true"></i></button>
 						</td></tr>
 					</table>
 				</div>

@@ -364,6 +364,7 @@ var UploadView = (function (_super) {
         _this.nullBind("override_bitrate", "override-bitrate");
         _this.nullBind("override_compressor", "override-compressor");
         _this.nullBind("upload_library", "upload-library");
+        _this.nullBind("instrumental", "u-instrumental");
         _this.bind("progress", "song-upload-progress", false);
         _this.bind("status", "song-upload-status", false);
         _this.bind("file", "song-upload-main", false);
@@ -427,6 +428,7 @@ var UploadPage = (function () {
         fd.append("override_bitrate", this.view.get("override_bitrate"));
         fd.append("override_compressor", this.view.get("override_compressor"));
         fd.append("upload_library", this.view.get("upload_library"));
+        fd.append("instrumental", this.view.get("instrumental"));
         fd.append("file", file);
         u.send(fd, file);
     };
@@ -507,6 +509,7 @@ var Upload2View = (function (_super) {
         _this.nullBind("override_bitrate", "override-bitrate2");
         _this.nullBind("override_compressor", "override-compressor2");
         _this.nullBind("upload_library", "upload-library2");
+        _this.nullBind("instrumental", "ed-instrumental");
         _this.bind("progress", "song-upload2-progress", false);
         _this.bind("status", "song-upload2-status", false);
         _this.bind("button", "upload-big-button", false);
@@ -563,6 +566,7 @@ var Upload2Page = (function (_super) {
         fd.append("override_bitrate", this.view.get("override_bitrate"));
         fd.append("override_compressor", this.view.get("override_compressor"));
         fd.append("upload_library", this.view.get("upload_library"));
+        fd.append("instrumental", this.view.get("instrumental"));
         u.send(fd, true);
     };
     return Upload2Page;
@@ -584,10 +588,11 @@ var ModerationPage = (function (_super) {
             list.push({
                 track: track,
                 message: [
-                    track.status == 2 ? "Explicit Lyrics" : "Unusual File",
+                    track.note ? track.note : (track.flagged ? 'Flagged' : (track.status == 2 ? "Explicit Lyrics" : "Unusual File")),
                     track.createdBy.name
                 ],
-                click: true
+                click: true,
+                classList: (track.flagged ? ['flagged'] : [])
             });
         }
         this.draw(table, list);
@@ -608,6 +613,7 @@ var ModerationViewView = (function (_super) {
         _this.bind("metadata", "mv-extra");
         _this.bind("approve", "mv-approve");
         _this.bind("reject", "mv-reject");
+        _this.bind("flag", "mv-flag");
         _this.bind("edit", "mv-edit");
         _this.bind("delete", "mv-delete");
         _this.bind("download", "mv-download");
@@ -627,6 +633,9 @@ var ModerationViewPage = (function () {
         });
         this.view.listen("approve", "click", function (e) {
             _this.approve();
+        });
+        this.view.listen("flag", "click", function (e) {
+            _this.flag();
         });
         this.view.listen("edit", "click", function (e) { return _this.edit(); });
         this.view.listen("delete", "click", function (e) { return _this.remove(); });
@@ -662,6 +671,7 @@ var ModerationViewPage = (function () {
         });
         this.view.element("approve").disabled = false;
         this.view.element("reject").disabled = false;
+        this.view.element("flag").disabled = false;
         this.player.load(track, null, true);
         document.documentElement.addEventListener("keydown", this.listener = function (e) { return _this.keyPressListener(e); });
         setTimeout(function () { return _this.fillMarkers(); }, 1);
@@ -715,6 +725,7 @@ var ModerationViewPage = (function () {
         var _this = this;
         this.view.element("approve").disabled = "disabled";
         this.view.element("reject").disabled = "disabled";
+        this.view.element("flag").disabled = "disabled";
         Pages.pages["preload"].show();
         var data = this.view.serialize();
         data["token"] = $config.key;
@@ -741,6 +752,7 @@ var ModerationViewPage = (function () {
         // meow
         this.view.element("approve").disabled = "disabled";
         this.view.element("reject").disabled = "disabled";
+        this.view.element("flag").disabled = "disabled";
         var data = this.view.serialize();
         data["token"] = $config.key;
         new HTTP.POST("/moderation/reject/" + this.id, function (scope) {
@@ -754,6 +766,28 @@ var ModerationViewPage = (function () {
                 var message = "No description available, error " + scope.xml.status;
             }
             Errors.push("REJECT-FAIL", "Couldn't reject track: " + message, true);
+            Pages.pages["preload"].hide();
+        }).send(data, "application/x-www-form-urlencoded");
+    };
+    ModerationViewPage.prototype.flag = function () {
+        var _this = this;
+        // meow
+        this.view.element("approve").disabled = "disabled";
+        this.view.element("reject").disabled = "disabled";
+        this.view.element("flag").disabled = "disabled";
+        var data = this.view.serialize();
+        data["token"] = $config.key;
+        new HTTP.POST("/moderation/flag/" + this.id, function (scope) {
+            Pages.show("moderation");
+        }, function (scope) {
+            _this.approved = false;
+            try {
+                var message = JSON.parse(scope.xml.responseText).message;
+            }
+            catch (e) {
+                var message = "No description available, error " + scope.xml.status;
+            }
+            Errors.push("FLAG-FAIL", "Couldn't flag track: " + message, true);
             Pages.pages["preload"].hide();
         }).send(data, "application/x-www-form-urlencoded");
     };

@@ -44,7 +44,7 @@ module Nerve
 				protect_json!
 
 				raise "Missing metadata" if !params['file'] or params['cache_id'] == nil or \
-					(params['cache_id'] == -1 and (!params['title'] or !params['artist']))
+					(params['cache_id'].to_i <= 0 and (!params['title'] or !params['artist']))
 
 
 				# Do some pre-processing
@@ -59,6 +59,7 @@ module Nerve
 				login_service = Nerve::Services::Login.get_service
 				@user = login_service.get_user(session[:user_id]) rescue login_service.get_nil_user
 
+				instrumental = (params['instrumental'] == "true" and @user.permissions[:instrumental])
 				data = {
 					"file" => temp_file,
 					"user_id" => session[:user_id],
@@ -71,8 +72,9 @@ module Nerve
 						@user.permissions[:override_bitrate]), # TODO: check user can do that
 					"override_compressor" => params['override_compressor'] == "true",
 					"upload_library" => params['upload_library'] == "true",
+					"instrumental" => instrumental
 				}
-				data["explicit"] = params['cache_id'] == -1 ? 1 : 0
+				data["explicit"] = (params['cache_id'] == -1 and !instrumental) ? 1 : 0
 
 				# Allow admin users to override bitrate
 				#data["overrides"] = true if @user.admin and params['override'] == "true"

@@ -511,6 +511,7 @@ class UploadView extends View {
 		this.nullBind("override_bitrate", "override-bitrate");
 		this.nullBind("override_compressor", "override-compressor");
 		this.nullBind("upload_library", "upload-library");
+		this.nullBind("instrumental", "upload-instrumental");
 
 		this.bind("progress", "song-upload-progress", false);
 		this.bind("status", "song-upload-status", false);
@@ -609,6 +610,7 @@ class UploadPage implements IPage {
 		fd.append("override_bitrate", this.view.get("override_bitrate"));
 		fd.append("override_compressor", this.view.get("override_compressor"));
 		fd.append("upload_library", this.view.get("upload_library"));
+		fd.append("instrumental", this.view.get("instrumental"));
 
 		fd.append("file", file);
 
@@ -731,6 +733,7 @@ class Upload2View extends View {
 		this.nullBind("override_bitrate", "override-bitrate2");
 		this.nullBind("override_compressor", "override-compressor2");
 		this.nullBind("upload_library", "upload-library2");
+		this.nullBind("instrumental", "upload-instrumental2");
 
 		this.bind("progress", "song-upload2-progress", false);
 		this.bind("status", "song-upload2-status", false);
@@ -809,6 +812,7 @@ class Upload2Page extends UploadPage {
 		fd.append("override_bitrate", this.view.get("override_bitrate"));
 		fd.append("override_compressor", this.view.get("override_compressor"));
 		fd.append("upload_library", this.view.get("upload_library"));
+		fd.append("instrumental", this.view.get("instrumental"));
 
 		u.send(fd, true);
 
@@ -836,9 +840,10 @@ class ModerationPage extends ListPage {
 			list.push({
 				track: track,
 				message: [
-					track.status == 2 ? "Explicit Lyrics" : "Unusual File",
+					track.note ? track.note : (track.flagged ? 'Flagged': (track.status == 2 ? "Explicit Lyrics" : "Unusual File")),
 					track.createdBy.name],
-				click: true });
+				click: true,
+				classList: (track.flagged ? ['flagged'] : []) });
 	
 		}
 
@@ -869,6 +874,7 @@ class ModerationViewView extends View {
 
 		this.bind("approve", "mv-approve");
 		this.bind("reject", "mv-reject");
+		this.bind("flag", "mv-flag");
 		this.bind("edit", "mv-edit");
 		this.bind("delete", "mv-delete");
 		this.bind("download", "mv-download");
@@ -895,6 +901,10 @@ class ModerationViewPage implements IPage {
 
 		this.view.listen("approve", "click", (e:Event) => {
 			this.approve();
+		});
+
+		this.view.listen("flag", "click", (e:Event) => {
+			this.flag();
 		});
 
 		this.view.listen("edit", "click", (e:Event) => this.edit());
@@ -944,6 +954,7 @@ class ModerationViewPage implements IPage {
 
 		this.view.element("approve").disabled = false;
 		this.view.element("reject").disabled = false;
+		this.view.element("flag").disabled = false;
 		this.player.load(track, null, true);
 		document.documentElement.addEventListener("keydown", this.listener = (e) => this.keyPressListener(e));
 		setTimeout(() => this.fillMarkers(), 1);
@@ -1018,6 +1029,7 @@ class ModerationViewPage implements IPage {
 
 		this.view.element("approve").disabled = "disabled";
 		this.view.element("reject").disabled = "disabled";
+		this.view.element("flag").disabled = "disabled";
 		Pages.pages["preload"].show();
 
 		var data = this.view.serialize();
@@ -1059,6 +1071,7 @@ class ModerationViewPage implements IPage {
 		// meow
 		this.view.element("approve").disabled = "disabled";
 		this.view.element("reject").disabled = "disabled";
+		this.view.element("flag").disabled = "disabled";
 
 		var data = this.view.serialize();
 		data["token"] = $config.key;
@@ -1086,6 +1099,38 @@ class ModerationViewPage implements IPage {
 
 	}
 
+	protected flag():void {
+
+		// meow
+		this.view.element("approve").disabled = "disabled";
+		this.view.element("reject").disabled = "disabled";
+		this.view.element("flag").disabled = "disabled";
+
+		var data = this.view.serialize();
+		data["token"] = $config.key;
+
+		new HTTP.POST("/moderation/flag/" + this.id, (scope:HTTP.Request):void => {
+
+			Pages.show("moderation");
+
+		}, (scope:HTTP.Request) => {
+
+			this.approved = false;
+			try {
+				var message = JSON.parse(scope.xml.responseText).message;
+			} catch (e) {
+				var message = "No description available, error " + scope.xml.status;
+			}
+
+			Errors.push(
+				"FLAG-FAIL",
+				"Couldn't flag track: " + message,
+				true);
+			Pages.pages["preload"].hide();
+
+		}).send(data, "application/x-www-form-urlencoded");
+
+	}
 	protected remove():void {
 
 		var test = confirm("Are you absolutely sure you want to delete this track?");
