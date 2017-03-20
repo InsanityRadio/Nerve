@@ -16,6 +16,7 @@ module Nerve
 					:override_compressor => false,
 					:upload_library => false,
 					:upload_automation => false,
+					:instrumental => false,
 					# Safety net ensures the first 3 uploads for a user are moderated. TODO
 					:safety_net => true,
 				}
@@ -26,6 +27,7 @@ module Nerve
 					@permissions[:override_bitrate] = true
 					@permissions[:override_compressor] = true
 					@permissions[:upload_library] = true
+					@permissions[:instrumental] = true
 					@permissions[:upload_automation] = true
 					@permissions[:safety_net] = false
 				end

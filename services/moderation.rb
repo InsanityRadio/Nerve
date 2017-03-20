@@ -63,6 +63,21 @@ module Nerve
 
 			end
 
+			post '/moderation/flag/:id' do | id |
+
+				protect_moderator!
+				raise "Incorrect/empty CSRF key" \
+					if session[:token].empty? || params['token'] != session[:token]
+
+				# Set status to 2
+				track = Nerve::Model::TrackProvider.from_id(id)
+				track.flagged = 1
+				track.approved_by = session[:user_id]
+				track.save
+
+				return { "success" => 1 }.to_json
+
+			end
 
 		end
 	end

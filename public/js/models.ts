@@ -970,6 +970,7 @@ class Track extends ExtendableDataSource {
 	length:number;
 
 	endType:number;
+	flagged:boolean;
 
 	protected static source:string = "/upload/file/";
 
@@ -1004,6 +1005,7 @@ class Track extends ExtendableDataSource {
 		this.endType = ref.end_type;
 
 		this.createdBy = ref.created_by;
+		this.flagged = ref.flagged;
 
 	}
 

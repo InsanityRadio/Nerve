@@ -12,7 +12,7 @@ module Nerve; module Model
 		attr_accessor :local_path, :intro_start, :intro_end, :hook_start, :hook_end, :outro
 		attr_accessor :end_type, :waveform, :length, :bitrate, :sample_rate
 
-		attr_accessor :is_library, :is_automation, :playout_id
+		attr_accessor :is_library, :is_automation, :playout_id, :flagged
 
 		def self.all
 
@@ -67,6 +67,8 @@ module Nerve; module Model
 			@playout_id = result["playout_id"] or ''
 
 			@explicit = result["explicit"] == 1
+			@flagged = result["flagged"] == 1
+			@instrumental = result["instrumental"] == 1
 
 		end
 
@@ -95,6 +97,8 @@ module Nerve; module Model
 
 			return false if @explicit or @status == 0
 			extended, lyrics = get_metadata
+
+			return true if @instrumental
 
 			# This nasty looking regex basically matches all words that start with nasties. 
 			# that way we don't match, say, saltwater (although we might actually want to, it's gross)
@@ -133,12 +137,12 @@ module Nerve; module Model
 			Database.query("UPDATE tracks SET
 				last_update=NOW(), title=?, intro_start=?, intro_end=?,
 				hook_start=?, hook_end=?, outro=?, status=?, end_type=?,
-				approved_by=?, explicit=?, 
+				approved_by=?, explicit=?, flagged=?, instrumental=?,
 				is_library = ?, is_automation = ?, playout_id = ?
 				WHERE id=?", 
 				@title, @intro_start, @intro_end,
 				@hook_start, @hook_end, @outro, @status, @end_type,
-				@approved_by, @explicit ? 1 : 0,
+				@approved_by, @explicit ? 1 : 0, @flagged ? 1 : 0, @instrumental ? 1 : 0,
 				@is_library ? 1 : 0, @is_automation ? 1 : 0, @playout_id,
 				@id)
 
@@ -186,6 +190,8 @@ module Nerve; module Model
 				"playout_id" => @playout_id,
 				"end_type" => @end_type,
 				"created_by" => @user,
+				"flagged" => @flagged,
+				"instrumental" => @instrumental
 			}
 
 			# Extended means lyrics and such 
