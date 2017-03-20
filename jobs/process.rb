@@ -304,12 +304,12 @@ module Nerve; module Job
 				(external_id, title, artist, album, main_genre,
 					created_by, status, explicit, bitrate, sample_rate, length, waveform,
 					is_library, is_automation, ext_id, instrumental)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
 				data["external_id"], options["title"], artist_id, album_id,
 				genre, options["user_id"], explicit ? 0 : 1, explicit ? 1 : 0,
 				options["bit_rate"], options["sample_rate"], options["length"], 
 				$config["import"]["generate_waveform"] ? 1 : 0,
-				options["upload_library"] ? 1 : 0,  options["automation"] | false, options["ext_id"], options["instrumental"] )
+				options["upload_library"] ? 1 : 0,  options["automation"] | false, options["ext_id"], options["instrumental"] ? 1 : 0 )
 
 			@track_id = track_id = Database.last_id
 
