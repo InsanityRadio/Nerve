@@ -160,12 +160,17 @@ module Nerve; module Model
 			@approved_by = id
 		end
 
-		def delete!
+		def delete! soft = false
 			local_path = $config["export"]["directory"] + "/" + @local_path
 			File.unlink(local_path) rescue nil
-			File.unlink(local_path + ".ogg") rescue nil
-			File.unlink(local_path + ".dat") rescue nil
-			Database.query("DELETE FROM tracks WHERE id=?;", @id)
+			if soft
+				self.status = 6
+				self.save
+			else
+				File.unlink(local_path + ".ogg") rescue nil
+				File.unlink(local_path + ".dat") rescue nil
+				Database.query("DELETE FROM tracks WHERE id=?;", @id)
+			end
 		end
 
 		def to_json extended = false
