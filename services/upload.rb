@@ -74,6 +74,7 @@ module Nerve
 					"upload_library" => params['upload_library'] == "true",
 					"instrumental" => instrumental
 				}
+
 				data["explicit"] = (params['cache_id'] == -1 and !instrumental) ? 1 : 0
 
 				# Allow admin users to override bitrate

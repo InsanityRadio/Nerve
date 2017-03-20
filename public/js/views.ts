@@ -610,6 +610,7 @@ class UploadPage implements IPage {
 		fd.append("override_bitrate", this.view.get("override_bitrate"));
 		fd.append("override_compressor", this.view.get("override_compressor"));
 		fd.append("upload_library", this.view.get("upload_library"));
+
 		fd.append("instrumental", this.view.get("instrumental"));
 
 		fd.append("file", file);
