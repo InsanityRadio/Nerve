@@ -35,6 +35,12 @@ task :recall, :track_id do | t, args |
 
 end
 
+task :cleanup do | t, args |
+
+	Nerve::Job::CleanUp.create({})
+
+end
+
 task :dump_new_cart, :cart_id do | t, args |
 
 	aw = Nerve::Playout::AudioWall.new $config["export"]["settings"]["path"], $config["export"]["settings"]["use_extended_path"]

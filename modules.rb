@@ -18,6 +18,7 @@ module Nerve
 
 	module Job
 
+		autoload :CleanUp, "jobs/cleanup"
 		autoload :Recall, "jobs/recall"
 		autoload :Process, "jobs/process"
 		autoload :Transfer, "jobs/transfer"
