@@ -364,7 +364,7 @@ var UploadView = (function (_super) {
         _this.nullBind("override_bitrate", "override-bitrate");
         _this.nullBind("override_compressor", "override-compressor");
         _this.nullBind("upload_library", "upload-library");
-        _this.nullBind("instrumental", "u-instrumental");
+        _this.nullBind("instrumental", "upload-instrumental");
         _this.bind("progress", "song-upload-progress", false);
         _this.bind("status", "song-upload-status", false);
         _this.bind("file", "song-upload-main", false);
@@ -509,7 +509,7 @@ var Upload2View = (function (_super) {
         _this.nullBind("override_bitrate", "override-bitrate2");
         _this.nullBind("override_compressor", "override-compressor2");
         _this.nullBind("upload_library", "upload-library2");
-        _this.nullBind("instrumental", "ed-instrumental");
+        _this.nullBind("instrumental", "upload-instrumental2");
         _this.bind("progress", "song-upload2-progress", false);
         _this.bind("status", "song-upload2-status", false);
         _this.bind("button", "upload-big-button", false);
