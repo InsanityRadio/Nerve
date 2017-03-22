@@ -302,6 +302,8 @@ var HTTP;
             this.uploadProgress = uploadProgress;
             this.uploadError = uploadError;
             this.isReady = false;
+            this._timeout = 1000;
+            this._percent = 0;
             var xml = new GET(base + "path/", function (scope) { return _this.ready(scope); }, function (e) { return _this.error(e); });
         }
         Upload.prototype.send = function (form, file) {
@@ -335,10 +337,13 @@ var HTTP;
             var xml = new GET(this.path + "status/" + this.token, function (scope) {
                 var data = JSON.parse(scope.xml.responseText);
                 _this.uploadProgress(100 + data.percent, data.message);
-                if (data.running)
-                    setTimeout(function () { return _this.getStatus(); }, 1000);
+                if (data.running) {
+                    _this._timeout = data.percent == _this._percent ? Math.min(20000, _this._timeout * 2) : _this._timeout;
+                    setTimeout(function () { return _this.getStatus(); }, _this._timeout);
+                }
                 else
                     _this.uploadDone(data);
+                _this._percent = data.percent;
             }, function (e) { return _this.error(e); });
         };
         Upload.prototype.error = function (e) {

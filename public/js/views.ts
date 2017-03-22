@@ -518,6 +518,8 @@ class UploadView extends View {
 
 		this.bind("file", "song-upload-main", false);
 
+		this.bind("table", "screen-upload-song-status-table");
+
 	}
 
 }
@@ -525,9 +527,12 @@ class UploadView extends View {
 class UploadPage implements IPage {
 
 	protected view:UploadView = new UploadView();
+	protected uploads:Array<HTTP.Upload> = [];
 
 	constructor():void {
-		this.view.listen("file", "change", (event:Event) => this.selectFile(event.target.files[0]));
+		this.view.listen("file", "change", (event:Event) => {
+			[].forEach.call(event.target.files, (file:File) => this.selectFile(file));
+		});
 	}
 
 	open():void {
@@ -539,6 +544,7 @@ class UploadPage implements IPage {
 	}
 
 	protected selectFile(file:File):void {
+		console.log("SELECTING " + file);
 		Utilities.Audio.readTags(file, (tags) => this.metadata(file, tags));
 	}
 
@@ -593,10 +599,15 @@ class UploadPage implements IPage {
 
 		var u = new HTTP.Upload(
 			"/upload/",
-			(data:Object) => this.uploadDone(data),
-			(percent:number, message:string) => this.uploadProgress(percent, message),
-			(e:Error) => this.uploadError(e));
+			(data:Object) => this.uploadDone(u, data),
+			(percent:number, message:string) => this.uploadProgress(u, percent, message),
+			(e:Error) => this.uploadError(u, e));
 
+
+		u.serial = new Date().getTime();
+		u.track = result;
+
+		this.uploads.push(u);
 
 		var fd = new FormData();
 
@@ -617,24 +628,68 @@ class UploadPage implements IPage {
 
 		u.send(fd, file);
 
-	}
+		this.view.element("file").disabled = false;
 
-	protected uploadDone(data:Object) {
-
-		// data.success
 
 	}
 
-	protected uploadProgress(percent:number, message:string) {
+	protected uploadDone(upload:HTTP.Upload, data:Object) {
 
-		this.view.element("progress").style.width = (percent / 2) + "%";
+		console.log('upload success')
+		try {
+			var col = data.progress == 200 ? "rgba(0, 150, 0, 0.1);" : "rgba(150, 0, 0, 0.1)";
+			var prog = this.view.element("table").querySelector(".serial-" + upload.serial + " .progress");
+			prog.style.backgroundColor = col;
+			prog.style.width = "100%";
+		} catch (e) {}
+
+	}
+
+	protected uploadProgress(upload:HTTP.Upload, percent:number, message:string) {
+
+		upload.percent = percent;
 
 		if(message != null)
-			this.view.set("status", message);
+			upload.message = message;
+
+		this.drawList(this.view.element("table"), this.uploads);
 
 	}
 
-	protected uploadError(e:Error) {
+	protected uploadError(upload:HTTP.Upload, e:Error) {
+
+		console.log('upload error!')
+		try {
+			this.view.element("table").querySelector(".serial-" + upload.serial + " .progress").style.backgroundColor = "rgba(150, 0, 0, 0.1);";
+		} catch (e) {}
+
+	}
+
+	protected drawList(table:HTMLElement, uploads:object) {
+
+		var _this = this;
+
+		for (var i in uploads) {
+
+			var upload = uploads[i];
+
+			htmlRow = table.querySelector(".serial-" + upload.serial);
+
+			if (!htmlRow) {
+				htmlRow = document.createElement("tr");
+				htmlRow.className = "serial-" + upload.serial;
+				htmlRow.style.position = "relative";
+				htmlRow.insertCell(0).textContent = upload.serial;
+				htmlRow.cells[0].innerHTML += '<div class="progress" style="position: absolute; left: 0; top: 0px; bottom: 0; width: 100%; background: rgba(0, 0, 0, 0.1);"></div>'
+				htmlRow.insertCell(1).textContent = upload.track.title + " - " + upload.track.artist;
+				htmlRow.insertCell(2).textContent = upload.message;
+				table.appendChild(htmlRow);
+			}
+
+			htmlRow.querySelector(".progress").style.width = ((upload.percent / 2)) + "%";
+			htmlRow.cells[2].textContent = upload.message;
+
+		}
 
 	}
 

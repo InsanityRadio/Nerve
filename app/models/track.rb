@@ -73,7 +73,7 @@ module Nerve; module Model
 		end
 
 		def approved
-			@status > 3
+			!!@status and @status > 3
 		end
 
 		def get_metadata

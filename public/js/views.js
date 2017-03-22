@@ -368,6 +368,7 @@ var UploadView = (function (_super) {
         _this.bind("progress", "song-upload-progress", false);
         _this.bind("status", "song-upload-status", false);
         _this.bind("file", "song-upload-main", false);
+        _this.bind("table", "screen-upload-song-status-table");
         return _this;
     }
     return UploadView;
@@ -376,7 +377,10 @@ var UploadPage = (function () {
     function UploadPage() {
         var _this = this;
         this.view = new UploadView();
-        this.view.listen("file", "change", function (event) { return _this.selectFile(event.target.files[0]); });
+        this.uploads = [];
+        this.view.listen("file", "change", function (event) {
+            [].forEach.call(event.target.files, function (file) { return _this.selectFile(file); });
+        });
     }
     UploadPage.prototype.open = function () {
         this.view.element("file").disabled = false;
@@ -385,6 +389,7 @@ var UploadPage = (function () {
     };
     UploadPage.prototype.selectFile = function (file) {
         var _this = this;
+        console.log("SELECTING " + file);
         Utilities.Audio.readTags(file, function (tags) { return _this.metadata(file, tags); });
     };
     UploadPage.prototype.metadata = function (file, tags) {
@@ -418,7 +423,10 @@ var UploadPage = (function () {
     };
     UploadPage.prototype.upload = function (file, result) {
         var _this = this;
-        var u = new HTTP.Upload("/upload/", function (data) { return _this.uploadDone(data); }, function (percent, message) { return _this.uploadProgress(percent, message); }, function (e) { return _this.uploadError(e); });
+        var u = new HTTP.Upload("/upload/", function (data) { return _this.uploadDone(u, data); }, function (percent, message) { return _this.uploadProgress(u, percent, message); }, function (e) { return _this.uploadError(u, e); });
+        u.serial = new Date().getTime();
+        u.track = result;
+        this.uploads.push(u);
         var fd = new FormData();
         fd.append("cache_id", result.cacheID);
         // For overrides, just in case nerve_id is -1.
@@ -431,16 +439,49 @@ var UploadPage = (function () {
         fd.append("instrumental", this.view.get("instrumental"));
         fd.append("file", file);
         u.send(fd, file);
+        this.view.element("file").disabled = false;
     };
-    UploadPage.prototype.uploadDone = function (data) {
-        // data.success
+    UploadPage.prototype.uploadDone = function (upload, data) {
+        console.log('upload success');
+        try {
+            var col = data.progress == 200 ? "rgba(0, 150, 0, 0.1);" : "rgba(150, 0, 0, 0.1)";
+            var prog = this.view.element("table").querySelector(".serial-" + upload.serial + " .progress");
+            prog.style.backgroundColor = col;
+            prog.style.width = "100%";
+        }
+        catch (e) { }
     };
-    UploadPage.prototype.uploadProgress = function (percent, message) {
-        this.view.element("progress").style.width = (percent / 2) + "%";
+    UploadPage.prototype.uploadProgress = function (upload, percent, message) {
+        upload.percent = percent;
         if (message != null)
-            this.view.set("status", message);
+            upload.message = message;
+        this.drawList(this.view.element("table"), this.uploads);
     };
-    UploadPage.prototype.uploadError = function (e) {
+    UploadPage.prototype.uploadError = function (upload, e) {
+        console.log('upload error!');
+        try {
+            this.view.element("table").querySelector(".serial-" + upload.serial + " .progress").style.backgroundColor = "rgba(150, 0, 0, 0.1);";
+        }
+        catch (e) { }
+    };
+    UploadPage.prototype.drawList = function (table, uploads) {
+        var _this = this;
+        for (var i in uploads) {
+            var upload = uploads[i];
+            htmlRow = table.querySelector(".serial-" + upload.serial);
+            if (!htmlRow) {
+                htmlRow = document.createElement("tr");
+                htmlRow.className = "serial-" + upload.serial;
+                htmlRow.style.position = "relative";
+                htmlRow.insertCell(0).textContent = upload.serial;
+                htmlRow.cells[0].innerHTML += '<div class="progress" style="position: absolute; left: 0; top: 0px; bottom: 0; width: 100%; background: rgba(0, 0, 0, 0.1);"></div>';
+                htmlRow.insertCell(1).textContent = upload.track.title + " - " + upload.track.artist;
+                htmlRow.insertCell(2).textContent = upload.message;
+                table.appendChild(htmlRow);
+            }
+            htmlRow.querySelector(".progress").style.width = ((upload.percent / 2)) + "%";
+            htmlRow.cells[2].textContent = upload.message;
+        }
     };
     return UploadPage;
 }());
