@@ -396,6 +396,9 @@ module HTTP {
 		protected form:FormData;
 		protected path:string;
 
+		protected _timeout:number = 1000;
+		protected _percent:number = 0;
+
 		constructor(protected base, protected uploadDone:(scope:Request) => void,
 				protected uploadProgress:(percent:number, message:string) => void, protected uploadError:(error:Error) => void) {
 
@@ -448,10 +451,13 @@ module HTTP {
 				var data = JSON.parse(scope.xml.responseText);
 				this.uploadProgress(100 + data.percent, data.message);
 
-				if(data.running)
-					setTimeout(() => this.getStatus(), 1000);
-				else
+				if(data.running) {
+					this._timeout = data.percent == this._percent ? Math.min(20000, this._timeout * 2) : this._timeout;
+					setTimeout(() => this.getStatus(), this._timeout);
+				} else
 					this.uploadDone(data);
+
+				this._percent = data.percent;
 
 			}, (e) => this.error(e));
 
