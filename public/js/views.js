@@ -442,9 +442,9 @@ var UploadPage = (function () {
         this.view.element("file").disabled = false;
     };
     UploadPage.prototype.uploadDone = function (upload, data) {
-        console.log('upload success');
         try {
             var col = data.progress == 100 ? "rgba(0, 150, 0, 0.1);" : "rgba(150, 0, 0, 0.1)";
+            console.log('Finished!', data);
             var prog = this.view.element("table").querySelector(".serial-" + upload.serial + " .progress");
             prog.style.backgroundColor = col;
             prog.style.width = "100%";
