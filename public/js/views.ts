@@ -636,8 +636,7 @@ class UploadPage implements IPage {
 	protected uploadDone(upload:HTTP.Upload, data:Object) {
 
 		try {
-			var col = data.progress == 100 ? "rgba(0, 150, 0, 0.1);" : "rgba(150, 0, 0, 0.1)";
-			console.log('Finished!', data)
+			var col = data.percent == 100 ? "rgba(0, 150, 0, 0.1);" : "rgba(150, 0, 0, 0.1)";
 			var prog = this.view.element("table").querySelector(".serial-" + upload.serial + " .progress");
 			prog.style.backgroundColor = col;
 			prog.style.width = "100%";
