@@ -126,7 +126,7 @@
 						<br /><span id="song-upload-status"></span>
 
 					</label>
-					<input id="song-upload-main" type="file" accept=".mp3,.m4a,.ogg,.oga,.flac,.wav" style="display: none" />
+					<input id="song-upload-main" type="file" multiple accept=".mp3,.m4a,.ogg,.oga,.flac,.wav" style="display: none" />
 					<br />
 	<% if user.permissions[:override_bitrate] %>
 					<input type="checkbox" name="override-bitrate" id="override-bitrate" value="1" />
@@ -178,9 +178,9 @@
 				</td></tr></table>
 
 				<div style="width: 100%; position: absolute; bottom: 0px; height: 200px; overflow-y: scroll;">
-					<table style="width: 90%; margin: 0 auto;" class="list">
+					<table style="width: 90%; margin: 0 auto; table-layout: auto; " class="list">
 						<tr>
-							<th style="width: 20%">Job</th><th>Song</th><th>Status</th>
+							<th style="width: 14%">Job</th><th>Song</th><th>Status</th>
 						</tr>
 						<tbody id="screen-upload-song-status-table">
 						</tbody>
