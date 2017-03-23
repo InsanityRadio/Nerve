@@ -873,6 +873,25 @@ class Upload2Page extends UploadPage {
 
 	}
 
+	protected uploadDone(data:Object) {
+
+		// data.success
+
+	}
+
+	protected uploadProgress(percent:number, message:string) {
+
+		this.view.element("progress").style.width = (percent / 2) + "%";
+
+		if(message != null)
+			this.view.set("status", message);
+
+	}
+
+	protected uploadError(e:Error) {
+
+	}
+
 }
 
 class ModerationPage extends ListPage {
