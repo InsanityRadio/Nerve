@@ -609,6 +609,16 @@ var Upload2Page = (function (_super) {
         fd.append("instrumental", this.view.get("instrumental"));
         u.send(fd, true);
     };
+    Upload2Page.prototype.uploadDone = function (data) {
+        // data.success
+    };
+    Upload2Page.prototype.uploadProgress = function (percent, message) {
+        this.view.element("progress").style.width = (percent / 2) + "%";
+        if (message != null)
+            this.view.set("status", message);
+    };
+    Upload2Page.prototype.uploadError = function (e) {
+    };
     return Upload2Page;
 }(UploadPage));
 var ModerationPage = (function (_super) {
