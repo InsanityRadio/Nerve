@@ -4,7 +4,7 @@ Nerve is a music library and importation system, inspired by it's predecessor, I
 
 This software is aimed to be the last "master" you'll ever need for music metadata and processing, as it is able to mirror changes to the playout system (hopefully soon plural) under its control.  
 
-Nerve is object-oriented and (nearly) event-ready, and is completely customisable and extendable. We mean "object oriented" in the broadcast sense - you can tie its data into systems to create immersive and future-proofed content through in-development APIs. 
+Nerve is object-oriented and (nearly) event-ready, and is completely customisable and extendable. We mean "object oriented" in the broadcast sense - you can tie its data into systems to create immersive and future-proofed content through soon-to-be APIs (or through its database).
 
 
 ## Features
@@ -19,9 +19,9 @@ Nerve is object-oriented and (nearly) event-ready, and is completely customisabl
 * Lyric detection and scanning (access modules are provided, but it's up to you to work out licensing/legal terms)
 * *Fail-safe* mode of operation - uploads will have to manually be approved
 * Duplicate checking - not fully accurate but definitely comes in handy. 
+* Multiple uploads
 
-
-###*Planned Feature Queue*
+### *Planned Feature Queue*
 
 * *Ability to import show-specific/private content (e.g. interviews, vox-pops, etc. ), which are also normalised. *
 * *Fully searchable music library with "suggest replacement" options*
@@ -30,6 +30,8 @@ Nerve is object-oriented and (nearly) event-ready, and is completely customisabl
 * *Storage of original pre-processed tracks to allow multiple station profiles*
 * *Song suggestion based on Spotify APIs*
 * *Simultaneous playout system*
+* Refactor Myriad engine and test support for Myriad v5
+
 
 
 ## Installation
@@ -61,6 +63,6 @@ This project is a part of the [Insanity Tech Masterplan](https://wiki.insanityra
 	- Text field on interface, perhaps with pre-set versions
 	- Automatically detect "Remix" in titles of uploads
 
-## License
+## License
 
 This code is released under the LGPL version, except where stated, and has absolutely no warranty, express or implied. I haven't had time to unit test this software, but it's certainly on the to-do list. TDD isn't yet dead!
