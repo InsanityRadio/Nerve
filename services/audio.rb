@@ -14,6 +14,8 @@ module Nerve
 
 			get '/audio/get/:id' do | id |
 
+				protect_cors!
+
 				path = Database.query("SELECT local_path FROM `tracks` WHERE id=?", id)
 				path = $config["export"]["directory"] + "/" + path.first["local_path"]
 
@@ -25,6 +27,8 @@ module Nerve
 
 			get '/audio/preview/:id' do | id |
 
+				protect_cors!
+
 				path = Database.query("SELECT local_path FROM `tracks` WHERE id=?", id)
 				path = $config["export"]["directory"] + "/" + path.first["local_path"] + ".ogg"
 
@@ -33,6 +37,8 @@ module Nerve
 			end
 
 			get '/audio/waveform/:id' do | id |
+
+				protect_cors!
 
 				path = Database.query("SELECT local_path FROM `tracks` WHERE id=?", id)
 				path = $config["export"]["directory"] + "/" + path.first["local_path"] + ".dat"

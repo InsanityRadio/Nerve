@@ -16,9 +16,15 @@ module Nerve
 
 			def protect_json! 
 
-				protect!
 				content_type 'application/json'
+				protect_cors!
 
+
+			end
+
+			def protect_cors!
+
+				protect!
 				# If we have a *valid* CORS origin, let's accept it.
 				return unless $config["security"]["allowed_origins"].include? env['HTTP_ORIGIN'].to_s.downcase
 				resp = {
