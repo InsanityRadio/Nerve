@@ -35,6 +35,18 @@ task :recall, :track_id do | t, args |
 
 end
 
+task :take_ownership, [:track_id, :user_id] do | t, args |
+
+	song = Nerve::Model::TrackProvider.from_id args[:track_id]
+
+	song.created_by = args[:user_id]
+	song.save
+
+	Nerve::Job::Recall.create({
+		"track_id" => args[:track_id]}) 
+
+end
+
 task :cleanup do | t, args |
 
 	Nerve::Job::CleanUp.create({})
