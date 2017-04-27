@@ -93,7 +93,7 @@ end
 
 task :update_all do | t, args |
 	
-	songs = Nerve::Model::TrackProvider.where "status = 5 AND playout_id IS NOT NULL"
+	songs = Nerve::Model::TrackProvider.where "(status = 5 OR status = 6) AND playout_id IS NOT NULL"
 
 	songs.each do | s |
 		Nerve::Job::Update.create({
