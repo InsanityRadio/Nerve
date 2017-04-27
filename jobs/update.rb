@@ -28,7 +28,7 @@ module Nerve; module Job
 				track.status = 10
 				track.save
 
-				_update track
+				_update track, options["audio"]
 
 				track.status = 5
 				track.save
