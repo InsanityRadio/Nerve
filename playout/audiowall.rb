@@ -3,6 +3,7 @@ require 'rubygems'
 require 'yaml'
 require 'fileutils'
 require 'pp'
+require 'inifile'
 
 # Export to the Myriad Audio Wall. I don't know if this has been done yet, I couldn't find any FOSS reference code.
 
@@ -370,7 +371,7 @@ module Nerve; module Playout
 
 		end
 
-		def save cart_id, cart
+		def save cart_id, cart, track = nil
 
 			data = cart.to_data
 			prefix = get_full_path(cart_id)
@@ -388,8 +389,17 @@ module Nerve; module Playout
 				FileUtils.touch(file)
 
 			end
-			FileUtils.touch(prefix + ".INI")
-
+			FileUtils.touch(prefix + ".INF")
+			if track != nil
+				file = IniFile.load(prefix + ".INF")
+			
+				file['Internet'] ||= {}
+				file['Internet']['OnlineStoreRef'] = 'Nerve_' + track.id
+				file.filename = prefix + ".INF"
+	
+				file.write()
+			end
+	
 		end
 
 		# returns file, index

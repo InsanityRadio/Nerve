@@ -97,7 +97,8 @@ task :update_all do | t, args |
 
 	songs.each do | s |
 		Nerve::Job::Update.create({
-			"track_id" => s.id})
+			"track_id" => s.id,
+			"audio" => false})
 	end
 
 end
