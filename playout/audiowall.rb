@@ -394,7 +394,7 @@ module Nerve; module Playout
 				file = IniFile.load(prefix + ".INF")
 			
 				file['Internet'] ||= {}
-				file['Internet']['OnlineStoreRef'] = 'Nerve_' + track.id
+				file['Internet']['OnlineStoreRef'] = 'Nerve_' + track.id.to_s
 				file.filename = prefix + ".INF"
 	
 				file.write()
