@@ -119,6 +119,7 @@
 					@item_number = @database.add_track cart_id, track, category_id, alt_category_id
 
 					track.playout_id = @item_number
+					track.playout_id_2 = cart_id
 
 					track.save
 
