@@ -45,9 +45,9 @@ module Nerve; module Playout
 
 				cart = self.new
 				cart.cart_id = id
-				cart.title = (data[0..19].strip + data[70..99].strip).force_encoding("windows-1251").encode("UTF-8")
-				cart.artist = (data[20..39].strip + data[100..29].strip).force_encoding("windows-1251").encode("UTF-8")
-				cart.description = ((data[40..59] + data[130..171]).strip).force_encoding("windows-1251").encode("UTF-8")
+				cart.title = (data[0..19].strip + data[70..99].strip).force_encoding("windows-1251").encode("UTF-8", { :invalid => :replace, :undef => :replace, :replace => '?' })
+				cart.artist = (data[20..39].strip + data[100..29].strip).force_encoding("windows-1251").encode("UTF-8", { :invalid => :replace, :undef => :replace, :replace => '?' })
+				cart.description = ((data[40..59] + data[130..171]).strip).force_encoding("windows-1251").encode("UTF-8", { :invalid => :replace, :undef => :replace, :replace => '?' })
 
 				# then magic? 0F000080 12000080 0800 (spaces)
 				# after part 2 desc 0C A6 00 00 "8E F6 8C 47"
