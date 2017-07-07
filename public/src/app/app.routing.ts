@@ -9,6 +9,10 @@ import {MyUploadsComponent} from './upload/my-uploads/my-uploads.component';
 import {UploadSongComponent} from './upload/upload-song/upload-song.component';
 import {CopySongComponent} from './upload/copy-song/copy-song.component';
 
+import {ModerationComponent} from './moderation/moderation.component';
+import {ModerationTrackComponent} from './moderation/track/moderation-track.component';
+import {ModerationPendingComponent} from './moderation/pending/moderation-pending.component';
+
 const appRoutes: Routes = [
     { path: '', component: HomeComponent },
     { path: 'upload', component: UploadComponent, children: [
@@ -17,7 +21,12 @@ const appRoutes: Routes = [
     	{ path: 'song', component: UploadSongComponent },
     	{ path: 'copy', component: CopySongComponent },
     	{ path: '', redirectTo: 'list', pathMatch: 'full' }
-    ] }
+    ] },
+    { path: 'moderation', component: ModerationComponent, children: [
+    	{ path: 'track/:id', component: ModerationTrackComponent}
+    	{ path: 'pending', component: ModerationPendingComponent },
+    	{ path: '', redirectTo: 'pending', pathMatch: 'full' }
+    ]}
 ];
 
 export const appRoutingProviders: any[] = [];

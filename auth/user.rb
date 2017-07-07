@@ -54,7 +54,8 @@ module Nerve
 					"username" => @username,
 					"name" => @name,
 					"moderator" => @moderator,
-					"admin" => @admin
+					"admin" => @admin,
+					"permissions" => @permissions
 				}.to_json
 			end
 

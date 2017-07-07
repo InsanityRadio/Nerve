@@ -1,4 +1,3 @@
-
 <div class="float-right">
 	<select id="edit-extro" [(ngModel)]="track.end_type" style="font-size: 12pt; padding: 2px 8px; ">
 		<option value="0" disabled>How does the song end?&nbsp;&nbsp;&nbsp;</option>
@@ -9,29 +8,33 @@
 </div>
 <div class="clearfix"></div>
 <div class="float-right">
-	<button id="edit-is" class="button large secondary sect intro start" onclick="confirm('WARNING - this doesn\'t trim the song, it simply adds a marker. Continue?') || event.stopPropagation()" title="Set Intro Start point">
+	<button (click)="defocus($event); set('intro_start')" id="edit-is" class="button large secondary sect intro start" onclick="confirm('WARNING - this doesn\'t trim the song, it simply adds a marker. Continue?') || event.stopPropagation()" title="Set Intro Start point">
 		Intro<br />Start
 		<input type="text" id="edit00-text" [value]="track.intro_start | timecode:true" locked />
 	</button>
-	<button id="edit-ie" class="button large secondary sect intro end" title="Set Intro End point">
+	<button (click)="defocus($event); set('intro_end')" id="edit-ie" class="button large secondary sect intro end" title="Set Intro End point">
 		Intro<br />End
 		<input type="text" id="edit01-text" [value]="track.intro_end | timecode:true" locked />
 	</button>
 
-	<button id="edit-hs" class="button large secondary sect hook start" title="Set Hook Start point">
+	<button (click)="defocus($event); set('hook_start')" id="edit-hs" class="button large secondary sect hook start" title="Set Hook Start point">
 		Hook<br />Start
 		<input type="text" id="edit10-text" [value]="track.hook_start | timecode:true" locked />
 	</button>
-	<button id="edit-he" class="button large secondary sect hook end" title="Set Hook End point">
+	<button (click)="defocus($event); set('hook_end')" id="edit-he" class="button large secondary sect hook end" title="Set Hook End point">
 		Hook<br />End
 		<input type="text" id="edit11-text" [value]="track.hook_end | timecode:true" locked />
 	</button>
 
-	<button id="edit-es" class="button large secondary sect extro start" title="Set Extro Point">
+	<button (click)="defocus($event); set('extro_start')" id="edit-es" class="button large secondary sect extro start" title="Set Extro Point">
 		<br />Extro
 		<input type="text" id="edit20-text" [value]="track.extro_start | timecode:true" locked />
 	</button>
 
-	<button class="button large secondary sect" id="edit-save-pub" disabled><i class="fa fa-floppy-o" style="font-size: 30pt" aria-hidden="true"></i></button>
+	<button class="button large secondary sect" id="edit-save" (click)="save()" *ngIf="!controller.submittable || controller.savable" [disabled]="!controller.savable"><i class="fa fa-floppy-o" style="font-size: 30pt" aria-hidden="true"></i></button>
+
+	<button class="button large secondary sect" id="edit-pub" (click)="publish()" *ngIf="controller.submittable && !controller.savable"><i class="fa fa-upload" style="font-size: 30pt" aria-hidden="true"></i></button>
+
+
 </div>
 <div class="clearfix"></div>

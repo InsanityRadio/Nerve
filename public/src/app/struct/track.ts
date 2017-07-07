@@ -1,6 +1,7 @@
 var dateFormat = require('dateformat');
+var mm = require('../../../musicmetadata');
 
-import {NerveService} from '../nerve.service';
+import { NerveService } from '../nerve.service';
 
 export class Track {
 
@@ -58,7 +59,8 @@ export class Track {
 			if (this.ignore && this.ignore.indexOf(key) !== -1) {
 				continue;
 			}
-			if (typeof this[key] == 'function' || typeof this[key] == 'object') {
+			if (this[key] != null && (typeof this[key] == 'function' || typeof this[key] == 'object')) {
+				console.log(typeof this[key], this[key], '!')
 				if (typeof this[key]['serialize'] != 'undefined')
 					data[key] = this[key].serialize()
 				continue;
@@ -84,6 +86,48 @@ export class Track {
 
 	get audio_url () : string|boolean {
 		return this.status != 6 ? '/api/audio/get/' + this.id : false;
+	}
+
+	get submittable () {
+		return this.id > 0 && this.end_type > 0 && this.extro_start > 0;
+	}
+
+}
+
+export class UploadTrack extends Track {
+
+	static from (file:File, metadata?: Object) : Promise<UploadTrack> {
+
+		return new Promise<UploadTrack>(function(fulfil, reject) {
+
+			if (metadata) {
+				return fulfil(metadata);
+			}
+
+			let extension = file.name.split(".").pop().toLowerCase()
+
+			// We should handle this further up in executon
+			if (extension == "wav") {
+				reject(['metadata']);
+			}
+
+			var t = setTimeout(() => reject(['timeout']), 5000);
+			var metadata = mm(file, function (err, metadata) {
+				clearTimeout(t);
+				if (err) {
+					console.log('argh')
+					return reject(['metadata', err]);
+				}
+				metadata.artist = metadata.artist[0];
+				fulfil(metadata)
+			})
+
+		}).then(UploadTrack.search);
+
+	}
+
+	private static search (metadata: Object) {
+		return NerveService.getInstance().metadataMatch(metadata);
 	}
 
 }

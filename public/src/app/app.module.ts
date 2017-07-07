@@ -3,15 +3,20 @@ import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
 import {HttpModule, JsonpModule} from '@angular/http';
 
+import {DialogueService} from './dialogue.service';
 import {NerveService} from './nerve.service';
 
 import {TimecodePipe, LyricsPipe, NL2BRPipe} from './struct/pipes';
 
 import {AppComponent} from './app.component';
+
+import {DialogueComponent} from './dialogue.component';
+
 import {routing, appRoutingProviders} from './app.routing';
 import {HomeComponent} from './home/home.component';
 import {UploadComponent} from './upload/upload.component';
 import {TrackComponent} from './track/track.component';
+import {ModerationComponent} from './moderation/moderation.component';
 
 import {MyUploadsComponent} from './upload/my-uploads/my-uploads.component';
 import {TrackIconComponent} from './upload/my-uploads/track-icon.component';
@@ -23,9 +28,13 @@ import {EditControlsComponent} from './track/edit-controls.component';
 import {TrackInfoComponent} from './track/track-info.component';
 import {WaveformComponent} from './track/waveform.component';
 
+import {ModerationPendingComponent} from './moderation/pending/moderation-pending.component';
+import {ModerationTrackComponent} from './moderation/track/moderation-track.component';
+
 @NgModule({
     declarations: [
         AppComponent,
+        DialogueComponent,
         HomeComponent,
         UploadComponent,
         TrackComponent,
@@ -37,6 +46,9 @@ import {WaveformComponent} from './track/waveform.component';
         EditControlsComponent,
         TrackInfoComponent,
         WaveformComponent,
+        ModerationComponent,
+        ModerationTrackComponent,
+        ModerationPendingComponent,
         TimecodePipe,
         LyricsPipe,
         NL2BRPipe
@@ -48,7 +60,7 @@ import {WaveformComponent} from './track/waveform.component';
         JsonpModule,
         routing
     ],
-    providers: [appRoutingProviders, NerveService],
+    providers: [appRoutingProviders, NerveService, DialogueService],
     bootstrap: [AppComponent]
 })
 

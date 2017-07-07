@@ -1,6 +1,7 @@
 import {Component, Input, OnInit, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router, Params} from '@angular/router';
 
+import {DialogueService} from '../dialogue.service';
 import {NerveService} from '../nerve.service';
 import {FullTrack, Track} from '../struct/track';
 
@@ -18,8 +19,12 @@ export class EditControlsComponent implements OnInit, OnDestroy {
 	@Input() audio:AudioBackend;
 	@Input() controller:TrackComponent;
 
-	ngOnInit () {
+	_errorMessage : String;
 
+	constructor (private dialogue:DialogueService) {
+	}
+
+	ngOnInit () {
 	}
 
 	ngOnDestroy () {
@@ -31,6 +36,26 @@ export class EditControlsComponent implements OnInit, OnDestroy {
 
 	get loaded () : boolean {
 		return false;
+	}
+
+	set (type:String) {
+
+		this.controller.wave.set(type, this.controller.wave.getCurrentTime());
+		this.controller.mutate();
+
+	}
+
+	defocus (event:any) {
+		var element = event.target || event.srcElement || event.currentTarget;
+		element ? element.blur() : null;
+	}
+
+	save () {
+		this.controller.save().catch((e) => this.dialogue.showError("Error Saving", e));
+	}
+
+	publish () {
+		this.controller.publish().catch((e) => this.dialogue.showError("Error Publishing", e));
 	}
 
 }

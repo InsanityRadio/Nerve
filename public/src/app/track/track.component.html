@@ -1,14 +1,14 @@
 <div *ngIf="loaded">
 
-	<div class="row" style="max-width: inherit">
+	<div class="grid-x" style="max-width: inherit">
 		<div class="large-9 columns">
-			<waveform [readonly]="false" [controller]="this" [audio]="audio" [track]="track"></waveform>
+			<waveform #wave [readonly]="false" [controller]="this" [audio]="audio" [track]="track"></waveform>
 		</div>
 		<div class="large-3 columns">
 			<track-info [audio]="audio" [controller]="this" [track]="track"></track-info>
 		</div>
-	</div>
-	<div class="row" style="max-width: inherit">
+	<!-- </div>
+	<div class="gridx" style="max-width: inherit"> -->
 		<div class="large-4 columns">
 			<audio-player [audio]="audio" [controller]="this" [track]="track"></audio-player>
 		</div>
