@@ -4,13 +4,12 @@ import {NerveService} from '../../nerve.service';
 import { Track } from '../../struct/track';
 
 @Component({
-    selector: 'my-uploads',
-    template: require('./my-uploads.component.html')
+    selector: 'moderation-pending',
+    template: require('./moderation-pending.component.html')
 })
 
-export class MyUploadsComponent implements OnInit {
+export class ModerationPendingComponent implements OnInit {
 
-	tracksNeedingInput:any = [];
 	tracks:any = [];
 
     constructor (private nerveService: NerveService, private router: Router) {}
@@ -20,23 +19,18 @@ export class MyUploadsComponent implements OnInit {
     }
 
     load () {
-        console.log('loading....')
-    	this.nerveService.myUploads().then((tracks:Track[]) => {
+    	this.nerveService.moderationPending().then((tracks:Track[]) => {
 
     		console.log(tracks)
     		this.tracks = tracks
-    		this.tracksNeedingInput = tracks.filter((a:Track) => a.status < 2);
 
     	});
     }
 
 	navigate (track:any) {
 
-		if (!track.click) {
-			return;
-		}
-
-		this.router.navigate(['/upload', 'track', track.id])
+        console.log('hello!')
+		this.router.navigate(['/moderation', 'track', track.id])
 
 	}
 

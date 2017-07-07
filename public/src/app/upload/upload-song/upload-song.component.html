@@ -1,3 +1,91 @@
 <div>
-	UPLOAD!
+	<table class="grid upload-container"><tr><td>
+
+		<label class="upload-box" for="song-upload-main">
+
+			<div class="upload-progress" id="song-upload-progress" style="width: 0%"></div>
+
+			<i class="fa fa-file-audio-o" aria-hidden="true"></i><br />
+			<span id="song-upload-label">Choose Songs</span>
+			<br />
+			<br /><span id="song-upload-status"></span>
+
+		</label>
+
+		<input #upload (change)="select($event)" id="song-upload-main" type="file" multiple accept=".mp3,.m4a,.ogg,.oga,.flac,.wav" style="display: none" />
+		<br />
+
+		<table style="font-size: 9pt; width: 600px; margin: 0 auto" *ngIf="appComponent.user && appComponent.user.permissions">
+			<tr *ngIf="appComponent.user.permissions.override_bitrate">
+				<td><input #overrideBitrate type="checkbox" name="override-bitrate" id="override-bitrate" value="1" /></td>
+				<td><label for="override-bitrate">Override Minimum Bit / Sample Rate</label></td>
+				<td>Using this to upload "stream rips" will have your privileges revoked.</td>
+			</tr>
+
+			<tr *ngIf="appComponent.user.permissions.override_compressor" >
+				<td><input #overrideCompressor type="checkbox" name="override-compressor" id="override-compressor" value="1" /></td>
+				<td><label for="override-compressor">Disable Compression</label></td>
+				<td>Don't check unless you know what you're doing - for example classical music</td>
+			</tr>
+
+			<tr *ngIf="appComponent.user.permissions.instrumental">
+				<td><input #instrumental type="checkbox" name="upload-instrumental" id="upload-instrumental" value="1" /></td>
+				<td><label for="upload-instrumental">Instrumental</label></td>
+				<td>Check this if there are no lyrics at all (including backing vocals)</td>
+			</tr>
+
+			<tr *ngIf="appComponent.user.permissions.upload_library">
+				<td><input #library type="checkbox" checked name="upload-library" id="upload-library" value="1" /></td>
+				<td><label for="upload-library">Add To Library</label></td>
+				<td>(Don't uncheck this!)</td>
+			</tr>
+		</table>
+
+	</td>
+	<td style="width: 300px; padding-right: 15px">
+
+		<br />
+		<div class="callout warning">
+
+			<h5><i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;&nbsp;  Information</h5>
+
+			<p>Use the "Library" tab to search for a song before you upload it here. Duplicate songs are automatically rejected, unless you press the "Upload Alternative Version" next to it in search.</p>
+
+			<p>Also, this is a reminder that any and all music you upload <b>MUST</b> adhere to rules and regulations.</p>
+
+			<p>We don't want to lose our license, that'd be terrible!</p>
+
+			<p>Find a copy of the <a href="/music-policy" target="_blank">Music Policy here</a>.</p>
+
+			<br />
+			<p style="font-size: 8pt">(In short, check every upload for explicit lyrics and please don't use YouTube rips.)</p>
+
+		</div>
+
+	</td></tr></table>
+
+	<div class="bottom-peek">
+		<table style="width: 90%; margin: 0 auto; table-layout: auto; " class="list">
+			<tr>
+				<th style="width: 14%">Job</th><th>Song</th><th style="width: 50%">Status</th>
+			</tr>
+			<tbody id="screen-upload-song-status-table">
+
+				<tr *ngFor="let upload of uploads">
+
+					<td>
+						<div class="progress" [class.alert]="upload.error" role="progressbar" tabindex="0" [attr.aria-valuenow]="upload.progress" aria-valuemin="0" [attr.aria-valuetext]="upload.progress + ' percent'" aria-valuemax="100" style="margin-bottom: 0; width: 80%">
+							<div class="progress-meter" [style.width]="upload.progress + '%'">
+								<p class="progress-meter-text">{{ upload.progress }}%</p>
+							</div>
+						</div>
+					</td>
+					<td>{{ upload.track.title + ' - ' + upload.track.artist }}</td>
+					<td>{{ upload.message }}</td>
+
+				</tr>
+
+			</tbody>
+		</table>
+	</div>
 </div>

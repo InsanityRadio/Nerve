@@ -18,7 +18,9 @@ export class TrackInfoComponent implements OnInit, OnDestroy {
 	@Input() audio:AudioBackend;
 	@Input() controller:TrackComponent;
 
-	editMode:boolean = false;
+	@Input() readonly:TrackComponent;
+
+	_editMode:boolean = false;
 
 	ngOnInit () {
 
@@ -33,6 +35,20 @@ export class TrackInfoComponent implements OnInit, OnDestroy {
 
 	get loaded () : boolean {
 		return false;
+	}
+
+	set editMode (value:boolean) {
+		if (readonly) {
+			return;
+		}
+		if (this._editMode == true && value == false) {
+			this.controller.mutate();
+		}
+		this._editMode = value;
+	}
+
+	get editMode () :boolean {
+		return this._editMode;
 	}
 
 }

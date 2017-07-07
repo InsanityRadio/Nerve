@@ -35,7 +35,7 @@ module Nerve
 				protect_json!
 				raise "Slave servers/workers not yet implemented" if $config["import"]["workers"].length > 2
 
-				{"path" => "http://" + request.host_with_port + "/upload/"}.to_json  
+				{"path" => "http://" + request.host_with_port + "/api/upload/"}.to_json  
 
 			end
 
@@ -207,6 +207,8 @@ module Nerve
 
 				begin
 
+					p params
+
 					raise "Incorrect/empty CSRF key (#{params['token']}, #{session[:token]})" \
 						if session[:token].empty? || params['token'] != session[:token]
 
@@ -235,7 +237,7 @@ module Nerve
 
 					track.save
 
-					return { "success" => 1, "track" => track.to_json(true) }.to_json
+					return { "success" => 1, "track" => track.get_json(true) }.to_json
 
 				rescue
 

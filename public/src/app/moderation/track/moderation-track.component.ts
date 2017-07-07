@@ -1,16 +1,16 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router, Params} from '@angular/router';
 
-import {NerveService} from '../nerve.service';
-import {FullTrack, Track} from '../struct/track';
-import {AudioBackend, HTMLAudio} from './audio';
+import {NerveService} from '../../nerve.service';
+import {FullTrack, Track} from '../../struct/track';
+import {AudioBackend, HTMLAudio} from '../../track/audio';
 
 @Component({
-	selector: 'track',
-	template: require('./track.component.html')
+	selector: 'moderation-track',
+	template: require('./moderation-track.component.html')
 })
 
-export class TrackComponent implements OnInit, OnDestroy {
+export class ModerationTrackComponent implements OnInit, OnDestroy {
 
 	private id:number;
 	private track:Track;
@@ -44,24 +44,26 @@ export class TrackComponent implements OnInit, OnDestroy {
 		this.sub.unsubscribe();
 	}
 
-	save () {
-
-		return this.nerveService.saveTrack(this.track).then((track:Track) => {
-			console.log('SAVED!')
-			this.track = track;
-			this.saved = true;
-			this.changed = false;
-		})
-
+	edit () {
+		this.router.navigate(['/upload', 'track', this.track.id])
 	}
 
-	publish () {
-
-		return this.nerveService.publishTrack(this.track).then((track:Track) => {
-			console.log('PUBLISHED!')
-			// redirect back to home somehow yo 
+	flag () {
+		return this.nerveService.flag(this.track).then(() => {
+			this.router.navigate(['/moderation', 'pending'])
 		})
+	}
 
+	reject () {
+		return this.nerveService.reject(this.track).then(() => {
+			this.router.navigate(['/moderation', 'pending'])
+		})
+	}
+
+	approve () {
+		return this.nerveService.approve(this.track).then(() => {
+			this.router.navigate(['/moderation', 'pending'])
+		})
 	}
 
 	loadTrack () {

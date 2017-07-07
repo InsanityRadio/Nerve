@@ -24,6 +24,8 @@ function getOptions(track : FullTrack, container : HTMLElement, audio : any, rea
 		outMarkerColor: '#a0a0a0', // Colour for the out marker of segments
 		zoomWaveformColor: '#7880E0', // Colour for the zoomed in waveform
 		overviewWaveformColor: 'rgba(0,0,0,0.2)', // Colour for the overview waveform
+		segmentColor: '#4351CF',
+		randomizeSegmentColor: true,
 
 		waveformBuilderOptions: {
 			scale: 128,
@@ -108,7 +110,7 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 		this.ngOnDestroy();
 		var options = getOptions(this.track, this.container.nativeElement, this.audio.aud, this.readonly);
 
-		this.peaks = window.peaks.init(options);
+		this.peaks = window.peaks.js.init(options);
 		this.peaks.on('error', (error:any) => {
 
 			console.error('ERROR SHOWING WAVEFORM');
@@ -142,6 +144,8 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 
 	set(key:string, value:number) {
 
+		console.log('Setting', key, value)
+
 		this.track[key] = value;
 
 		var type = this.types.indexOf(key.split("_")[0]);
@@ -154,6 +158,12 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 
 
 		this.peaks.waveform.segments.updateSegments();
+
+	}
+
+	getCurrentTime (key:string) {
+
+		return this.peaks.player.getCurrentTime();
 
 	}
 
@@ -190,6 +200,7 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 	}
 
 	handleChange () {
+		this.controller.mutate();
 	}
 
 	get loaded () : boolean {

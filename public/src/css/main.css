@@ -269,7 +269,7 @@ table.list thead, table.list tbody, table.list tfoot {
 	border: none;
 }
 
-my-uploads > div > b {
+my-uploads > div > b, moderation-pending > div > b {
 	color: #777;
 	display: block;
 	margin: 10px 30px 0;
@@ -487,8 +487,8 @@ track-icon span.status-10:before {
 	color: #999;
 	font-size: 9pt;
 	position: absolute;
-	bottom: -17px;
-	right: 0;
+	bottom: -30px;
+	right: 10px;
 }
 
 .coverall .all button {
@@ -588,4 +588,26 @@ track-info .top-bar button {
 .button.secondary:hover {
 	background-color: #DDD;
 	color: #111;
+}
+
+.error-float {
+	position: absolute;
+	right: 0;
+	margin-top: 20px;
+}
+
+.upload-container label {
+	font-size: 1em;
+}
+
+.bottom-peek {
+	width: 100%;
+	bottom: 0px;
+	height: 200px;
+	overflow-y: scroll;
+}
+
+track-info, audio-player, edit-controls {
+	display: block;
+	padding: 10px;
 }
