@@ -53,40 +53,44 @@ module Nerve
 
 		get '/' do
 
-			content_type 'text/html'
-
-			service = Nerve::Services::Login.get_service
-
-			return redirect to(service.redirect(session) || '/login.html') \
-				if !session[:authenticated] or !session[:user_id]
-
-			begin
-				@user = service.get_user session[:user_id]
-			rescue
-				session.clear
-				return redirect to(service.redirect(session) || '/login.html')
-			end
-
-			return redirect to(service.redirect(session) || '/login.html') \
-				if !@user
-
-			@stats = {
-				:total_uploads => Nerve::Services::Upload.get_total_uploads,
-				:pending_moderation => Nerve::Services::Moderation.get_pending
-			}
-
-			@key = session[:token] ||= SecureRandom.hex
-
 			erb :"public/index.html", :locals => {:user => @user, :stats => @stats, :csrf_key => @key}
 
 		end
 
-		get '/dynamic/config.js' do
+		get '/dynamic/config' do
 
 			cache_control :public, max_age: 0
-			content_type "application/javascript;charset=utf-8"
+			content_type "application/json"
 
-			erb :"public/config.js", :locals => {:config => $config }
+			service = Nerve::Services::Login.get_service
+			begin
+				raise "not logged in" if !session[:authenticated] or !session[:user_id]
+				@user = service.get_user session[:user_id]
+			rescue
+				session.clear
+				return {
+					'authorized' => false,
+					'redirect' => service.redirect(session) || '/login.html'
+				}.to_json
+			end
+
+			stats = {
+				:total_uploads => Nerve::Services::Upload.get_total_uploads,
+				:pending_moderation => Nerve::Services::Moderation.get_pending
+			}
+
+			key = session[:token] ||= SecureRandom.hex
+
+			{
+				'authorized' => true,
+				'stats' => stats,
+				'user' => @user,
+				'key' => key,
+				'station_name' => $config['station_name'],
+				'contact_email' => $config['contact_email'],
+				'genres' => $genres,
+				'banned_words' => $config['words']['banned']
+			}.to_json
 
 		end
 

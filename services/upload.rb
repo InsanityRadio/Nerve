@@ -207,7 +207,7 @@ module Nerve
 
 				begin
 
-					raise "Incorrect/empty CSRF key" \
+					raise "Incorrect/empty CSRF key (#{params['token']}, #{session[:token]})" \
 						if session[:token].empty? || params['token'] != session[:token]
 
 					user = Nerve::Services::Login.get_service.get_user session[:user_id]
@@ -235,7 +235,7 @@ module Nerve
 
 					track.save
 
-					return { "success" => 1 }.to_json
+					return { "success" => 1, "track" => track.to_json(true) }.to_json
 
 				rescue
 

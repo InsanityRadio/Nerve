@@ -1,0 +1,17 @@
+<table class="meta">
+	<tr>
+		<td>{{ track.title }}</td>
+		<!-- BUG: THE ACTUAL ONE IS WAAAY TOO SLOW WITH 2 WAY BINDINGS -->
+		<td>00:00</td>
+		<!-- <td>{{ audio.time() | timecode:true }}</td> -->
+	</tr><tr>
+		<td>{{ track.artist }}</td>
+		<td>{{ track.length | timecode:true }}</td>
+	</tr><tr>
+		<td colspan=2><em>Low quality, low-bandwidth preview</em></td>
+	</tr>
+</table>
+<button class="button play" (click)="$event.target.blur(); audio.play()"><i class="fa fa-play"></i></button>
+<button class="button pause" (click)="$event.target.blur(); audio.pause()"><i class="fa fa-pause"></i></button>
+<button class="button reset" (click)="$event.target.blur(); audio.seek(0)"><i class="fa fa-step-backward"></i></button>
+<button class="button eject" disabled><i class="fa fa-eject"></i></button>

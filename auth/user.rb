@@ -52,7 +52,9 @@ module Nerve
 				{
 					"id" => @id,
 					"username" => @username,
-					"name" => @name
+					"name" => @name,
+					"moderator" => @moderator,
+					"admin" => @admin
 				}.to_json
 			end
 
