@@ -1,0 +1,35 @@
+<div id="sidebar">
+	<img class="logo" src="../theme/logo.png" style="padding-left: 5px" />
+	<b>Nerve</b>
+	<br /><br />
+	<ul class="main-menu">
+		<li><a routerLink="/library" routerLinkActive="current">
+			<img src="../theme/library.svg" />
+			Library
+		</a></li>
+		<li><a routerLink="/upload" routerLinkActive="current">
+			<i class="fa fa-upload" aria-hidden="true"></i>
+			Upload Songs
+		</a></li>
+		<li><a routerLink="/browse" routerLinkActive="current">
+			<img src="../theme/browse.svg" style="width: 43%; margin-bottom: 5px; padding-right: 2px" />
+			Browse
+		</a></li>
+		<li *ngIf="user.moderator" routerLink="/moderation" routerLinkActive="current" [attr.data-balloon]="stats.pending_moderation"><a href="" data-href="moderation">
+			<img src="../theme/moderate.svg" style="width: 43%; margin-bottom: 5px; padding-right: 2px" />
+			Moderation
+		</a></li>
+	</ul>
+	<span>{{ stats.total_uploads }} tracks</span>
+	<div class="credits">
+		Proudly produced in-house in England
+	</div>
+</div>
+<div id="top">
+	<div class="profile">
+		<i class="fa fa-user" aria-hidden="true"></i>&nbsp;
+		{{ user.name }} | <a href="/logout?token=<%= csrf_key %>">Log Out</a>
+	</div>
+</div>
+
+<router-outlet></router-outlet>
