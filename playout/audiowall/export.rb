@@ -76,7 +76,7 @@
 					# (do this by writing the LST file, prevents Myriad writing to it).
 					# binwrite allows us to actually export proper binary.
 
-					@audiowall.save cart_id, cart
+					@audiowall.save cart_id, cart, track
 
 					# convert to the final wav and do the fade out ending, this is fast.
 					# the fade out in the future will be based on the end type
@@ -119,6 +119,7 @@
 					@item_number = @database.add_track cart_id, track, category_id, alt_category_id
 
 					track.playout_id = @item_number
+					track.playout_id_2 = cart_id
 
 					track.save
 
@@ -143,11 +144,13 @@
 
 		end
 
-		def _update track 
+		def _update track, audio = true
 
 			# Update LST chunk for this track
 			tmp_files = []
 			begin
+
+				raise "The audio was removed" if track.status == 6 and audio
 
 				@audiowall = Nerve::Playout::AudioWall.new
 				@audiowall.load_settings
@@ -161,22 +164,26 @@
 				genres = $config["export"]["settings"]["genre"]
 				puts "Writing to cart #{cart_id}, genre #{track.genre}, #{genres[track.genre]}, #{prefix}"
 
-				tmp_files << (file = local_path + ".upload.wav")
-				a = fade_end(local_path, file, cart.extro_start)
-				raise a unless a == true
 				raise "Cart appears to have gone from playout system." if @audiowall.load_cart(cart_id).title == ""
+				if audio
+	
+					tmp_files << (file = local_path + ".upload.wav")
+					a = fade_end(local_path, file, cart.extro_start)
+					raise a if a != true
 
-				@audiowall.save cart_id, cart
+					@audiowall.save cart_id, cart, track
 
-				FileUtils.cp(file, @final_path = prefix + ".WAV", :preserve => false)
-				FileUtils.rm(file)
+					FileUtils.cp(file, @final_path = prefix + ".WAV", :preserve => false)
+					FileUtils.rm(file)
+			
+				else
+					
+					@audiowall.save cart_id, cart, track
+						
+				end
 
 				#raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \
 				#	unless @audiowall.settings[:individual_carts]
-
-				# Lock the "cart_id". Only supported on Audio Walls with individual LSTs
-				# (do this by writing the LST file, prevents Myriad writing to it).
-				# binwrite allows us to actually export proper binary.
 
 
 			rescue 

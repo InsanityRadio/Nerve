@@ -22,13 +22,13 @@ module Nerve; module Job
 
 			begin
 
-				raise "This track shouldn't be updated" if track.status != 5
+				raise "This track shouldn't be updated" if track.status != 5 and (track.status != 6 and !options["audio"])
 				@original_status = track.status
 
 				track.status = 10
 				track.save
 
-				_update track
+				_update track, options["audio"]
 
 				track.status = 5
 				track.save

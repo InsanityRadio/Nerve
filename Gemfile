@@ -13,10 +13,9 @@ gem 'resque-status'
 gem 'thin'
 gem 'mysql2'
 gem 'unidecode'
-
 gem 'rack-proxy'
 gem 'rack-rewrite'
-
+gem 'inifile'
 gem 'fuzzy-string-match'
 gem 'musicbrainz'
 gem 'tiny_tds'

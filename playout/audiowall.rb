@@ -3,6 +3,7 @@ require 'rubygems'
 require 'yaml'
 require 'fileutils'
 require 'pp'
+require 'inifile'
 
 # Export to the Myriad Audio Wall. I don't know if this has been done yet, I couldn't find any FOSS reference code.
 
@@ -44,9 +45,9 @@ module Nerve; module Playout
 
 				cart = self.new
 				cart.cart_id = id
-				cart.title = (data[0..19].strip + data[70..99].strip).force_encoding("windows-1251").encode("UTF-8")
-				cart.artist = (data[20..39].strip + data[100..29].strip).force_encoding("windows-1251").encode("UTF-8")
-				cart.description = ((data[40..59] + data[130..171]).strip).force_encoding("windows-1251").encode("UTF-8")
+				cart.title = (data[0..19].strip + data[70..99].strip).force_encoding("windows-1251").encode("UTF-8", { :invalid => :replace, :undef => :replace, :replace => '?' })
+				cart.artist = (data[20..39].strip + data[100..29].strip).force_encoding("windows-1251").encode("UTF-8", { :invalid => :replace, :undef => :replace, :replace => '?' })
+				cart.description = ((data[40..59] + data[130..171]).strip).force_encoding("windows-1251").encode("UTF-8", { :invalid => :replace, :undef => :replace, :replace => '?' })
 
 				# then magic? 0F000080 12000080 0800 (spaces)
 				# after part 2 desc 0C A6 00 00 "8E F6 8C 47"
@@ -370,7 +371,7 @@ module Nerve; module Playout
 
 		end
 
-		def save cart_id, cart
+		def save cart_id, cart, track = nil
 
 			data = cart.to_data
 			prefix = get_full_path(cart_id)
@@ -388,8 +389,17 @@ module Nerve; module Playout
 				FileUtils.touch(file)
 
 			end
-			FileUtils.touch(prefix + ".INI")
-
+			FileUtils.touch(prefix + ".INF")
+			if track != nil
+				file = IniFile.load(prefix + ".INF")
+			
+				file['Internet'] ||= {}
+				file['Internet']['OnlineStoreRef'] = 'Nerve_' + track.id.to_s
+				file.filename = prefix + ".INF"
+	
+				file.write()
+			end
+	
 		end
 
 		# returns file, index
