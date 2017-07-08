@@ -100,6 +100,8 @@ export class Track {
 
 export class UploadTrack extends Track {
 
+	exists: boolean;
+
 	static from (file:File, metadata?: Object) : Promise<UploadTrack> {
 
 		return new Promise<UploadTrack>(function(fulfil, reject) {
