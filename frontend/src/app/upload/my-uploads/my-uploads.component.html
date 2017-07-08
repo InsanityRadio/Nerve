@@ -1,0 +1,49 @@
+<div class="screen visible">
+	<b>Uploads needing your input</b>
+	<table class="list first">
+		<tr>
+			<th></th>
+			<th style="width: 30%">Title</th>
+			<th style="width: 20%">Artist</th>
+			<th style="width: 15%">Date</th>
+			<th style="width: 10%">Needed Info</th>
+			<th></th>
+		</tr>
+		<tbody id="screen-upload-list-alert">
+
+			<tr *ngFor="let track of tracksNeedingInput" [ngClass]="[track.click ? 'hand': '', track.greyed ? 'greyed' : '']" (click)="navigate(track)">
+				<td><track-icon [status]="track.status"></track-icon></td>
+				<td>{{ track.title }}</td>
+				<td>{{ track.artist }}</td>
+				<td>{{ track.getUploadDate() }}</td>
+				<td>{{ track.neededInfo }}</td>
+				<td></td>
+			</tr>
+
+		</tbody>
+	</table>
+
+	<b>My Uploads</b>
+	<table class="list first">
+		<tr>
+			<th></th>
+			<th style="width: 30%">Title</th>
+			<th style="width: 20%">Artist</th>
+			<th style="width: 15%">Date</th>
+			<th style="width: 10%">Approved</th>
+			<th></th>
+		</tr>
+		<tbody id="screen-upload-list-all">
+
+			<tr *ngFor="let track of tracks" [ngClass]="[track.click ? 'hand': '', track.greyed ? 'greyed' : '']" (click)="navigate(track)">
+				<td><track-icon [status]="track.status"></track-icon></td>
+				<td>{{ track.title }}</td>
+				<td>{{ track.artist }}</td>
+				<td>{{ track.getUploadDate() }}</td>
+				<td>{{ track.approved ? 'Yes' : 'No' }}</td>
+				<td></td>
+			</tr>
+
+		</tbody>
+	</table>
+</div>

@@ -174,7 +174,7 @@ module Nerve; module Model
 			end
 		end
 
-		def to_json extended = false
+		def get_json extended = false
 
 			@user = created_by
 
@@ -216,7 +216,13 @@ module Nerve; module Model
 			data["big"] = extended
 			data["lyrics"] = lyrics
 
-			data.to_json
+			data
+
+		end
+
+		def to_json extended = true
+
+			self.get_json(extended).to_json
 
 		end
 

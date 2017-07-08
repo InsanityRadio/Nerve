@@ -1,0 +1,27 @@
+<div id="sidebar-upload" class="second-sidebar visible">
+	<br />
+	<b>Upload Menu</b>
+	<br /><br />
+	<ul class="main-menu">
+		<li><a routerLink="list" routerLinkActive="current">
+			<i class="fa fa-cloud-upload" aria-hidden="true"></i>
+			My Uploads
+		</a></li>
+		<li><a routerLink="song" routerLinkActive="current">
+			<img src="../../theme/library.svg" />
+			Upload Song
+		</a></li>
+		<li><a routerLink="copy" routerLinkActive="current">
+			<i class="fa fa-copy" aria-hidden="true"></i>
+			Copy Song
+		</a></li>
+		<li><a routerLink="sweeper" routerLinkActive="current" style="pointer-events: none; opacity: 0.3 !important; color: #000 !important; cursor: default !important; background: none !important">
+			<img src="../../theme/link.svg" />
+			Upload Sweeper
+		</a></li>
+	</ul>
+</div>
+
+<div class="body">
+    <router-outlet></router-outlet>
+</div>

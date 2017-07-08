@@ -79,6 +79,20 @@ module Nerve
 
 			end
 
+			post '/moderation/recall/:id' do | id |
+
+				protect_moderator!
+				raise "Incorrect/empty CSRF key" \
+					if session[:token].empty? || params['token'] != session[:token]
+
+				track = Nerve::Model::TrackProvider.from_id(id)
+
+				Nerve::Job::Recall.create({
+					"track_id" => track.id})
+
+				return { "success" => 1 }.to_json
+
+			end
 		end
 	end
 end

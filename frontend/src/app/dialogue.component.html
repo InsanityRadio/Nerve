@@ -1,0 +1,28 @@
+<div class="coverall" id="error-container" *ngIf="dialogue != undefined" [style.backgroundColor]="'rgba(0, 0, 0, ' + opacity + ')'">
+
+	<div class="all" id="error-view" *ngIf="dialogue.type == 'ErrorDialogue'">
+
+		<div>
+			<h1 id="error-title">{{ dialogue.title }}</h1>
+			<p id="error-message">{{ dialogue.message }}</p>
+
+			<button (click)="dialogue.close()" id="error-close" class="button" style="float: right">Okay</button>
+
+			<em id="error-code">{{ dialogue.code }}</em>
+		</div>
+
+	</div>
+
+	<div class="all" id="confirm-view" *ngIf="dialogue.type == 'ConfirmDialogue'">
+
+		<div>
+			<h1 id="confirm-title">{{ dialogue.title }}</h1>
+			<p id="confirm-message">{{ dialogue.message }}</p>
+
+			<button (click)="dialogue.close()" id="confirm-close" class="button grey" style="float: right">Cancel</button>
+			<button (click)="dialogue.confirm()" id="confirm-go" class="button" style="float: right">Confirm</button>
+
+		</div>
+
+	</div>
+</div>

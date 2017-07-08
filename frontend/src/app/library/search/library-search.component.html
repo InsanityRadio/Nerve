@@ -1,0 +1,30 @@
+<div class="screen visible">
+
+	<div class="input-group" style="max-width: 600px; margin: 10px auto 30px;">
+		<input #searchQuery class="input-group-field" type="text" />
+		<div class="input-group-button">
+			<button (click)="search(searchQuery.value)" class="button">Search</button>
+		</div>
+	</div>
+
+	<table class="list first">
+		<tr>
+			<th></th>
+			<th style="width: 30%">Title</th>
+			<th style="width: 20%">Artist</th>
+			<th style="width: 15%">Date</th>
+			<th style="width: 35%">Reason</th>
+		</tr>
+		<tbody id="screen-upload-list-alert">
+
+			<tr *ngFor="let track of tracks" class="hand" (click)="navigate(track)">
+				<td><track-icon [status]="track.flagged ? 7 : 0"></track-icon></td>
+				<td>{{ track.title }}</td>
+				<td>{{ track.artist }}</td>
+				<td>{{ track.getUploadDate() }}</td>
+				<td>{{ track.flagged ? "Flagged for senior review" : track.neededInfo }}</td>
+			</tr>
+
+		</tbody>
+	</table>
+</div>
