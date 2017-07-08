@@ -1,4 +1,5 @@
 <div>
+	<track-search *ngIf="currentSearchFile" [title]="currentSearchFile.name" (complete)="fixed($event)"></track-search>
 	<table class="grid upload-container"><tr><td>
 
 		<label class="upload-box" for="song-upload-main">
@@ -70,6 +71,16 @@
 				<th style="width: 14%">Job</th><th>Song</th><th style="width: 50%">Status</th>
 			</tr>
 			<tbody id="screen-upload-song-status-table">
+
+				<tr *ngFor="let file of files">
+
+					<td>
+						<i class="fa fa-question-circle"></i>
+					</td>
+					<td>{{ file.name }}</td>
+					<td><a href="javascript:void(0)" (click)="fix(file)">{{ file.message }}</a></td>
+
+				</tr>
 
 				<tr *ngFor="let upload of uploads">
 

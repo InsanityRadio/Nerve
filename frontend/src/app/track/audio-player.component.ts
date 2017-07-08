@@ -18,15 +18,35 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
 	@Input() audio:AudioBackend;
 	@Input() controller:TrackComponent;
 
+	private listener:(e:KeyboardEvent) => boolean;
+
 	ngOnInit () {
+
+		document.documentElement.addEventListener("keydown", this.listener = (e:KeyboardEvent) => this.keyPressListener(e));
 
 	}
 
 	ngOnDestroy () {
+		if (this.audio) {
+			this.audio.unload();
+		}
+
+		document.documentElement.removeEventListener("keydown", this.listener)
+
 	}
 
-	loadTrack () {
+	keyPressListener(e:KeyboardEvent) : boolean {
 
+		if(document.activeElement != document.body)
+			return;
+
+		if(e.keyCode == 32 || e.charCode == 32) {
+
+			this.audio.playing() ? this.audio.pause() : this.audio.play();
+			e.preventDefault();
+			return false;
+
+		}
 	}
 
 	get loaded () : boolean {

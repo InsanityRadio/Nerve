@@ -20,10 +20,11 @@ export class TrackInfoComponent implements OnInit, OnDestroy {
 
 	@Input() readonly:boolean;
 
+	@Input() hideControls:boolean;
+
 	_editMode:boolean = false;
 
 	ngOnInit () {
-
 	}
 
 	ngOnDestroy () {

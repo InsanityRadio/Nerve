@@ -58,4 +58,8 @@ export class EditControlsComponent implements OnInit, OnDestroy {
 		this.controller.publish().catch((e:string) => this.dialogue.showError("Error Publishing", e, "pub-fail"));
 	}
 
+	remove () {
+		this.controller.remove().catch((e:string) => this.dialogue.showError("Error Deleting", e, "delete-fail"));
+	}
+
 }

@@ -20,6 +20,16 @@ module Nerve
 
 			end
 
+			get '/library/search/' do
+
+				protect_json!
+				query = params['query']
+				COUNT = 60; page = params['page'] || 0
+
+				Nerve::Model::TrackProvider.search(query, COUNT, page).to_json
+
+			end
+
 
 			get '/migrate/search/' do
 

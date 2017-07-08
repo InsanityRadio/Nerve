@@ -23,13 +23,21 @@ import {TrackIconComponent} from './upload/my-uploads/track-icon.component';
 import {CopySongComponent} from './upload/copy-song/copy-song.component';
 import {UploadSongComponent} from './upload/upload-song/upload-song.component';
 
+import {LibraryComponent} from './library/library.component';
+import {LibrarySearchComponent} from './library/search/library-search.component';
+import {LibraryTrackComponent} from './library/track/library-track.component';
+
 import {AudioPlayerComponent} from './track/audio-player.component';
 import {EditControlsComponent} from './track/edit-controls.component';
 import {TrackInfoComponent} from './track/track-info.component';
 import {WaveformComponent} from './track/waveform.component';
 
+import {TrackSearchComponent} from './track/search/track-search.component';
+
 import {ModerationPendingComponent} from './moderation/pending/moderation-pending.component';
 import {ModerationTrackComponent} from './moderation/track/moderation-track.component';
+
+import {MusicPolicyComponent} from './music-policy.component';
 
 @NgModule({
     declarations: [
@@ -38,6 +46,7 @@ import {ModerationTrackComponent} from './moderation/track/moderation-track.comp
         HomeComponent,
         UploadComponent,
         TrackComponent,
+        MusicPolicyComponent,
         MyUploadsComponent,
         CopySongComponent,
         UploadSongComponent,
@@ -49,6 +58,10 @@ import {ModerationTrackComponent} from './moderation/track/moderation-track.comp
         ModerationComponent,
         ModerationTrackComponent,
         ModerationPendingComponent,
+        TrackSearchComponent,
+        LibraryComponent,
+        LibraryTrackComponent,
+        LibrarySearchComponent,
         TimecodePipe,
         LyricsPipe,
         NL2BRPipe
