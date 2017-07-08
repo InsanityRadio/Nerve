@@ -12,7 +12,7 @@ module Nerve; module Model
 		attr_accessor :local_path, :intro_start, :intro_end, :hook_start, :hook_end, :outro
 		attr_accessor :end_type, :waveform, :length, :bitrate, :sample_rate
 
-		attr_accessor :is_library, :is_automation, :playout_id, :flagged
+		attr_accessor :is_library, :is_automation, :playout_id, :playout_id_2, :flagged
 
 		def self.all
 
@@ -65,6 +65,7 @@ module Nerve; module Model
 			@is_automation = result["is_automation"] == 1
 
 			@playout_id = result["playout_id"] or ''
+			@playout_id_2 = result["playout_id_2"] or ''
 
 			@explicit = result["explicit"] == 1
 			@flagged = result["flagged"] == 1
@@ -138,12 +139,12 @@ module Nerve; module Model
 				last_update=NOW(), title=?, intro_start=?, intro_end=?,
 				hook_start=?, hook_end=?, outro=?, status=?, end_type=?,
 				approved_by=?, explicit=?, flagged=?, instrumental=?,
-				is_library = ?, is_automation = ?, playout_id = ?
+				is_library = ?, is_automation = ?, playout_id = ?, playout_id_2 = ?
 				WHERE id=?", 
 				@title, @intro_start, @intro_end,
 				@hook_start, @hook_end, @outro, @status, @end_type,
 				@approved_by, @explicit ? 1 : 0, @flagged ? 1 : 0, @instrumental ? 1 : 0,
-				@is_library ? 1 : 0, @is_automation ? 1 : 0, @playout_id,
+				@is_library ? 1 : 0, @is_automation ? 1 : 0, @playout_id, @playout_id_2, 
 				@id)
 
 		end
