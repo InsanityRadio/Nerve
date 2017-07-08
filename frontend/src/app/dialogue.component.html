@@ -16,8 +16,8 @@
 	<div class="all" id="confirm-view" *ngIf="dialogue.type == 'ConfirmDialogue'">
 
 		<div>
-			<h1 id="confirm-title">Title</h1>
-			<p id="confirm-message">Message</p>
+			<h1 id="confirm-title">{{ dialogue.title }}</h1>
+			<p id="confirm-message">{{ dialogue.message }}</p>
 
 			<button (click)="dialogue.close()" id="confirm-close" class="button grey" style="float: right">Cancel</button>
 			<button (click)="dialogue.confirm()" id="confirm-go" class="button" style="float: right">Confirm</button>

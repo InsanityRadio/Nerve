@@ -8,37 +8,54 @@ import '../css/main.css';
 declare let $: any;
 
 @Component({
-    selector: 'app',
-    template: require('./app.component.html')
+	selector: 'app',
+	template: require('./app.component.html')
 })
 
 export class AppComponent implements OnInit {
-    user:any = {}; // { name: 'Dummy User', admin: true, moderator: true };
-    stats:any = {};
+	user:any = {}; // { name: 'Dummy User', admin: true, moderator: true };
+	stats:any = {};
 
-    private csrf_key:string;
+	loaded: boolean = false;
 
-    constructor (private nerveService: NerveService, private dialogueService: DialogueService) {}
+	private csrf_key:string;
+
+	constructor (private nerveService: NerveService, private dialogueService: DialogueService) {}
 	
-    ngOnInit() {
+	ngOnInit() {
 
-        var config = this.nerveService.handshake().then(data => {
+		var isChromium = window['chrome'],
+			winNav = window.navigator,
+			vendorName = winNav.vendor,
+			isOpera = winNav.userAgent.indexOf("OPR") > -1,
+			isIEedge = winNav.userAgent.indexOf("Edge") > -1,
+			isFirefox = winNav.userAgent.indexOf("Firefox") > -1,
+			isIOSChrome = winNav.userAgent.match("CriOS");
 
-            if (!data.authorized) {
-                location.href = data.redirect;
-                return;
-            }
+		if (!(isChromium || isFirefox || isIEedge) || isOpera || isIOSChrome) {
 
-            this.user = data.user;
-            this.stats = data.stats;
-            this.csrf_key = data.key;
+			setTimeout(() => this.dialogueService.showError("Browser Error", "To use Nerve, you need to open it on Firefox or Chrome. This is because Microsoft and Apple don't support the music format we use.", "BAD-BROWSER", () => window.location.reload()), 1)
+			return;
+		}
 
-        }).catch((error:any) => {
+		var config = this.nerveService.handshake().then(data => {
 
-            this.dialogueService.showError("Fatal Error", "Could not connect to the backend.", "HANDSHAKE-FAIL", () => window.location.reload());
+			if (!data.authorized) {
+				location.href = data.redirect;
+				return;
+			}
 
-        });
+			this.loaded = true;
+			this.user = data.user;
+			this.stats = data.stats;
+			this.csrf_key = data.key;
 
-    }
+		}).catch((error:any) => {
+
+			this.dialogueService.showError("Fatal Error", "Could not connect to the backend.", "HANDSHAKE-FAIL", () => window.location.reload());
+
+		});
+
+	}
 
 }

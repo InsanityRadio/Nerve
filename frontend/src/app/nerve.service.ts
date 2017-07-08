@@ -136,6 +136,22 @@ export class NerveService {
 			.catch(this.handleError);
 	}
 
+	search (title: string, artist: string, album?: string) : Promise<Track[]> {
+		return this.http.get('/api/metadata/search/?title=' + encodeURIComponent(title) + '&artist=' + encodeURIComponent(artist) + '&album=' + encodeURIComponent(album || ''))
+			.toPromise()
+			.then(this.extractData)
+			.then(this.extractTrack)
+			.catch(this.handleError);
+	}
+
+	librarySearch (query: string) : Promise<Track[]> {
+		return this.http.get('/api/library/search/?query=' + encodeURIComponent(query))
+			.toPromise()
+			.then(this.extractData)
+			.then(this.extractTrack)
+			.catch(this.handleError);
+	}
+
 	track (id: number) : Promise<FullTrack> {
 		return this.http.get('/api/upload/file/' + id)
 			.toPromise()
@@ -166,6 +182,28 @@ export class NerveService {
 		formData.append('token', NerveService.csrf_key);
 
 		return this.$post('/api/upload/publish/' + track_id, formData)
+			.then(this.extractData)
+			.catch(this.handleError);
+	}
+
+	deleteTrack (track:FullTrack) : Promise<FullTrack> {
+
+		let track_id = track.id;
+		let formData = new FormData();
+		formData.append('token', NerveService.csrf_key);
+
+		return this.$post('/api/upload/delete/' + track_id, formData)
+			.then(this.extractData)
+			.catch(this.handleError);
+	}
+
+	recallTrack (track:FullTrack) : Promise<FullTrack> {
+
+		let track_id = track.id;
+		let formData = new FormData();
+		formData.append('token', NerveService.csrf_key);
+
+		return this.$post('/api/moderation/recall/' + track_id, formData)
 			.then(this.extractData)
 			.catch(this.handleError);
 	}

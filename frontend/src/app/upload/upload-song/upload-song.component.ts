@@ -4,6 +4,16 @@ import {Upload, NerveService} from '../../nerve.service';
 
 import {AppComponent} from '../../app.component'
 
+class FileWrapper {
+
+	name: string;
+
+	constructor (public file: File, public message: string) {
+		this.name = file.name;
+	}
+
+}
+
 @Component({
     selector: 'upload-song',
     template: require('./upload-song.component.html')
@@ -19,6 +29,9 @@ export class UploadSongComponent implements OnInit {
 	@ViewChild('library') library:ElementRef;
 
 	uploads: Upload[] = [];
+	files: FileWrapper[] = [];
+
+	currentSearchFile: FileWrapper;
 
 	constructor(private appComponent:AppComponent, private nerveService: NerveService) {
 	}
@@ -27,27 +40,89 @@ export class UploadSongComponent implements OnInit {
 	}
 
 	select (event:any) {
-		[].forEach.call(event.target.files, (file:File) => this.uploadFile(file));
+		[].forEach.call(event.target.files, (file:File) => {
+
+			let extension = file.name.split(".").pop().toLowerCase()
+
+			// We should handle this further up in executon
+			if (extension == "wav") {
+				let fw = new FileWrapper(file, 'Missing Title & Artist');
+				this.files.push(fw);
+				if (event.target.files.length == 1) {
+					this.fix(fw);
+				}
+			} else {
+				this.uploadFile(file)
+			}
+
+		});
 	}
 
-	uploadFile (file:File) {
+	uploadFile (file:File, metadata?:any, track?:Track) {
 
-		let trackP = UploadTrack.from(file)
+		let options = this.getOptions()
+		
+		if (track) {
 
-		var options = this.getOptions()
+			var upload = this.nerveService.upload(track, file, options);
+			this.uploads.push(upload)
+			upload.update((upload:any) => this.update(upload))
+
+			return;
+
+		}
+
+		let trackP = UploadTrack.from(file, metadata)
 
 		trackP.then((track:UploadTrack) => {
 			
 			var upload = this.nerveService.upload(track, file, options);
-
 			this.uploads.push(upload)
-
 			upload.update((upload:any) => this.update(upload))
 
-		}) /*catch(function (error) {
+		}).catch((error) => {
 
-		}) */
+			console.log('RECEIVE SOME ERROR', error)
 
+			if (error == 'metadata') {
+
+				let fw = new FileWrapper(file, 'Missing Title & Artist');
+
+				this.files.push(fw);
+
+				if (this.files.length == 1) {
+					this.fix(fw);
+				}
+
+			} else {
+				throw error;
+			}
+
+		}) 
+
+
+	}
+
+	fix (file:FileWrapper) {
+
+		this.currentSearchFile = file;
+
+	}
+
+	fixed (track: Track) {
+
+		console.log('Fixed!!')
+
+		if (track != null) {
+
+			if (this.files.indexOf(this.currentSearchFile) != -1) {
+				this.files.splice(this.files.indexOf(this.currentSearchFile), 1)
+			}
+			this.uploadFile(this.currentSearchFile.file, null, track)
+
+		}
+
+		this.currentSearchFile = null;
 
 	}
 

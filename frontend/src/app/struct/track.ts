@@ -6,8 +6,11 @@ import {AudioUtil} from '../track/audio';
 
 export class Track {
 
-	id: number;
-	external_id: number;
+	id: number = 0;
+	external_id: number = 0;
+
+	cache_id: number = 0;
+
 	title: string;
 	artist: string;
 	album: string;
@@ -119,7 +122,6 @@ export class UploadTrack extends Track {
 					console.log('argh')
 					return reject(['metadata', err]);
 				}
-				metadata.artist = metadata.artist[0];
 				metadata = AudioUtil.strip(metadata)
 				fulfil(metadata)
 			})
@@ -128,8 +130,8 @@ export class UploadTrack extends Track {
 
 	}
 
-	private static search (metadata: Object) {
-		return NerveService.getInstance().metadataMatch(metadata);
+	private static search (metadata: Object) : Promise<any> {
+		return NerveService.getInstance().metadataMatch(metadata).catch((error) => metadata);
 	}
 
 }

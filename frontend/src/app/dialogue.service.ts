@@ -65,6 +65,10 @@ export class DialogueService {
 
 	}
 
+	close () {
+		DialogueService.dialogue.close();
+	}
+
 	private getDefaultAction () : () => void {
 		return () => {
 			DialogueService.dialogue.close();

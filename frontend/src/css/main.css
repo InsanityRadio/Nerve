@@ -467,6 +467,11 @@ track-icon span.status-10:before {
 	width: 100%;
 }
 
+.coverall .all.large {
+	top: 5%;
+	margin-top: 0;
+}
+
 .coverall .all > div {
 	margin: 30px auto;
 	width: 500px;
@@ -493,6 +498,10 @@ track-icon span.status-10:before {
 
 .coverall .all button {
 	margin: 20px 10px 20px 0;
+}
+
+.coverall .all .input-group button {
+	margin: 0;
 }
 
 .coverall .all button:not(:first-of-type) {
@@ -610,4 +619,8 @@ track-info .top-bar button {
 track-info, audio-player, edit-controls {
 	display: block;
 	padding: 10px;
+}
+
+.resultsTable .selected td {
+	background: #CCC;
 }

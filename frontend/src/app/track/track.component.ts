@@ -2,6 +2,7 @@ import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router, Params} from '@angular/router';
 
 import {NerveService} from '../nerve.service';
+import {DialogueService} from '../dialogue.service';
 import {FullTrack, Track} from '../struct/track';
 import {AudioBackend, HTMLAudio} from './audio';
 
@@ -27,6 +28,7 @@ export class TrackComponent implements OnInit, OnDestroy {
 
 	constructor (
 		private nerveService:NerveService,
+		private dialogue:DialogueService,
 		private route: ActivatedRoute,
 		private router: Router
 	) {}
@@ -56,10 +58,59 @@ export class TrackComponent implements OnInit, OnDestroy {
 
 	publish () {
 
-		return this.nerveService.publishTrack(this.track).then((track:Track) => {
-			console.log('PUBLISHED!')
-			// redirect back to home somehow yo 
-		})
+		var promise = new Promise<any>((resolve, reject) => {
+
+			this.dialogue.showDialogue("Publish Track", "You are about to submit this song for addition to the playout system.\n\
+\n\
+By clicking 'Confirm', you agree that to the best of your knowledge this song does not contain explicit language.", () => {
+
+				this.dialogue.close();
+				resolve(this.nerveService.publishTrack(this.track).then((track:Track) => {
+					this.router.navigate(['/upload', 'list'])
+				}))
+
+			}, () => {
+				reject('reject')
+			});
+
+
+		}).catch((e) => {
+			if (e == 'reject') {
+				this.dialogue.close();
+			} else {
+				throw e;
+			}
+		});
+
+		return promise;
+
+	}
+
+	remove () {
+
+		var promise = new Promise<any>((resolve, reject) => {
+
+			this.dialogue.showDialogue("Delete Track", "Do you really want to delete this track? You cannot undo this.", () => {
+
+				this.dialogue.close();
+				resolve(this.nerveService.deleteTrack(this.track).then((track:Track) => {
+					this.router.navigate(['/upload', 'list'])
+				}))
+
+			}, () => {
+				reject('reject')
+			});
+
+
+		}).catch((e) => {
+			if (e == 'reject') {
+				this.dialogue.close();
+			} else {
+				throw e;
+			}
+		});
+
+		return promise;
 
 	}
 

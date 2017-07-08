@@ -1,0 +1,21 @@
+<div *ngIf="loaded">
+
+	<div class="grid-x" style="max-width: inherit">
+		<div class="large-9 columns">
+			<waveform #wave [readonly]="true" [controller]="this" [audio]="audio" [track]="track"></waveform>
+		</div>
+		<div class="large-3 columns">
+			<track-info [readonly]="true" [hideControls]="shouldHideControls" [audio]="audio" [controller]="this" [track]="track"></track-info>
+		</div>
+	<!-- </div>
+	<div class="gridx" style="max-width: inherit"> -->
+		<div class="large-4 columns ">
+			<audio-player [audio]="audio" [controller]="this" [track]="track"></audio-player>
+		</div>
+	</div>
+
+</div>
+<div *ngIf="!loaded" class="screen" id="screen-load">
+	<i class="fa fa-cog" style="animation: fa-spin 5s infinite linear;"></i>
+	<i class="fa fa-cog small" style="animation: fa-spin 5s infinite linear;"></i>
+</div>

@@ -1,12 +1,24 @@
-<div class="top-bar">
+<div class="top-bar" *ngIf="controller.type != 'library'">
 	<div class="top-bar-left">
 		<button class="button" (click)="readonly ? (controller.edit()) : (editMode = !editMode)" title="Edit Artist"><i [ngClass]="['fa', editMode ? 'fa-check' : 'fa-pencil']" aria-hidden="true"></i></button>
 	</div>
 	<div class="top-bar-right">
-		<button class="button" title="Delete Song"><i class="fa fa-trash" aria-hidden="true"></i></button>
+		<button class="button" (click)="controller.remove()" title="Delete Song"><i class="fa fa-trash" aria-hidden="true"></i></button>
 		<button class="button" *ngIf="!readonly" (click)="controller.save()" [disabled]="editMode" title="Save Information"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
 	</div>
 </div>
+
+<div class="top-bar" *ngIf="controller.type == 'library' && !hideControls">
+
+	<div class="top-bar-left">
+		<!-- <button class="button" (click)="readonly ? (controller.edit()) : (editMode = !editMode)" title="Edit Artist"><i [ngClass]="['fa', editMode ? 'fa-check' : 'fa-pencil']" aria-hidden="true"></i></button> -->
+	</div>
+	<div class="top-bar-right">
+		<button class="button" (click)="controller.remove()" title="Remove From Playout"><i class="fa fa-trash" aria-hidden="true"></i></button>
+	</div>
+
+</div>
+
 
 <b>Song Information:</b>
 
