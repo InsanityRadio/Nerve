@@ -14,7 +14,7 @@ import {ModerationTrackComponent} from './moderation/track/moderation-track.comp
 import {ModerationPendingComponent} from './moderation/pending/moderation-pending.component';
 
 const appRoutes: Routes = [
-    { path: '', component: HomeComponent },
+    { path: '', redirectTo: 'upload', pathMatch: 'full' },
     { path: 'upload', component: UploadComponent, children: [
 	    { path: 'track/:id', component: TrackComponent },
     	{ path: 'list', component: MyUploadsComponent },
@@ -23,7 +23,7 @@ const appRoutes: Routes = [
     	{ path: '', redirectTo: 'list', pathMatch: 'full' }
     ] },
     { path: 'moderation', component: ModerationComponent, children: [
-    	{ path: 'track/:id', component: ModerationTrackComponent}
+    	{ path: 'track/:id', component: ModerationTrackComponent },
     	{ path: 'pending', component: ModerationPendingComponent },
     	{ path: '', redirectTo: 'pending', pathMatch: 'full' }
     ]}

@@ -5,28 +5,20 @@ export class AudioUtil {
 		// Remove any brackets (regular or square) from the ID3
 		// Some CD ripping software likes to advertise itself...
 
-		var tags = {};
+		var tags:any = {};
 
 		if(!result.title || !result.artist) return undefined;
 
-		tags.title = Utilities.String.stripTag(result.title);
-		tags.artist = Utilities.String.stripTag(result.artist[0]);
-		tags.album = Utilities.String.stripTag(result.album);
+		tags.title = AudioUtil.stripTag(result.title);
+		tags.artist = AudioUtil.stripTag(result.artist[0]);
+		tags.album = AudioUtil.stripTag(result.album);
 
 		return tags;
 
 	}
 
-	static readTags(file, callback:(tags:any)=>void){
-
-		musicmetadata(file, (error, result) => {
-			
-			if(error) return callback(undefined);
-
-			callback(this.strip(result));
-
-		});
-
+	static stripTag (data : string) : string {
+		return data.replace(/ *[\(\[][^)]*[\)\]] */g, "");
 	}
 
 	public static lowPass(buffer:ArrayBuffer, view:Int8Array, accuracy:number, start:number, end:number) {
@@ -129,6 +121,8 @@ export interface AudioBackend {
 	onPause(callback:() => void) : void;
 	onEnd(callback:() => void) : void;
 	onSeek(callback:() => void) : void;
+
+	aud:any;
 
 }
 

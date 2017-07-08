@@ -2,6 +2,7 @@ var dateFormat = require('dateformat');
 var mm = require('../../../musicmetadata');
 
 import { NerveService } from '../nerve.service';
+import {AudioUtil} from '../track/audio';
 
 export class Track {
 
@@ -88,8 +89,8 @@ export class Track {
 		return this.status != 6 ? '/api/audio/get/' + this.id : false;
 	}
 
-	get submittable () {
-		return this.id > 0 && this.end_type > 0 && this.extro_start > 0;
+	get submittable () : boolean {
+		return this.id > 0 && this.end_type > 0; 
 	}
 
 }
@@ -112,13 +113,14 @@ export class UploadTrack extends Track {
 			}
 
 			var t = setTimeout(() => reject(['timeout']), 5000);
-			var metadata = mm(file, function (err, metadata) {
+			var metadata = mm(file, function (err:any, metadata:any) {
 				clearTimeout(t);
 				if (err) {
 					console.log('argh')
 					return reject(['metadata', err]);
 				}
 				metadata.artist = metadata.artist[0];
+				metadata = AudioUtil.strip(metadata)
 				fulfil(metadata)
 			})
 
@@ -157,5 +159,10 @@ export class FullTrack extends Track {
 	end_type:number;
 
 	big: any;
+
+	get submittable () : boolean {
+		return this.id > 0 && this.end_type > 0 && this.extro_start > 0;
+	}
+
 
 }

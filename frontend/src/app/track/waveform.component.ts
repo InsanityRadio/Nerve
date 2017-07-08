@@ -110,7 +110,7 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 		this.ngOnDestroy();
 		var options = getOptions(this.track, this.container.nativeElement, this.audio.aud, this.readonly);
 
-		this.peaks = window.peaks.js.init(options);
+		this.peaks = window['peaks']['js'].init(options);
 		this.peaks.on('error', (error:any) => {
 
 			console.error('ERROR SHOWING WAVEFORM');
@@ -126,9 +126,9 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 
 		});
 
-		this.peaks.on('segments.dragged', (segment) => {
+		this.peaks.on('segments.dragged', (segment:any) => {
 
-			this.handleChange(null);
+			this.handleChange();
 
 			this.set(segment.id + "_start", segment.startTime);
 
@@ -153,7 +153,7 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 		if(type == -1)
 			throw new Error("Can't set " + key + " as there's no such property");
 
-		var segment = this.peaks.waveform.segments.getSegments()[type];
+		var segment:any = this.peaks.waveform.segments.getSegments()[type];
 		segment[key.split("_")[1] + "Time"] = value;
 
 

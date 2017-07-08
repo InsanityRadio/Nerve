@@ -18,7 +18,7 @@ export class TrackInfoComponent implements OnInit, OnDestroy {
 	@Input() audio:AudioBackend;
 	@Input() controller:TrackComponent;
 
-	@Input() readonly:TrackComponent;
+	@Input() readonly:boolean;
 
 	_editMode:boolean = false;
 
@@ -38,7 +38,7 @@ export class TrackInfoComponent implements OnInit, OnDestroy {
 	}
 
 	set editMode (value:boolean) {
-		if (readonly) {
+		if (this.readonly) {
 			return;
 		}
 		if (this._editMode == true && value == false) {

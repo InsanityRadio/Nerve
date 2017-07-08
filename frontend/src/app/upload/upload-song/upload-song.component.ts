@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild, ElementRef} from '@angular/core';
 import {Track,UploadTrack} from '../../struct/track';
 import {Upload, NerveService} from '../../nerve.service';
 
@@ -11,12 +11,12 @@ import {AppComponent} from '../../app.component'
 
 export class UploadSongComponent implements OnInit {
 
-	public @ViewChild('upload') upload;
+	@ViewChild('upload') upload:HTMLElement;
 
-	public @ViewChild('overrideBitrate') overrideBitrate;
-	public @ViewChild('overrideCompressor') overrideCompressor;
-	public @ViewChild('instrumental') instrumental;
-	public @ViewChild('library') library;
+	@ViewChild('overrideBitrate') overrideBitrate:ElementRef;
+	@ViewChild('overrideCompressor') overrideCompressor:ElementRef;
+	@ViewChild('instrumental') instrumental:ElementRef;
+	@ViewChild('library') library:ElementRef;
 
 	uploads: Upload[] = [];
 
@@ -24,12 +24,9 @@ export class UploadSongComponent implements OnInit {
 	}
 
 	ngOnInit () {
-		setTimeout(() => {
-			console.log('HELLO!!', this.appComponent.user.permissions['override_bitrate'])
-		}, 1000)
 	}
 
-	select (event) {
+	select (event:any) {
 		[].forEach.call(event.target.files, (file:File) => this.uploadFile(file));
 	}
 
@@ -45,7 +42,7 @@ export class UploadSongComponent implements OnInit {
 
 			this.uploads.push(upload)
 
-			upload.update((upload) => this.update(upload))
+			upload.update((upload:any) => this.update(upload))
 
 		}) /*catch(function (error) {
 
@@ -67,7 +64,7 @@ export class UploadSongComponent implements OnInit {
 
 	}
 
-	update (upload) {
+	update (upload:any) {
 
 		// console.log('Progres Event', upload)
 

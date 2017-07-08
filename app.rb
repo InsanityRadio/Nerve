@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'bundler'
 
+require 'securerandom'
+
 require 'resque'
 require 'sinatra'
 require 'sinatra/reloader'
@@ -32,7 +34,10 @@ module Nerve
 				:httponly     => true,
 				:secure       => false, #production?,
 				:expire_after => 31557600, # 1 year
-				:secret       => "1234" #ENV['SESSION_SECRET']
+				:secret       => ENV['SESSION_SECRET'] or SecureRandom.hex
+
+			set :protection, :except => [:json_csrf]
+
 		end
 
 		configure :production do
@@ -53,7 +58,7 @@ module Nerve
 
 		get '/' do
 
-			erb :"public/index.html", :locals => {:user => @user, :stats => @stats, :csrf_key => @key}
+			redirect '/'
 
 		end
 
