@@ -51,11 +51,11 @@ export class EditControlsComponent implements OnInit, OnDestroy {
 	}
 
 	save () {
-		this.controller.save().catch((e) => this.dialogue.showError("Error Saving", e));
+		this.controller.save().catch((e:string) => this.dialogue.showError("Error Saving", e, "save-fail"));
 	}
 
 	publish () {
-		this.controller.publish().catch((e) => this.dialogue.showError("Error Publishing", e));
+		this.controller.publish().catch((e:string) => this.dialogue.showError("Error Publishing", e, "pub-fail"));
 	}
 
 }

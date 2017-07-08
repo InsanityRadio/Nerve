@@ -7,14 +7,16 @@ import { IterTrack, Track, FullTrack, UploadTrack } from './struct/track';
 export class Upload {
 
 	complete: boolean = false;
-	
 	message:string = '';
 
 	private _progress:number = 0;
+	private _update:(upload:Upload) => void;
+	private _interval:any;
+	private _key:string;
 
 	public id:number = 0;
 
-	constructor (public track: Track, private file: File, private options: Object, private nerveService: NerveService) {
+	constructor (public track: Track, private file: File, private options: any, private nerveService: NerveService) {
 
 		this.id = (new Date().getTime()) - 1262304000000;
 		nerveService.uploadGetPath()
@@ -30,11 +32,11 @@ export class Upload {
 		return this.progress != 100 && this.complete
 	}
 
-	update (method: () => void) {
+	update (method: (upload:Upload) => void) {
 		this._update = method;
 	}
 
-	private gotPath (path: String) {
+	private gotPath (path: string) {
 
 		var formData = new FormData();
 
@@ -51,16 +53,16 @@ export class Upload {
 		var [xhr, upload] = this.nerveService.uploadDo(path, formData)
 
 		upload.subscribe(
-			progress => {
+			(progress:number) => {
 				this._progress = progress;
 				console.log(progress)
 			},
-			error => {
+			(error:string) => {
 				this.message = error;
 				this.complete = true;
-				this._update()				
+				this._update(this)
 			},
-			complete => {
+			() => {
 				this._progress = 100;
 				let response = JSON.parse(xhr.responseText)
 				this._key = response.token;
@@ -92,7 +94,6 @@ export class Upload {
 
 				var data = message.json();
 				this.complete = true;
-				this.error = true;
 
 				this._update(this);
 
@@ -106,6 +107,7 @@ export class Upload {
 export class NerveService {
 
 	private static csrf_key:string;
+	private static instance:NerveService;
 
 	static getInstance () {
 		return NerveService.instance;
@@ -176,7 +178,7 @@ export class NerveService {
 			.catch(this.handleError);
 	}
 
-	flag (track:FullTrack) : Promise {
+	flag (track:Track) : Promise<any> {
 
 		let track_id = track.id;
 		let formData = new FormData();
@@ -187,7 +189,7 @@ export class NerveService {
 			.catch(this.handleError);
 	}
 
-	reject (track:FullTrack) : Promise {
+	reject (track:Track) : Promise<any> {
 
 		let track_id = track.id;
 		let formData = new FormData();
@@ -198,7 +200,7 @@ export class NerveService {
 			.catch(this.handleError);
 	}
 
-	approve (track:FullTrack) : Promise {
+	approve (track:Track) : Promise<any> {
 
 		let track_id = track.id;
 		let formData = new FormData();
@@ -209,7 +211,7 @@ export class NerveService {
 			.catch(this.handleError);
 	}
 
-	metadataMatch (metadata: Object) {
+	metadataMatch (metadata: any) {
 
 		return this.http.get('/api/metadata/match/?title=' + encodeURIComponent(metadata.title) + '&artist=' + encodeURIComponent(metadata.artist))
 			.toPromise()
@@ -218,7 +220,7 @@ export class NerveService {
 
 	}
 
-	upload (track:Track, file:File, options:Object) {
+	upload (track:Track, file:File, options:any) {
 
 		return new Upload(track, file, options, this);
 
@@ -234,11 +236,11 @@ export class NerveService {
 			.catch(this.handleError);
 	}
 
-	uploadDo(path: String, form: FormData): Observable<string | number> {
+	uploadDo(path: string, form: FormData): [XMLHttpRequest, Observable<string | number>] {
 
 		let xhr = new XMLHttpRequest();
 
-		return [xhr, Observable.create(observer => { 
+		return [xhr, Observable.create((observer:any) => { 
 			xhr.addEventListener("progress", (progress) => {
 				let percentCompleted;
 
@@ -278,7 +280,7 @@ export class NerveService {
 		})];
 	}
 
-	uploadCheck (key:string) : Promise {
+	uploadCheck (key:string) : Promise<any> {
 
 		return this.http.get('/api/upload/status/' + key)
 			.toPromise();
@@ -299,7 +301,7 @@ export class NerveService {
 		return res.map((t: any) => new IterTrack(t));
 	}
 
-	private extractUploadTrack (res: any) : Track[] {
+	private extractUploadTrack (res: any) : UploadTrack {
 		if (!res.external_id) {
 			throw new Error("No results found");
 		}

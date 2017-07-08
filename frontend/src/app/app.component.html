@@ -29,7 +29,7 @@
 <div id="top">
 	<div class="profile">
 		<i class="fa fa-user" aria-hidden="true"></i>&nbsp;
-		{{ user.name }} | <a href="/logout?token=<%= csrf_key %>">Log Out</a>
+		{{ user.name }} | <a [href]="'/api/logout?token=' + csrf_key">Log Out</a>
 	</div>
 </div>
 

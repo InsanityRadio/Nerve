@@ -1,19 +1,19 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router, Params} from '@angular/router';
 
-import {NerveService} from '../../nerve.service';
-import {FullTrack, Track} from '../../struct/track';
-import {AudioBackend, HTMLAudio} from '../../track/audio';
+import {NerveService} from '../nerve.service';
+import {FullTrack, Track} from '../struct/track';
+import {AudioBackend, HTMLAudio} from './audio';
 
 @Component({
-	selector: 'moderation-track',
-	template: require('./moderation-track.component.html')
+	selector: 'track',
+	template: require('./track.component.html')
 })
 
-export class ModerationTrackComponent implements OnInit, OnDestroy {
+export class TrackComponent implements OnInit, OnDestroy {
 
 	private id:number;
-	private track:Track;
+	private track:FullTrack;
 
 	private sub: any;
 
@@ -21,7 +21,7 @@ export class ModerationTrackComponent implements OnInit, OnDestroy {
 
 	saved:boolean = false;
 
-	public @ViewChild('wave') wave;
+	@ViewChild('wave') wave:any;
 
 	audio: AudioBackend = null;
 
@@ -44,31 +44,28 @@ export class ModerationTrackComponent implements OnInit, OnDestroy {
 		this.sub.unsubscribe();
 	}
 
-	edit () {
-		this.router.navigate(['/upload', 'track', this.track.id])
+	save () {
+
+		return this.nerveService.saveTrack(this.track).then((track:Track) => {
+			console.log('SAVED!')
+			this.saved = true;
+			this.changed = false;
+		})
+
 	}
 
-	flag () {
-		return this.nerveService.flag(this.track).then(() => {
-			this.router.navigate(['/moderation', 'pending'])
-		})
-	}
+	publish () {
 
-	reject () {
-		return this.nerveService.reject(this.track).then(() => {
-			this.router.navigate(['/moderation', 'pending'])
+		return this.nerveService.publishTrack(this.track).then((track:Track) => {
+			console.log('PUBLISHED!')
+			// redirect back to home somehow yo 
 		})
-	}
 
-	approve () {
-		return this.nerveService.approve(this.track).then(() => {
-			this.router.navigate(['/moderation', 'pending'])
-		})
 	}
 
 	loadTrack () {
 
-		this.nerveService.track(this.id).then((track:Track) => {
+		this.nerveService.track(this.id).then((track:FullTrack) => {
 
 			console.log(track)
 			this.audio = new HTMLAudio(track.preview_url);
