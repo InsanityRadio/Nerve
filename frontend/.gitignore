@@ -16,7 +16,6 @@ coverage
 # General
 # =======
 *.log
-dist
 typings
 target
 
