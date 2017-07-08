@@ -17,7 +17,8 @@ gulp.task('dev-server', plugins.shell.task('webpack-dev-server --inline --colors
 
 gulp.task('build', plugins.shell.task([
     'rimraf dist',
-    'webpack --config config/webpack.prod.js --progress --colors --profile --bail'
+    'webpack --config config/webpack.prod.js --progress --colors --profile --bail',
+    'cp peaks.js dist/peaks.js'
 ]));
 
 gulp.task('serve', function(done) {
