@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'bundler'
 
+require 'securerandom'
+
 require 'resque'
 require 'sinatra'
 require 'sinatra/reloader'
@@ -32,7 +34,10 @@ module Nerve
 				:httponly     => true,
 				:secure       => false, #production?,
 				:expire_after => 31557600, # 1 year
-				:secret       => "1234" #ENV['SESSION_SECRET']
+				:secret       => ENV['SESSION_SECRET'] or SecureRandom.hex
+
+			set :protection, :except => [:json_csrf]
+
 		end
 
 		configure :production do
@@ -53,40 +58,44 @@ module Nerve
 
 		get '/' do
 
-			content_type 'text/html'
+			redirect '/'
+
+		end
+
+		get '/dynamic/config' do
+
+			cache_control :public, max_age: 0
+			content_type "application/json"
 
 			service = Nerve::Services::Login.get_service
-
-			return redirect to(service.redirect(session) || '/login.html') \
-				if !session[:authenticated] or !session[:user_id]
-
 			begin
+				raise "not logged in" if !session[:authenticated] or !session[:user_id]
 				@user = service.get_user session[:user_id]
 			rescue
 				session.clear
-				return redirect to(service.redirect(session) || '/login.html')
+				return {
+					'authorized' => false,
+					'redirect' => service.redirect(session) || '/login.html'
+				}.to_json
 			end
 
-			return redirect to(service.redirect(session) || '/login.html') \
-				if !@user
-
-			@stats = {
+			stats = {
 				:total_uploads => Nerve::Services::Upload.get_total_uploads,
 				:pending_moderation => Nerve::Services::Moderation.get_pending
 			}
 
-			@key = session[:token] ||= SecureRandom.hex
+			key = session[:token] ||= SecureRandom.hex
 
-			erb :"public/index.html", :locals => {:user => @user, :stats => @stats, :csrf_key => @key}
-
-		end
-
-		get '/dynamic/config.js' do
-
-			cache_control :public, max_age: 0
-			content_type "application/javascript;charset=utf-8"
-
-			erb :"public/config.js", :locals => {:config => $config }
+			{
+				'authorized' => true,
+				'stats' => stats,
+				'user' => @user,
+				'key' => key,
+				'station_name' => $config['station_name'],
+				'contact_email' => $config['contact_email'],
+				'genres' => $genres,
+				'banned_words' => $config['words']['banned']
+			}.to_json
 
 		end
 

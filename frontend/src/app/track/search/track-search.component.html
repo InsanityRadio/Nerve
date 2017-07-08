@@ -1,0 +1,58 @@
+<div class="coverall" id="error-container" style="background-color: rgba(0, 0, 0, 0.5); ">
+
+	<div class="all large">
+
+		<div>
+			<h1>Find Track</h1>
+			<p style="font-size: 80%">You're finding a match for <b>{{ title }}</b>.</p>
+			<p><a (click)="mode = !mode">Input manually</a></p>
+
+			<div class="search-field" *ngIf="!mode">
+
+				<div class="input-group">
+					<input type="text" class="input-group-field" #titleSearchField placeholder="Song" /> 
+					<input type="text" class="input-group-field" #artistSearchField placeholder="Artist" /> 
+					<div class="input-group-button">
+						<button (click)="search(titleSearchField.value, artistSearchField.value)" class="button">Search</button>
+					</div>
+				</div>
+
+				<div class="resultsTable">
+					<table>
+						<thead>
+							<tr>
+								<th style="width: 40px"></th>
+								<th>Title</th>
+								<th>Artist</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr (click)="select(result)" *ngFor="let result of results" [class.selected]="selected == result">
+								<td></td>
+								<td>{{ result.title }}</td>
+								<td>{{ result.artist }}</td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+
+			<div class="manual" *ngIf="mode">
+
+				<p>Any song that has data manually entered will have to pass through manual compliance.</p>
+
+				<input type="text" #title placeholder="Track Title" /> <input type="text" #artist placeholder="Artist" />
+
+			</div>
+
+			<button (click)="completed()" class="button" style="float: right">Save</button>
+			<button (click)="close()" class="button" style="float: right">Cancel</button>
+
+		</div>
+
+	</div>
+
+</div>
