@@ -279,19 +279,20 @@ export class NerveService {
 		let xhr = new XMLHttpRequest();
 
 		return [xhr, Observable.create((observer:any) => { 
-			xhr.addEventListener("progress", (progress) => {
+			xhr.upload.addEventListener("progress", (progress) => {
 				let percentCompleted;
+				console.log('progress?', xhr, progress)
 
 				if (progress.lengthComputable) {
 					percentCompleted = Math.round(progress.loaded / progress.total * 100);
-
+					console.log('percent event', percentCompleted)
 					if (percentCompleted < 1) {
 						observer.next(0);
 					} else {
 						observer.next(percentCompleted);
 					}
 				}
-			});
+			}, false);
 
 			xhr.addEventListener("load", (e) => {
 				if (e.target['status'] !== 200) {

@@ -2,7 +2,9 @@ import {Component, OnInit, ViewChild, ElementRef} from '@angular/core';
 import {Track,UploadTrack} from '../../struct/track';
 import {Upload, NerveService} from '../../nerve.service';
 
-import {AppComponent} from '../../app.component'
+import {AppComponent} from '../../app.component';
+import {DialogueService} from '../../dialogue.service';
+
 
 class FileWrapper {
 
@@ -33,7 +35,7 @@ export class UploadSongComponent implements OnInit {
 
 	currentSearchFile: FileWrapper;
 
-	constructor(private appComponent:AppComponent, private nerveService: NerveService) {
+	constructor(private appComponent:AppComponent, private dialogue:DialogueService, private nerveService: NerveService) {
 	}
 
 	ngOnInit () {
@@ -76,9 +78,21 @@ export class UploadSongComponent implements OnInit {
 
 		trackP.then((track:UploadTrack) => {
 			
-			var upload = this.nerveService.upload(track, file, options);
-			this.uploads.push(upload)
-			upload.update((upload:any) => this.update(upload))
+			let finished = () => {
+
+				var upload = this.nerveService.upload(track, file, options);
+				this.uploads.push(upload)
+				upload.update((upload:any) => this.update(upload))
+
+				this.dialogue.close()
+
+			}
+
+			if (track.exists) {
+				this.dialogue.showDialogue("Duplicate Song", track.title + " already seems to exist on the system. Continue anyway?", finished)
+			} else {
+				finished()			
+			}
 
 		}).catch((error) => {
 
