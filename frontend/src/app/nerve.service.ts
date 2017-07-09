@@ -121,7 +121,7 @@ export class NerveService {
 	}
 
 	handshake () : Promise<any> {
-		return this.http.get('/api/dynamic/config')
+		return this.http.get('/api/dynamic/config?' + new Date().getTime())
 			.toPromise()
 			.then(this.extractData)
 			.then(this.bootstrap)
