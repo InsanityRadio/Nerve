@@ -46,6 +46,7 @@ module Nerve
 
 				session[:user] = response.parsed['user']
 
+				session[:token] ||= SecureRandom.hex
 				session[:user_id] = session[:user]['id']
 				session[:authenticated] = true
 
@@ -66,6 +67,7 @@ module Nerve
 
 				user.moderator = !session[:user]["groups"][moderator].nil?
 				user.admin = !session[:user]["groups"][admin].nil?
+
 
 				if !session[:user]["groups"][specialist].nil?
 					user.permissions[:override_bitrate] = true
