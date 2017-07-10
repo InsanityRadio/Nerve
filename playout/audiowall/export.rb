@@ -120,7 +120,7 @@
 						'CharacteristicStart3' => 0,
 						'CharacteristicStart4' => 0,
 						'CharacteristicStart5' => 0,
-						'CharacteristicStart6' => 0
+						'CharacteristicStart6' => 0,
 						'CharacteristicEnd1' => 0,
 						'CharacteristicEnd2' => 0,
 						'CharacteristicEnd3' => 0,
