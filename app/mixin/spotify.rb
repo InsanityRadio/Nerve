@@ -7,7 +7,7 @@ module Nerve; module Mixin
 	# Spotify Mixin
 	# This mixin adds extra track information that includes some advanced analysis
 
-	class Spotify
+	class Spotify < Mixin
 
 		def self.connect_to_api
 
