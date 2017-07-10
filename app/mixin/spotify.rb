@@ -87,9 +87,9 @@ module Nerve; module Mixin
 
 			# Add extra Myriad columns
 
-			return if track['extra']['audio_features'] == nil
+			return if track.extra['audio_features'] == nil
 
-			audio_features = track['extra']['audio_features']
+			audio_features = track.extra['audio_features']
 
 			# Our default mappings of Characteristic in Myriad to the Spotify feature
 			mapping = ['danceability', 'energy', 'tempo', 'mood']
