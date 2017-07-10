@@ -28,7 +28,7 @@ def get_data track_ids, depth = 0
 
 	response['audio_features'].each do | resp |
 
-		track = @spotify[resp['id']]
+		track = @spotify[resp['id']] rescue nil
 		next if !track
 
 		track.extra['audio_features'] = resp
