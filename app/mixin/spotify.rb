@@ -92,7 +92,7 @@ module Nerve; module Mixin
 			audio_features = track.extra['audio_features']
 
 			# Our default mappings of Characteristic in Myriad to the Spotify feature
-			mapping = ['danceability', 'energy', 'tempo', 'mood']
+			mapping = ['danceability', 'energy', nil, 'valence']
 
 			mapping.each_with_index do | m, i |
 
@@ -103,6 +103,9 @@ module Nerve; module Mixin
 
 			end
 
+			# Tempo
+			playout['myriad']['database']["CharacteristicStart3"] = \
+			playout['myriad']['database']["CharacteristicEnd3"] = [[((audio_features['tempo'] - 50) * 0.05).to_i, 6].min, 1].max
 
 		end
 
