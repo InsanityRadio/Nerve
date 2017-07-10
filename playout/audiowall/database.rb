@@ -236,7 +236,7 @@ module Nerve; module Playout; class AudioWall
 			options['DisplayTitle'] = track.title
 			options['DisplayBy'] = track.artist
 
-			options.each { | k, v | arguments << k + " = '%s'"; query << @conn.escape(v) }
+			options.each { | k, v | arguments << k + " = '%s'"; query << @conn.escape(v.to_s) }
 
 			arguments = arguments.join(", ")
 
