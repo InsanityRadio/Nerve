@@ -201,10 +201,10 @@
 
 				if track.playout_id and track.playout_id[0] != "C"
 
-					options = {}
+					options = {'myriad' => {'database' => {}}}
 					Nerve::Mixin::Runner.run! "pre_publish", track, options
 
-					@database.update_track track, options
+					@database.update_track track, options['myriad']['database']
 
 				end
 
