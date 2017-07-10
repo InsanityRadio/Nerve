@@ -113,15 +113,32 @@
 					end
 
 
+					# Run any mixins we might have.
+					options = {'myriad' => {'database' => {
+						'CharacteristicStart1' => 0,
+						'CharacteristicStart2' => 0,
+						'CharacteristicStart3' => 0,
+						'CharacteristicStart4' => 0,
+						'CharacteristicStart5' => 0,
+						'CharacteristicStart6' => 0
+						'CharacteristicEnd1' => 0,
+						'CharacteristicEnd2' => 0,
+						'CharacteristicEnd3' => 0,
+						'CharacteristicEnd4' => 0,
+						'CharacteristicEnd5' => 0
+						}}}
 
+					Nerve::Mixin::Runner.run! "pre_publish", track, options
 
 					@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
-					@item_number = @database.add_track cart_id, track, category_id, alt_category_id
+					@item_number = @database.add_track cart_id, track, category_id, alt_category_id, options['myriad']['database']
 
 					track.playout_id = @item_number
 					track.playout_id_2 = cart_id
 
 					track.save
+
+					Nerve::Mixin::Runner.run! "post_publish", track
 
 					# update local index. N/A
 
@@ -180,6 +197,12 @@
 					
 					@audiowall.save cart_id, cart, track
 						
+				end
+
+				if @audiowall.playout_id and @audiowall.playout_id[0] != "C"
+
+					@database.update_track track
+
 				end
 
 				#raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \

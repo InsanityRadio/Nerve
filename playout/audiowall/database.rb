@@ -160,7 +160,7 @@ module Nerve; module Playout; class AudioWall
 
 		end
 
-		def add_track cart_id, track, category_id, alt_category_id = 0
+		def add_track cart_id, track, category_id, alt_category_id = 0, options = {}
 
 			artist_id = get_artist_id track.artist
 			title_id = get_title_id track.title
@@ -202,7 +202,11 @@ module Nerve; module Playout; class AudioWall
 					SecureRandom.uuid, nil, 'Nerve_' + track.id.to_s,
 					title_id, artist_id, nil, @conn.escape(track.title), @conn.escape(track.artist),
 					cart_id, category_id, alt_category_id, 0, era_id,
-					0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, hour_r,
+					0, options['CharacteristicStart1'] or 0, options['CharacteristicEnd1'] or 0,
+					options['CharacteristicStart2'] or 0, options['CharacteristicEnd2'] or 0,
+					options['CharacteristicStart3'] or 0, options['CharacteristicEnd3'] or 0,
+					options['CharacteristicStart4'] or 0, options['CharacteristicEnd4'] or 0,
+					options['CharacteristicStart5'] or 0, options['CharacteristicEnd5'] or 0, 0, hour_r,
 					hour_r, hour_r, hour_r, hour_r, hour_r, hour_r,
 					@conn.escape(year), 1, style_id,
 					100, "Nerve User (#{uploader})", item_number,
@@ -218,6 +222,30 @@ module Nerve; module Playout; class AudioWall
 
 			return item_number
 
+
+		end
+
+		def update_track track, options
+
+			artist_id = get_artist_id track.artist
+			title_id = get_title_id track.title
+
+			arguments = []
+			query = []
+
+			options['DisplayTitle'] = track.title
+			options['DisplayBy'] = track.artist
+
+			options.each { | k, v | arguments << k + " = '%s'"; query << @conn.escape(v) }
+
+			arguments = arguments.join(", ")
+
+			result = @conn.execute(q = sprintf("UPDATE Songs SET #{arguments}
+			WHERE ItemNumber=#{track.playout_id};",
+					*query
+				))
+
+			result.do
 
 		end
 
