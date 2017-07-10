@@ -199,7 +199,7 @@
 						
 				end
 
-				if @audiowall.playout_id and @audiowall.playout_id[0] != "C"
+				if track.playout_id and track.playout_id[0] != "C"
 
 					@database.update_track track
 
