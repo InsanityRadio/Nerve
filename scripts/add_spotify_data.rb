@@ -50,6 +50,7 @@ tracks = Nerve::Model::TrackProvider.all
 tracks.each { | t |
 
 	next unless t.extra and t.extra['spotify_id'] != nil
+	next if t.extra['audio_features'] != nil
 
 	@spotify[t.extra['spotify_id']] = t
 
