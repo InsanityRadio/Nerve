@@ -12,7 +12,7 @@ module Nerve; module Model
 		attr_accessor :local_path, :intro_start, :intro_end, :hook_start, :hook_end, :outro
 		attr_accessor :end_type, :waveform, :length, :bitrate, :sample_rate
 
-		attr_accessor :is_library, :is_automation, :playout_id, :playout_id_2, :flagged
+		attr_accessor :is_library, :is_automation, :playout_id, :playout_id_2, :flagged, :extra
 
 		def self.all
 
@@ -70,6 +70,8 @@ module Nerve; module Model
 			@explicit = result["explicit"] == 1
 			@flagged = result["flagged"] == 1
 			@instrumental = result["instrumental"] == 1
+
+			@extra = JSON.parse(result["extra"]) rescue {}
 
 		end
 
@@ -139,12 +141,12 @@ module Nerve; module Model
 				last_update=NOW(), title=?, intro_start=?, intro_end=?,
 				hook_start=?, hook_end=?, outro=?, status=?, end_type=?,
 				approved_by=?, explicit=?, flagged=?, instrumental=?,
-				is_library = ?, is_automation = ?, playout_id = ?, playout_id_2 = ?
+				is_library = ?, is_automation = ?, playout_id = ?, playout_id_2 = ?, extra=?
 				WHERE id=?", 
 				@title, @intro_start, @intro_end,
 				@hook_start, @hook_end, @outro, @status, @end_type,
 				@approved_by, @explicit ? 1 : 0, @flagged ? 1 : 0, @instrumental ? 1 : 0,
-				@is_library ? 1 : 0, @is_automation ? 1 : 0, @playout_id, @playout_id_2, 
+				@is_library ? 1 : 0, @is_automation ? 1 : 0, @playout_id, @playout_id_2, @extra.to_json,
 				@id)
 
 		end
@@ -197,7 +199,8 @@ module Nerve; module Model
 				"end_type" => @end_type,
 				"created_by" => @user,
 				"flagged" => @flagged,
-				"instrumental" => @instrumental
+				"instrumental" => @instrumental,
+				"extra" => @extra
 			}
 
 			# Extended means lyrics and such 

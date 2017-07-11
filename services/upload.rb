@@ -237,6 +237,8 @@ module Nerve
 
 					track.save
 
+					Nerve::Mixin::Runner.run! "saved", track
+
 					return { "success" => 1, "track" => track.get_json(true) }.to_json
 
 				rescue

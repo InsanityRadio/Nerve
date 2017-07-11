@@ -32,6 +32,15 @@ module Nerve
 
 	end
 
+	module Mixin
+
+		autoload :Mixin, "app/mixin/mixin"
+		autoload :Runner, "app/mixin/runner"
+
+		autoload :Spotify, "app/mixin/spotify"
+
+	end
+
 	module Playout
 
 		autoload :AudioWall, "playout/audiowall"

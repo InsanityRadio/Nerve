@@ -403,24 +403,16 @@ module Nerve; module Job
 
 			at(95, 100, "Generating preview")
 
-			# Tagging files potentially breaks things?
-			#_debug "Tagging file with correct metadata"
-			#tag @final_path, _options
-
 			preview _options
 
-			unless response === true
-				File.unlink(new_file) rescue nil # Clean up.
-				raise "Tagging failed: #{response}" 
-			end
+			completed("Processed. Head on over to the My Uploads page to fill in song information.")
 
-			completed(#@is_filtered ? \
-				#"Processed, however the file is waiting for manual approval by an administrator." :\
-				"Processed. Head on over to the My Uploads page to fill in song information.")
-
+			# Run any mixins we might have.
+			Nerve::Mixin::Runner.run! "created", Nerve::Model::TrackProvider.from_id(@track_id)
 
 			# Update an external status. 3 = IMPORTED
 			Object.const_get(options["status_update"]).status_update(options["ext_id"], 3, @track_id) if options["status_update"]
+
 
 			# and we're... done???! what. wow. that was easy.
 			# really?
