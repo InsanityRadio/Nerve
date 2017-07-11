@@ -20,6 +20,11 @@ search:
     # Can be any type of key. Preferably one with lyric access, but it doesn't need to be
     musixmatch_key: 
 
+    spotify:
+        user_id: insanityradio
+        client_id: ~
+        client_secret: ~
+
 security:
     # ::Simple is literally just key=>value in a config file. Don't use it in production.
     # Coding a backend for authentication is simple, you just need to implement 3 easy functions.
