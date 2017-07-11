@@ -96,6 +96,8 @@ module Nerve
 
 			post '/upload/migrate/do/' do
 
+				protect_json!
+
 				cart_id = params["cart_id"].to_i
 				data = Database.query("SELECT * FROM migrate_cache WHERE cart_id=?", cart_id).to_a
 				next if data.length == 0 or cart_id == 0
@@ -205,6 +207,8 @@ module Nerve
 
 			post '/upload/save/:id' do | id |
 
+				protect_json!
+
 				begin
 
 					p params
@@ -251,6 +255,8 @@ module Nerve
 			end
 
 			post '/upload/publish/:id' do | id |
+
+				protect_json!
 
 				raise "Incorrect/empty CSRF key" \
 					if session[:token].empty? || params['token'] != session[:token]
@@ -299,6 +305,8 @@ module Nerve
 			end
 
 			post '/upload/delete/:id' do | id |
+
+				protect_json!
 
 				raise "Incorrect/empty CSRF key" \
 					if session[:token].empty? || params['token'] != session[:token]
