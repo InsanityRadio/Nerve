@@ -26,7 +26,7 @@ module Nerve
 
 			def redirect session, request
 				state = session[:state] = SecureRandom.hex
-				base_url = "#{request.env['rack.url_scheme']}://#{request.env['HTTP_HOST']}/authorize"
+				base_url = "#{request.secure? ? "https" : "http"}://#{request.env['HTTP_HOST']}/authorize"
 				@client.auth_code.authorize_url(
 					:redirect_uri => base_url,
 					:state => state,
@@ -37,7 +37,7 @@ module Nerve
 
 				raise "Integrity error" if session[:state] != params["state"]
 
-				base_url = "#{request.env['rack.url_scheme']}://#{request.env['HTTP_HOST']}/authorize"
+				base_url = "#{request.secure? ? "https" : "http"}://#{request.env['HTTP_HOST']}/authorize"
 				session[:code] = params["code"]
 				token = @client.auth_code.get_token(params["code"], { :redirect_uri => base_url })
 				response = token.get(@config["root"] + '/verify')
