@@ -28,7 +28,7 @@ module Nerve
 				Nerve::Authentication::User.new(0, "", "", "", { :safety_net => false })
 			end
 
-			def redirect session
+			def redirect session, request
 				nil
 			end
 
