@@ -24,7 +24,7 @@ module Nerve
 
 			end
 
-			def redirect session
+			def redirect session, request
 				state = session[:state] = SecureRandom.hex
 				base_url = "#{request.env['rack.url_scheme']}://#{request.env['HTTP_HOST']}/authorize"
 				@client.auth_code.authorize_url(

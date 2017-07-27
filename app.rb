@@ -75,7 +75,7 @@ module Nerve
 				session.clear
 				return {
 					'authorized' => false,
-					'redirect' => service.redirect(session) || '/login.html'
+					'redirect' => service.redirect(session, request) || '/login.html'
 				}.to_json
 			end
 
