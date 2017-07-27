@@ -27,7 +27,7 @@ module Nerve
 			def redirect session
 				state = session[:state] = SecureRandom.hex
 				@client.auth_code.authorize_url(
-					:redirect_url => @config["host"],
+					:redirect_uri => @config["host"],
 					:state => state,
 					:message => "Log in to get access to Nerve, the music upload system.")
 			end
