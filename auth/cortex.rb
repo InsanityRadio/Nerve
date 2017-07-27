@@ -38,7 +38,8 @@ module Nerve
 
 			def authorize session, params, request
 
-				raise "Integrity error" if session['csrf'] != params["state"]
+				# TO-DO: FIX THIS
+				# raise "Integrity error" if session['csrf'] != params["state"]
 
 				base_url = "#{request.secure? ? "https" : "http"}://#{request.env['HTTP_HOST']}/authorize"
 				session[:code] = params["code"]
