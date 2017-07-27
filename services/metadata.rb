@@ -62,6 +62,7 @@ module Nerve
 
 
 				results = @@METADATA.search_metadata(artist, album, track, count)
+				results.map { | r | r["cache_id"] = self.cache(r) }
 				return results
 
 			end
