@@ -25,7 +25,10 @@ module Nerve
 			end
 
 			def redirect session, request
-				state = session['csrf']
+				p "!!!"
+				state = session['csrf'] ||= SecureRandom.hex
+				p state
+				p session
 				base_url = "#{request.secure? ? "https" : "http"}://#{request.env['HTTP_HOST']}/authorize"
 				@client.auth_code.authorize_url(
 					:redirect_uri => base_url,
