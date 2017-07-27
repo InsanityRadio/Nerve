@@ -62,7 +62,7 @@ module Nerve
 
 			get '/authorize' do
 
-				success = @@service.authorize session, params
+				success = @@service.authorize session, params, request
 
 				redirect to('/')
 

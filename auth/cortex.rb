@@ -33,12 +33,13 @@ module Nerve
 					:message => "Log in to get access to Nerve, the music upload system.")
 			end
 
-			def authorize session, params
+			def authorize session, params, request
 
 				raise "Integrity error" if session[:state] != params["state"]
 
+				base_url = "#{request.env['rack.url_scheme']}://#{request.env['HTTP_HOST']}/authorize"
 				session[:code] = params["code"]
-				token = @client.auth_code.get_token(params["code"])
+				token = @client.auth_code.get_token(params["code"], { :redirect_uri => base_url })
 				response = token.get(@config["root"] + '/verify')
 
 				raise "Error loading stuff" if response.parsed['success'] != 1
