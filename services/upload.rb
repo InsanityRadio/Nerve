@@ -35,7 +35,7 @@ module Nerve
 				protect_json!
 				raise "Slave servers/workers not yet implemented" if $config["import"]["workers"].length > 2
 
-				{"path" => "http://" + request.host_with_port + "/api/upload/"}.to_json  
+				{"path" => "#{request.secure? ? "https" : "http"}://" + request.host_with_port + "/api/upload/"}.to_json  
 
 			end
 
