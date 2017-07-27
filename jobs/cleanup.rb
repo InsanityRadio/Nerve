@@ -15,7 +15,7 @@ module Nerve; module Job
 
 		def perform
 
-			tracks = Nerve::Model::TrackProvider.where "DATEDIFF(NOW(), creation_date) > 50"
+			tracks = Nerve::Model::TrackProvider.where "DATEDIFF(NOW(), t.creation_date) > 50"
 
 			multiplier = tracks.length / 100.0
 			i = 0
