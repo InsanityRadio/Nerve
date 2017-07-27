@@ -1,7 +1,6 @@
 require './app'
 require 'rack-proxy'
 require 'rack/rewrite'
-require 'rack/session/moneta'
 
 Encoding.default_external = Encoding::UTF_8
 
