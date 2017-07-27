@@ -25,7 +25,7 @@ module Nerve
 			end
 
 			def redirect session, request
-				state = session[:state] = SecureRandom.hex
+				state = session['csrf']
 				base_url = "#{request.secure? ? "https" : "http"}://#{request.env['HTTP_HOST']}/authorize"
 				@client.auth_code.authorize_url(
 					:redirect_uri => base_url,
@@ -35,7 +35,7 @@ module Nerve
 
 			def authorize session, params, request
 
-				raise "Integrity error" if session[:state] != params["state"]
+				raise "Integrity error" if session['csrf'] != params["state"]
 
 				base_url = "#{request.secure? ? "https" : "http"}://#{request.env['HTTP_HOST']}/authorize"
 				session[:code] = params["code"]
