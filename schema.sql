@@ -46,7 +46,8 @@ CREATE TABLE `artists` (
   `creation_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `external_id` (`external_id`),
-  KEY `in_artist` (`name`)
+  KEY `in_artist` (`name`),
+  FULLTEXT KEY `index_artist` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=92 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `exports`;
@@ -63,6 +64,18 @@ CREATE TABLE `exports` (
   KEY `in_export` (`playout_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `migrate_cache`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `migrate_cache` (
+  `cart_id` int(11) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `artist` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`cart_id`),
+  FULLTEXT KEY `full` (`title`,`artist`,`description`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `nerve_cache`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -77,12 +90,13 @@ CREATE TABLE `nerve_cache` (
   `big` text,
   `lyrics` text,
   `genre` int(11) DEFAULT NULL,
+  `year` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `external_id` (`external_id`),
   KEY `n_uuid` (`external_id`),
   KEY `n_tr` (`track`,`artist`,`album`),
   KEY `n_td` (`track`,`artist`)
-) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=180 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `playlist_tracks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -159,22 +173,32 @@ CREATE TABLE `tracks` (
   `is_automation` int(11) DEFAULT '0',
   `ext_id` int(11) DEFAULT NULL,
   `playout_id` varchar(255) DEFAULT NULL,
+  `restrict_play` int(11) DEFAULT '0',
+  `flagged` int(11) DEFAULT '0',
+  `instrumental` int(11) DEFAULT '0',
+  `playout_id_2` varchar(255) DEFAULT NULL,
+  `extra` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `external_id` (`external_id`),
   KEY `in_artist` (`artist`),
   KEY `in_album` (`album`),
-  KEY `in_title` (`title`)
+  KEY `in_title` (`title`),
+  FULLTEXT KEY `index_title` (`title`)
 ) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `external_ref` varchar(255) DEFAULT NULL,
   `agree_terms` int(11) DEFAULT '0',
-  `permissions` bigint(20) DEFAULT NULL,
+  `permissions` text,
   `is_admin` int(11) DEFAULT '0',
+  `username` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `playout` varchar(255) DEFAULT NULL,
+  `is_moderator` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `external_ref` (`external_ref`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
