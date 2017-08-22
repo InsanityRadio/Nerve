@@ -173,11 +173,12 @@ module Nerve; module Job
 				comp_ratio = 1 + (1 - target_lra / ld[:lra]) * $config["import"]["compression_strength"]
 				_debug("Decreasing LRA from #{ld[:lra]} to #{target_lra}")
 
-			elsif ld[:lra] < target_lra # A really low LRA is a sign of bad mastering.
+			elsif ld[:lra] < target_lra # A really low LRA is a sign of bad mastering. *cough loudness war*
 				_debug("Cowardly refusing to 'increase' the LRA (#{ld[:lra]}). Not possible?")
 			end
 
-			if comp_ratio != 1.0 and !options["override_compressor"]
+			should_compress = comp_ratio != 1.0 and !options["override_compressor"]
+			if should_compress
 
 				_debug("Compressing file with a ratio of #{comp_ratio}")
 
@@ -185,6 +186,8 @@ module Nerve; module Job
 
 				result = _sys('ecasound', '-i', input, '-o', output, "-el:sc4,0.15,0,250,-30,#{comp_ratio},4,6,0,0")
 				raise "ecasound failed! #{result[2]}" unless File.exists? output
+
+				File.rename(output, input)
 
 				# And finally, get the new loudness data. We need it to work out gain.
 				ld = investigate_loudness(output)
@@ -196,11 +199,9 @@ module Nerve; module Job
 
 			at(75, 100, "Adjusting volume to required volume")
 
-			# Also, get rid of the input file. No need for it. Unless we never made one.. :-)
-			File.rename(output, input) unless comp_ratio == 1.0
 
 			# If the LUFS level isn't the reference, we need to adjust the gain.
-			# LUFS is more or less how loud the track sounds to the human ear.
+			# LUFS (in laymans) is more or less how loud the track sounds to the human ear.
 			gain = LUFS_REFERENCE - ld[:lufs]
 
 			_debug("Adjusting gain from #{ld[:lufs]} by #{gain} - too " + \
