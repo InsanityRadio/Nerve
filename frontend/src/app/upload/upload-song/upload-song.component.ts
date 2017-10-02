@@ -144,11 +144,19 @@ export class UploadSongComponent implements OnInit {
 
 		var options = {};
 
-		options['override_bitrate'] = this.overrideBitrate.nativeElement.checked;
-		options['override_compressor'] = this.overrideCompressor.nativeElement.checked;
-		options['instrumental'] = this.instrumental.nativeElement.checked;
-		options['upload_library'] = this.library.nativeElement.checked;
-
+		if (this.overrideBitrate) {
+			options['override_bitrate'] = this.overrideBitrate.nativeElement.checked;
+		}
+		if (this.overrideCompressor) {
+			options['override_compressor'] = this.overrideCompressor.nativeElement.checked;
+		}
+		if (this.instrumental) {
+			options['instrumental'] = this.instrumental.nativeElement.checked;
+		}
+		if (this.library) {
+			options['upload_library'] = this.library.nativeElement.checked;
+		}
+		
 		return options;
 
 	}
