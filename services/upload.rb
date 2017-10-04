@@ -43,7 +43,7 @@ module Nerve
 
 				protect_json!
 
-				raise "Missing metadata" if !params['file'] or params['cache_id'] == nil or \
+				raise "Missing metadata" if !params['file'] or \
 					(params['cache_id'].to_i <= 0 and (!params['title'] or !params['artist']))
 
 
@@ -63,7 +63,7 @@ module Nerve
 				data = {
 					"file" => temp_file,
 					"user_id" => session[:user_id],
-					"cache_id" => params['cache_id'],
+					"cache_id" => params['cache_id'].to_i,
 					"artist" => params['artist'],
 					"title" => params['title'],
 					"album" => params['album'],
