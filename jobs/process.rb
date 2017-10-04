@@ -261,7 +261,7 @@ module Nerve; module Job
 
 		def save options
 
-			if options["cache_id"].to_f == -1
+			if options["cache_id"].to_f <= 0
 				data = options
 			else
 				data = Nerve::Services::Metadata.match_meta options["cache_id"], true
