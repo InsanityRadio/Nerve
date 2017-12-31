@@ -256,6 +256,20 @@
 
 		end
 
+		def self.find_path track
+
+			raise "Not exported" if track.status != 5 and track.status != 6
+
+			@audiowall = Nerve::Playout::AudioWall.new
+			@audiowall.load_settings
+
+			@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
+			cart_id = track.playout_id[0] == "C" ? track.playout_id[1..-1].to_i : @database.get_cart(track)
+			
+			@audiowall.get_audio_path(cart_id)
+
+		end
+
 	end
 
 end; end; end
