@@ -46,7 +46,7 @@ tok = JSON.parse(RestClient.post('https://accounts.spotify.com/api/token', {gran
 
 @spotify = {}; @ids = []
 
-tracks = Nerve::Model::TrackProvider.all
+tracks = Nerve::Model::Track.all
 tracks.each { | t |
 
 	next unless t.extra and t.extra['spotify_id'] != nil

@@ -41,7 +41,7 @@ $config = YAML::load(File.read("../config.yml"))
 tok = JSON.parse(RestClient.post('https://accounts.spotify.com/api/token', {grant_type: "client_credentials"}, {authorization: "Basic #{Base64.strict_encode64("#{$config['search']['spotify']['client_id']}:#{$config['search']['spotify']['client_secret']}")}"}).body)
 @tok = tok.key?("access_token") ? "Bearer #{tok['access_token']}" : ""
 
-tracks = Nerve::Model::TrackProvider.all
+tracks = Nerve::Model::Track.all
 tracks.each { | t |
 
 	next if t.extra and t.extra['spotify_id'] != nil

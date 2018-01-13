@@ -4,13 +4,10 @@ $: << File.expand_path('../', __FILE__)
 
 module Nerve
 
-	autoload :Database, "database"
-
 	module Authentication
 
 		autoload :Authentication, "auth/authentication"
 		autoload :Simple, "auth/simple"
-		autoload :User, "auth/user"
 
 		autoload :Cortex, "auth/cortex"
 
@@ -46,8 +43,6 @@ module Nerve
 		autoload :AudioWall, "playout/audiowall"
 		autoload :Myriad, "playout/myriad"
 
-		# @deprecated
-		autoload :Track, "playout/track"
 
 		class AudioWall
 			autoload :Database, "playout/audiowall/database"
@@ -89,10 +84,14 @@ module Nerve
 
 	module Model
 
+		autoload :Album, "app/models/album"
+		autoload :Artist, "app/models/artist"
 		autoload :Track, "app/models/track"
 		autoload :TrackProvider, "app/models/track_provider"
 
-		autoload :UserCacheProvider, "app/models/user_cache_provider"
+		autoload :CacheItem, "app/models/cache_item"
+
+		autoload :User, "app/models/user"
 
 	end
 
