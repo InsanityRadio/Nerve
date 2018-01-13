@@ -2,6 +2,13 @@ require 'resque/tasks'
 require 'pp'
 require './app'
 
+require "sinatra/activerecord/rake"
+
+namespace :db do
+  task :load_config do
+  end
+end
+
 task :migrate do | t, args |
 
 	require './migrate/myriad'
