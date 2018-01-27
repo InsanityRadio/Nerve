@@ -1,0 +1,30 @@
+version: '3.1'
+
+services:
+    mariadb:
+        restart: always
+        image: mariadb
+        environment:
+            - MYSQL_ROOT_PASSWORD_FILE=/config/root.txt
+            - MYSQL_DATABASE=nerve
+        volumes:
+            - ./config:/config
+    http:
+        restart: always
+        build:
+            context: .
+            dockerfile: docker/Dockerfile.http
+            args:
+                - http_proxy
+                - https_proxy
+                - RESOLVER=8.8.8.8
+        ports:
+            - "6100:80"
+        environment:
+            - http_proxy
+            - https_proxy
+        volumes:
+            - /config/agent:/config
+secrets:
+    nerve_root_pw:
+        file: ./root.txt
