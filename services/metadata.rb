@@ -9,7 +9,6 @@ module Nerve
 		class Metadata < Sinatra::Application
 
 			include Helpers
-			include Nerve::Database
 
 			@@METADATA = Nerve::Provider::Track::MusixMatch
 			@@LYRICS = Nerve::Provider::Lyrics::MetroLyrics
@@ -17,28 +16,13 @@ module Nerve
 			def self.match artist, album, track, enhanced = false, force = false
 
 				# Cheat to search for *slight* misspellings without overhead of backend call
-				query = Database.query("SELECT * FROM `nerve_cache` 
-					WHERE track = ? AND artist=? AND album=?
-					UNION SELECT * FROM `nerve_cache`
-					WHERE track LIKE CONCAT('%', ?, '%') AND artist=? AND album=?;", 
-					track, artist, album, track, artist, album )
 
-				if query.count == 1 and !force
+				cache_item = Nerve::Model::CacheItem.
+					where('track=? AND artist=? AND album=?', track, artist, album)
+
+				if cache_item.length == 1 and !force
 					row = query.first
-					data = {
-						"cache_id" => row["id"],
-						"cache" => "hit",
-						"external_id" => row["external_id"],
-						"title" => row["track"],
-						"artist" => row["artist"],
-						"album" => row["album"],
-						"explicit" => row["explicit"],
-						"genre" => row["genre"],
-						"year" => row["year"],
-						"exists" => self.exists?(row["external_id"])
-					}
-					data["lyrics"] = JSON.parse(row["lyrics"]) rescue nil if enhanced
-					data["big"] = JSON.parse(row["big"]) if enhanced
+					data = cache_item.get_json(enhanced)
 					return data
 
 				else
@@ -50,8 +34,9 @@ module Nerve
 
 					data["lyrics"] = lyrics
 
-					data["cache_id"] = self.cache(data)
+					data["cache_id"] = self.cache(data).id
 					data["big"] = enhanced ? data["big"] : nil
+
 					return data
 
 				end
@@ -60,9 +45,8 @@ module Nerve
 
 			def self.search artist, album, track, enhanced = false, count = 10
 
-
 				results = @@METADATA.search_metadata(artist, album, track, count) || []
-				results.map { | r | r["cache_id"] = self.cache(r) }
+				results.map { | r | r["cache_id"] = self.cache(r).id }
 				return results
 
 			end
@@ -76,31 +60,9 @@ module Nerve
 			def self.match_meta id, enhanced = false, column = "id"
 
 				raise "Invalid column name specified?" if column != "id" and column != "external_id"
-				query = Database.query("SELECT * FROM `nerve_cache` WHERE #{column}=?;", id)
-
-				if query.count == 1
-
-					row = query.first
-					data = {
-						"cache_id" => row["id"],
-						"cache" => "duh",
-						"external_id" => row["external_id"],
-						"title" => row["track"],
-						"artist" => row["artist"],
-						"album" => row["album"],
-						"explicit" => row["explicit"],
-						"genre" => row["genre"],
-						"year" => row["year"],
-						"exists" => self.exists?(row["external_id"])
-					}
-
-					data["lyrics"] = row["lyrics"] if enhanced
-					data["big"] = JSON.parse(row["big"]) if enhanced
-					return data
-
-				else
-					return false
-				end
+				
+				query = Nerve::Model::CacheItem.where("#{column}=?", id)
+				query.count == 1 ? query.first.get_json(enhanced) : false
 
 			end
 
@@ -112,22 +74,15 @@ module Nerve
 
 			def self.cache data 
 
-				Database.query("INSERT INTO `nerve_cache` 
-					(external_id, track, artist, album, explicit, genre, year, big, lyrics)
-					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), big=?;", 
+				item = Nerve::Model::CacheItem.find_or_create_by(external_id: data['external_id'])
 
-					data["external_id"],
-					data["title"], data["artist"], data["album"],
-					data["explicit"], data["genre"], data["year"] == '' ? 0 : data["year"], data["big"],
-					data["lyrics"], data["big"]	)
+				data['year'] = data['year'] == '' ? 0 : data['year']
 
-				Database.last_id
+				data = data.select {|x| item.class.attribute_names.index(x) }
+				item.assign_attributes data
 
-			end
-
-			def self.exists? external_id
-
-				Nerve::Model::TrackProvider.count("t.external_id = ?", external_id) > 0
+				item.save
+				item
 
 			end
 

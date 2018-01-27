@@ -25,7 +25,6 @@ module Nerve
 			end
 
 			def redirect session, request
-				p "!!!"
 				state = session['csrf'] ||= SecureRandom.hex
 				p state
 				p session
@@ -56,13 +55,7 @@ module Nerve
 				session[:user_id] = session[:user]['id']
 				session[:authenticated] = true
 
-				# cache me locally or something so i actually have an account
-
-				begin
-					user = Nerve::Model::UserCacheProvider.from_id session[:user_id]
-				rescue Nerve::Exceptions::NoSuchUser
-					user = Nerve::Model::UserCacheProvider.make session[:user_id]
-				end
+				user = Nerve::Model::User.find_or_create_by(id: session[:user_id])
 
 				user.playout_username = user.username = session[:user]["username"]
 				user.name = session[:user]["name"]
@@ -99,12 +92,12 @@ module Nerve
 			# Return the User object corresponding to the given ID. Necessary for sessions to work.
 			def get_user id
 				return get_nil_user if id == 0
-				Nerve::Model::UserCacheProvider.from_id id 
+				Nerve::Model::User.find id 
 			end
 
 			# Returns a list of accounts. Not really mandatory, but very useful for administartion
 			def get_users
-				Nerve::Model::UserCacheProvider.all
+				Nerve::Model::User.all
 			end
 
 		end
