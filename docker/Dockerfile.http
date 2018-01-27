@@ -1,0 +1,30 @@
+FROM phusion/passenger-ruby23:latest
+MAINTAINER _@insanityradio.com
+
+ARG RESOLVER=8.8.8.8
+
+RUN apt-get update && apt-get install -y \
+  build-essential git libc6-dev wget
+
+WORKDIR /tmp
+RUN wget ftp://ftp.freetds.org/pub/freetds/stable/freetds-1.00.27.tar.gz && \
+  tar -xzf freetds-1.00.27.tar.gz
+WORKDIR /tmp/freetds-1.00.27
+RUN ./configure --prefix=/usr/local --with-tdsver=7.3 && make && make install
+
+RUN rm -f /etc/service/nginx/down
+
+WORKDIR /home/app
+
+COPY ./Gemfile ./
+RUN gem install bundler && bundle install --jobs 20 --retry 5
+
+COPY ./docker/nginx.conf /etc/nginx/sites-enabled/default
+
+RUN ln -s /config/config.yml ./config.yml
+
+COPY ./ ./
+RUN rm config/root.txt
+
+CMD ["/sbin/my_init"]
+
