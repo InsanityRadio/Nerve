@@ -8,7 +8,6 @@ module Nerve; module Job
 	class Recall
 
 		include Resque::Plugins::Status
-		include Nerve::Database
 
 		# Import the functions that allow us to check the playout system
 		include Object.const_get($config["export"]["mode"])
@@ -21,7 +20,7 @@ module Nerve; module Job
 			begin
 
 				@track_id = options["track_id"]
-				track = Nerve::Model::TrackProvider.from_id options["track_id"]
+				track = Nerve::Model::Track.find options["track_id"]
 				@original_status = track.status
 
 				track.status = 10

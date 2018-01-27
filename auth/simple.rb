@@ -8,8 +8,11 @@ module Nerve
 			attr_accessor :can_cache
 
 			# Array of Maps (of User objects and passwords) 
+			user = Nerve::Model::User.find_or_create_by(id: 1)
+			user.attributes = { name: 'dev', username: 'dev', playout_username: 'studio' }
+
 			@@my_accounts = [{
-				:account => User.new(1, "dev", "Dev User", "studio", {}, true, true),
+				:account => user,
 				:password => "e77989ed21758e78331b20e477fc5582" # MD5.
 			}]
 			

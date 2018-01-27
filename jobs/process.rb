@@ -18,7 +18,6 @@ module Nerve; module Job
 		LUFS_REFERENCE = -12
 
 		include Resque::Plugins::Status
-		include Nerve::Database
 		private
 
 		@new_file = nil
@@ -280,45 +279,46 @@ module Nerve; module Job
 
 			@is_filtered = explicit
 
-			if ext_artist_id == nil
-				Database.query("INSERT INTO `artists`
-					(external_id, name, created_by) VALUES (?, ?, ?)
-					ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id);",
-					ext_artist_id, data["artist"], options["user_id"])
 
-				artist_id = Database.last_id
-			else
-				Database.query("INSERT INTO `artists`
-					(external_id, name, created_by) VALUES (NULL, ?, ?);",
-					data["artist"], options["user_id"])
-				artist_id = Database.last_id
-			end
+			# Create the artist and album rows, if they don't already exist.
 
-			Database.query("INSERT INTO `albums`
-				(external_id, artist, name, created_by) VALUES (?, ?, ?, ?)
-				ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id);",
-				ext_album_id, artist_id, data["album"], options["user_id"])
+			artist = Nerve::Model::Artist.find_or_create_by(name: data['artist'])
+			artist.created_by = options['user_id']
+			#artist.external_id = ext_artist_id if ext_artist_id != nil
+			artist.save!
 
-			album_id = Database.last_id
+			album = Nerve::Model::Album.find_or_create_by(name: data['album'], artist: artist)
+			album.created_by = options['user_id']
+			#album.external_id = ext_album_id if ext_album_id != nil
+			album.save!
 
-			Database.query("INSERT INTO `tracks` 
-				(external_id, title, artist, album, main_genre,
-					created_by, status, explicit, bitrate, sample_rate, length, waveform,
-					is_library, is_automation, ext_id, instrumental)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-				data["external_id"], options["title"], artist_id, album_id,
-				genre, options["user_id"], explicit ? 0 : 1, explicit ? 1 : 0,
-				options["bit_rate"], options["sample_rate"], options["length"], 
-				$config["import"]["generate_waveform"] ? 1 : 0,
-				options["upload_library"] ? 1 : 0,  options["automation"] | false, options["ext_id"], options["instrumental"] ? 1 : 0 )
+			@track = track = Nerve::Model::Track.create(
+				external_id: data['external_id'],
+				title: data['title'],
+				artist: artist,
+				album: album,
+				main_genre: genre,
+				created_by: Nerve::Model::User.find(options['user_id']),
+				status: explicit ? 0 : 1,
+				explicit: explicit,
+				bitrate: options['bit_rate'],
+				sample_rate: options['sample_rate'],
+				length: options['length'],
+				waveform: $config["import"]["generate_waveform"],
+				is_library: options['upload_library'],
+				is_automation: options['automation'] | false,
+				ext_id: options['ext_id'],
+				instrumental: options['instrumental']
+			)
+			track.save!
 
-			@track_id = track_id = Database.last_id
+			@track_id = track_id = track.id
 
 			final_path = generate_path(track_id).join("/") + "." + $config["import"]["transport_format"]
 			_debug "Exporting to #{final_path}..."
 
-			Database.query("UPDATE `tracks` SET local_path=? WHERE id=?",
-				final_path, track_id)
+			track.local_path = final_path
+			track.save!
 
 			@final_path = final_path = $config["export"]["directory"] + "/" + final_path
 
@@ -409,7 +409,7 @@ module Nerve; module Job
 			completed("Processed. Head on over to the My Uploads page to fill in song information.")
 
 			# Run any mixins we might have.
-			Nerve::Mixin::Runner.run! "created", Nerve::Model::TrackProvider.from_id(@track_id)
+			Nerve::Mixin::Runner.run! "created", @track
 
 			# Update an external status. 3 = IMPORTED
 			Object.const_get(options["status_update"]).status_update(options["ext_id"], 3, @track_id) if options["status_update"]
@@ -431,7 +431,8 @@ module Nerve; module Job
 			rescue
 
 				# If there's an error, we should delete the track
-				Database.query("DELETE FROM `tracks` WHERE id=?;", @track_id) if @track_id != nil
+				Nerve::Model::Track.destroy(@track_id) if @track_id != nil
+
 				File.unlink(@final_path) rescue nil if @final_path != nil 
 				File.unlink(@wave_path) rescue nil if @wave_path != nil
 				File.unlink(@preview_path) rescue nil if @preview_path != nil
