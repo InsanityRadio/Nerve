@@ -63,7 +63,7 @@ module Nerve; module Model
 		end
 
 		after_initialize :after_initialize
-		after_load :after_initialize
+		after_find :after_initialize
 
 	end
 
