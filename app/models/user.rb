@@ -38,7 +38,7 @@ module Nerve; module Model
 				@_permissions['safety_net'] = false
 			end
 
-			permissions = @_permissions
+			write_attribute :permissions, @_permissions
 
 		end
 
