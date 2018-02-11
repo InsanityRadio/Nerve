@@ -68,7 +68,7 @@ module Nerve
 				user.admin = !session[:user]["groups"][admin].nil?
 
 
-				if !session[:user]["groups"][specialist].nil?
+				if !session[:user]["groups"][specialist].nil? or user.admin or user.moderator
 					user.permissions[:override_bitrate] = true
 					user.permissions[:override_compressor] = true
 					user.permissions[:instrumental] = true
