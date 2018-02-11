@@ -13,7 +13,7 @@ class Startup < ActiveRecord::Migration
 			alter table migrate_cache drop key full;
 			alter table nerve_cache drop key `external_id`, drop key `n_uuid`, drop key `n_tr`, drop key `n_td`;
 
-			alter table tracks drop key in_artist, drop key in_album, drop key in_title, drop key index_title, drop key external_id;
+			alter table tracks drop key in_artist, drop key in_album, drop key in_title, drop key index_title;
 
 			alter table users drop key external_ref;
 
