@@ -54,6 +54,7 @@ module Nerve; module Mixin
 			images = result['album']['images'] rescue []
 			images.sort! { | a, b | b['width'] <=> a['width'] }	
 
+			track.extra ||= {}
 			track.extra['spotify_id'] = spotify_id
 			track.extra['album_art'] = images[0]['url'] if images.length and images[0]['width'] > 400
 			track.save
