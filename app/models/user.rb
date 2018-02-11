@@ -62,6 +62,10 @@ module Nerve; module Model
 			get_json.to_json
 		end
 
+		after_initialize do | user |
+			user.after_initialize
+		end
+
 	end
 
 end; end
