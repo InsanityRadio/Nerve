@@ -189,7 +189,7 @@ module Nerve; module Job
 				File.rename(output, input)
 
 				# And finally, get the new loudness data. We need it to work out gain.
-				ld = investigate_loudness(output)
+				ld = investigate_loudness(input)
 
 			end
 
