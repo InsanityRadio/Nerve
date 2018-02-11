@@ -18,24 +18,24 @@ module Nerve; module Model
 		def after_initialize
 
 			@_permissions = {
-				:override_bitrate => false,
-				:override_compressor => false,
-				:upload_library => false,
-				:upload_automation => false,
-				:instrumental => false,
+				'override_bitrate' => false,
+				'override_compressor' => false,
+				'upload_library' => false,
+				'upload_automation' => false,
+				'instrumental' => false,
 				# Safety net ensures the first 3 uploads for a user are moderated. TODO
-				:safety_net => true,
+				'safety_net' => true,
 			}
 
 			permissions.each { | k, v| @_permissions[k] = v }
 
 			if admin or moderator
-				@_permissions[:override_bitrate] = true
-				@_permissions[:override_compressor] = true
-				@_permissions[:upload_library] = true
-				@_permissions[:instrumental] = true
-				@_permissions[:upload_automation] = true
-				@_permissions[:safety_net] = false
+				@_permissions['override_bitrate'] = true
+				@_permissions['override_compressor'] = true
+				@_permissions['upload_library'] = true
+				@_permissions['instrumental'] = true
+				@_permissions['upload_automation'] = true
+				@_permissions['safety_net'] = false
 			end
 
 			permissions = @_permissions
@@ -62,9 +62,8 @@ module Nerve; module Model
 			get_json.to_json
 		end
 
-		after_initialize do | user |
-			user.after_initialize
-		end
+		after_initialize :after_initialize
+		after_load :after_initialize
 
 	end
 
