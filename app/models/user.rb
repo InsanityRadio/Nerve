@@ -13,11 +13,11 @@ module Nerve; module Model
 		alias_attribute :moderator, :is_moderator
 		alias_attribute :playout_username, :playout
 
-		attr_reader :permissions
+		serialize :permissions
 
 		def after_initialize
 
-			@permissions = {
+			@_permissions = {
 				:override_bitrate => false,
 				:override_compressor => false,
 				:upload_library => false,
@@ -27,18 +27,18 @@ module Nerve; module Model
 				:safety_net => true,
 			}
 
-			permissions.each { | k, v| @permissions[k] = v }
+			permissions.each { | k, v| @_permissions[k] = v }
 
 			if admin or moderator
-				@permissions[:override_bitrate] = true
-				@permissions[:override_compressor] = true
-				@permissions[:upload_library] = true
-				@permissions[:instrumental] = true
-				@permissions[:upload_automation] = true
-				@permissions[:safety_net] = false
+				@_permissions[:override_bitrate] = true
+				@_permissions[:override_compressor] = true
+				@_permissions[:upload_library] = true
+				@_permissions[:instrumental] = true
+				@_permissions[:upload_automation] = true
+				@_permissions[:safety_net] = false
 			end
 
-			permissions = @permissions
+			permissions = @_permissions
 
 		end
 
