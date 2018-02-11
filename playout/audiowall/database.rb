@@ -162,7 +162,7 @@ module Nerve; module Playout; class AudioWall
 
 		def add_track cart_id, track, category_id, alt_category_id = 0, options = {}
 
-			artist_id = get_artist_id track.artist
+			artist_id = get_artist_id track.artist.name
 			title_id = get_title_id track.title
 			style_id = get_style track.genre, $genres[track.genre]
 
@@ -227,7 +227,7 @@ module Nerve; module Playout; class AudioWall
 
 		def update_track track, options
 
-			artist_id = get_artist_id track.artist
+			artist_id = get_artist_id track.artist.name
 			title_id = get_title_id track.title
 
 			arguments = []
