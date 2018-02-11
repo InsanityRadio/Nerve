@@ -13,7 +13,7 @@ module Nerve; module Model
 		alias_attribute :moderator, :is_moderator
 		alias_attribute :playout_username, :playout
 
-		serialize :permissions
+		serialize :permissions, JSON
 
 		def after_initialize
 
