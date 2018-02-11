@@ -200,7 +200,7 @@ module Nerve; module Playout; class AudioWall
 					    '%s', GETDATE(), GETDATE(), 0, %i, '%s', '%s', '%s', '%s')",
 				
 					SecureRandom.uuid, nil, 'Nerve_' + track.id.to_s,
-					title_id, artist_id, nil, @conn.escape(track.title), @conn.escape(track.artist),
+					title_id, artist_id, nil, @conn.escape(track.title), @conn.escape(track.artist.name),
 					cart_id, category_id, alt_category_id, 0, era_id,
 					0, (options['CharacteristicStart1'] or 0), (options['CharacteristicEnd1'] or 0),
 					(options['CharacteristicStart2'] or 0), (options['CharacteristicEnd2'] or 0),
@@ -234,7 +234,7 @@ module Nerve; module Playout; class AudioWall
 			query = []
 
 			options['DisplayTitle'] = track.title
-			options['DisplayBy'] = track.artist
+			options['DisplayBy'] = track.artist.name
 
 			options.each { | k, v | arguments << k + " = '%s'"; query << @conn.escape(v.to_s) }
 
