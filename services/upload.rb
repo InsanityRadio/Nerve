@@ -55,7 +55,7 @@ module Nerve
 				login_service = Nerve::Services::Login.get_service
 				@user = login_service.get_user(session[:user_id]) rescue login_service.get_nil_user
 
-				instrumental = (params['instrumental'] == "true" and @user.permissions[:instrumental])
+				instrumental = (params['instrumental'] == "true" and @user.permissions['instrumental'])
 				data = {
 					"file" => temp_file,
 					"user_id" => session[:user_id],
@@ -65,7 +65,7 @@ module Nerve
 					"album" => params['album'],
 					"override_bitrate" => (
 						params['override_bitrate'] == "true" and
-						@user.permissions[:override_bitrate]), # TODO: check user can do that
+						@user.permissions['override_bitrate']), # TODO: check user can do that
 					"override_compressor" => params['override_compressor'] == "true",
 					"upload_library" => params['upload_library'] == "true",
 					"instrumental" => instrumental

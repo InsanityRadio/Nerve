@@ -13,32 +13,32 @@ module Nerve; module Model
 		alias_attribute :moderator, :is_moderator
 		alias_attribute :playout_username, :playout
 
-		attr_reader :permissions
+		serialize :permissions, JSON
 
 		def after_initialize
 
-			@permissions = {
-				:override_bitrate => false,
-				:override_compressor => false,
-				:upload_library => false,
-				:upload_automation => false,
-				:instrumental => false,
+			@_permissions = {
+				'override_bitrate' => false,
+				'override_compressor' => false,
+				'upload_library' => false,
+				'upload_automation' => false,
+				'instrumental' => false,
 				# Safety net ensures the first 3 uploads for a user are moderated. TODO
-				:safety_net => true,
+				'safety_net' => true,
 			}
 
-			permissions.each { | k, v| @permissions[k] = v }
+			permissions.each { | k, v| @_permissions[k] = v }
 
 			if admin or moderator
-				@permissions[:override_bitrate] = true
-				@permissions[:override_compressor] = true
-				@permissions[:upload_library] = true
-				@permissions[:instrumental] = true
-				@permissions[:upload_automation] = true
-				@permissions[:safety_net] = false
+				@_permissions['override_bitrate'] = true
+				@_permissions['override_compressor'] = true
+				@_permissions['upload_library'] = true
+				@_permissions['instrumental'] = true
+				@_permissions['upload_automation'] = true
+				@_permissions['safety_net'] = false
 			end
 
-			permissions = @permissions
+			write_attribute :permissions, @_permissions
 
 		end
 
@@ -61,6 +61,9 @@ module Nerve; module Model
 		def to_json state = nil
 			get_json.to_json
 		end
+
+		after_initialize :after_initialize
+		after_find :after_initialize
 
 	end
 
