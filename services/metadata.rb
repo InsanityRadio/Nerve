@@ -77,6 +77,7 @@ module Nerve
 				item = Nerve::Model::CacheItem.find_or_create_by(external_id: data['external_id'])
 
 				data['year'] = data['year'] == '' ? 0 : data['year']
+				data['track'] = data['title']
 
 				data = data.select {|x| item.class.attribute_names.index(x) }
 				item.assign_attributes data
