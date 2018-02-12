@@ -114,7 +114,7 @@ module Nerve; module Model
 				"is_automation" => is_automation,
 				"playout_id" => playout_id,
 				"end_type" => end_type,
-				"created_by" => user.get_json,
+				"created_by" => user && user.get_json,
 				"flagged" => flagged,
 				"instrumental" => instrumental,
 				"extra" => extra
