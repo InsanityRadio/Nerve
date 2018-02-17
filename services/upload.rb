@@ -12,10 +12,7 @@ module Nerve
 			@@string_matcher = FuzzyStringMatch::JaroWinkler.create( :native )
 
 			def self.get_total_uploads 
-
-				result = Database.query("SELECT COUNT(*) AS c FROM `tracks`;")
-				result.first["c"].to_i
-
+				Nerve::Model::Track.count
 			end
 
 			get '/upload/list/' do 
@@ -23,10 +20,9 @@ module Nerve
 				protect_json!
 				COUNT = 50; page = params['page'] || 0
 
-				Nerve::Model::TrackProvider.where("
-					t.created_by = ?
-					ORDER BY t.creation_date DESC
-					LIMIT #{(page * COUNT).to_i}, #{COUNT};", session[:user_id]).to_json
+				Nerve::Model::Track.where(created_by: session[:user_id]).
+					order(id: :desc).
+					offset(page * COUNT).limit(COUNT).map(&:get_json).to_json
 
 			end
 
@@ -59,7 +55,7 @@ module Nerve
 				login_service = Nerve::Services::Login.get_service
 				@user = login_service.get_user(session[:user_id]) rescue login_service.get_nil_user
 
-				instrumental = (params['instrumental'] == "true" and @user.permissions[:instrumental])
+				instrumental = (params['instrumental'] == "true" and @user.permissions['instrumental'])
 				data = {
 					"file" => temp_file,
 					"user_id" => session[:user_id],
@@ -69,7 +65,7 @@ module Nerve
 					"album" => params['album'],
 					"override_bitrate" => (
 						params['override_bitrate'] == "true" and
-						@user.permissions[:override_bitrate]), # TODO: check user can do that
+						@user.permissions['override_bitrate']), # TODO: check user can do that
 					"override_compressor" => params['override_compressor'] == "true",
 					"upload_library" => params['upload_library'] == "true",
 					"instrumental" => instrumental
@@ -81,83 +77,6 @@ module Nerve
 				#data["overrides"] = true if @user.admin and params['override'] == "true"
 
 				# Create the job, and sit back and relax!
-				{:token => Nerve::Job::Process.create(data)}.to_json
-
-			end
-
-			get '/upload/migrate/path/' do 
-
-				protect_json!
-				raise "Slave servers/workers not yet implemented" if $config["import"]["workers"].length > 2
-
-				{"path" => "http://" + request.host_with_port + "/upload/migrate/"}.to_json  
-
-			end
-
-			post '/upload/migrate/do/' do
-
-				protect_json!
-
-				cart_id = params["cart_id"].to_i
-				data = Database.query("SELECT * FROM migrate_cache WHERE cart_id=?", cart_id).to_a
-				next if data.length == 0 or cart_id == 0
-				cart_data = data[0]
-
-				@@audiowall = Nerve::Playout::AudioWall.new $config["migrate"]["audiowall"], $config["migrate"]["use_extended_path"]
-				@@audiowall.load_settings
-
-				file_path = @@audiowall.get_audio_path(cart_id)
-
-				temp_file  = Dir::Tmpname.create('nerve.tmp', $config["import"]["temp"]) { |path| path }
-				temp_file += ".wav"
-				fdata = File.read(file_path)
-
-				File.open(temp_file, "wb") do | f |
-					f.write fdata.force_encoding("BINARY")
-				end
-
-				meta = Nerve::Services::Metadata::match(
-					cart_data['artist'],
-					'',
-					cart_data['title']) rescue nil
-
-				meta = {
-					'title' => cart_data['title'],
-					'artist' => cart_data['artist'],
-					'album' => '',
-					'cache_id' => -1} if !meta
-
-				cart = @@audiowall.load_cart(cart_id)
-
-				puts "Cart #{cart_id}"
-
-				raise "Unmatching title #{cart.title}, #{meta['title']} - contact Head of Computing" \
-					if cart.title.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['title'].downcase.gsub(/[^0-9a-z]/i, '')[0..15] \
-						and @@string_matcher.getDistance(cart.title, meta['title']) < 0.8
-
-				raise "Unmatching artist #{cart.artist}, #{meta['artist']}" \
-					if cart.artist.downcase.gsub(/[^0-9a-z]/i, '')[0..15] != meta['artist'].downcase.gsub(/[^0-9a-z]/i, '')[0..15] \
-						and @@string_matcher.getDistance(cart.artist, meta['artist']) < 0.8
-
-				login_service = Nerve::Services::Login.get_service
-				@user = login_service.get_user(session[:user_id]) rescue login_service.get_nil_user
-
-				data = {
-					"file" => temp_file,
-					"user_id" => session[:user_id],
-					"cache_id" => meta['cache_id'],
-					"ext_id" => "C" + cart_id.to_s,
-					"artist" => meta['artist'],
-					"title" => meta['title'],
-					"album" => meta['album'],
-					"override_bitrate" => (
-						params['override_bitrate'] == "true" and
-						@user.permissions[:override_bitrate]), # TODO: check user can do that
-					"override_compressor" => params['override_compressor'] == "true",
-					"upload_library" => params['upload_library'] == "true",
-				}
-
-				data["explicit"] = meta['cache_id'] == -1 ? 1 : 0
 				{:token => Nerve::Job::Process.create(data)}.to_json
 
 			end
@@ -176,26 +95,12 @@ module Nerve
 
 			end
 
-			get '/upload/migrate/status/:uuid' do | uuid |
-
-				protect_json!
-
-				status = Resque::Plugins::Status::Hash.get(uuid)
-
-				{
-					:running => status.queued? || status.working?,
-					:percent => status.pct_complete,
-					:message => status.queued? ? "Queued. You can leave it and come back later if you like." : status.message
-				}.to_json
-
-			end
-
 
 			get '/upload/file/:id' do | id |
 
 				protect_json!
 
-				track = Nerve::Model::TrackProvider.from_id(id) #rescue false
+				track = Nerve::Model::Track.find(id) #rescue false
 
 				return {
 					"404" => "1"
@@ -211,13 +116,11 @@ module Nerve
 
 				begin
 
-					p params
-
 					raise "Incorrect/empty CSRF key (#{params['token']}, #{session[:token]})" \
 						if session[:token].empty? || params['token'] != session[:token]
 
 					user = Nerve::Services::Login.get_service.get_user session[:user_id]
-					track = Nerve::Playout::Track.from_id id
+					track = Nerve::Model::Track.find id
 
 					raise "You do not have permission to modify this track." \
 						if !user.moderator and user.id != track.created_by.id
@@ -225,13 +128,18 @@ module Nerve
 					raise "You must select an end type!" \
 						unless [1, 2, 3].include? params['end_type'].to_i
 
-					# Reject artist name changes
-					raise "Artist name changing isn't supported yet (sorry)!" \
-						if params['artist'] != track.artist
+					if params['artist'] != track.artist.name
+						track.artist = Nerve::Model::Artist.find_or_initialize_by(name: params['artist'])
+						track.artist.external_id ||= 0
+						track.artist.created_by = session[:user_id]
+						track.set_unsafe
+						track.update_metadata rescue nil 
+					end
 
 					if params['title'] != track.title
 						track.title = params['title'] 
 						track.set_unsafe
+						track.update_metadata rescue nil 
 					end
 
 					track.end_type = params['end_type'].to_i
@@ -277,7 +185,7 @@ module Nerve
 
 				# If not explicit, set status to 4 and queue as a Job::Transfer.
 
-				track = Nerve::Playout::Track.from_id id
+				track = Nerve::Model::Track.find id
 
 				raise "Missing extro" if track.outro == 0 || track.outro == nil
 				raise "Missing end type" if track.end_type == 0 || track.end_type == nil
@@ -312,7 +220,7 @@ module Nerve
 					if session[:token].empty? || params['token'] != session[:token]
 
 				user = Nerve::Services::Login.get_service.get_user session[:user_id]
-				track = Nerve::Playout::Track.from_id id
+				track = Nerve::Model::Track.find id
 
 				raise "You do not have permission to delete this track." \
 					if !user.moderator and user.id != track.created_by.id

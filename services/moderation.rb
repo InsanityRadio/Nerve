@@ -6,10 +6,9 @@ module Nerve
 		class Moderation < Sinatra::Application
 
 			include Helpers
-			include Nerve::Database
 
 			def self.get_pending
-				Database.query("SELECT 1 FROM `tracks` WHERE `status` = 3;").size
+				Nerve::Model::Track.where(status: 3).count
 			end
 
 			get '/moderation/pending/' do 
@@ -17,10 +16,9 @@ module Nerve
 				protect_moderator!
 				COUNT = 60; page = params['page'] || 0
 
-				tracks = Nerve::Model::TrackProvider.where("
-					t.status = 3
-					ORDER BY t.creation_date DESC
-					LIMIT #{(page * COUNT).to_i}, #{COUNT};").to_json
+				Nerve::Model::Track.where(status: 3).
+					order(id: :desc).
+					offset(page * COUNT).limit(COUNT).map(&:get_json).to_json
 
 			end
 
@@ -34,10 +32,10 @@ module Nerve
 				# Check for "allow during day/automation"
 
 				# Set track status to 4
-				track = Nerve::Model::TrackProvider.from_id(id)
+				track = Nerve::Model::Track.find(id)
 				track.status = 4
-				track.approved_by = session[:user_id]
-				track.save
+				track.approved_by = Nerve::Model::User.find(session[:user_id])
+				track.save!
 				# Queue for job
 
 				Nerve::Job::Transfer.create({
@@ -54,10 +52,10 @@ module Nerve
 					if session[:token].empty? || params['token'] != session[:token]
 
 				# Set status to 2
-				track = Nerve::Model::TrackProvider.from_id(id)
+				track = Nerve::Model::Track.find(id)
 				track.status = 2
-				track.approved_by = session[:user_id]
-				track.save
+				track.approved_by = Nerve::Model::User.find(session[:user_id])
+				track.save!
 
 				return { "success" => 1 }.to_json
 
@@ -70,10 +68,10 @@ module Nerve
 					if session[:token].empty? || params['token'] != session[:token]
 
 				# Set status to 2
-				track = Nerve::Model::TrackProvider.from_id(id)
+				track = Nerve::Model::Track.find(id)
 				track.flagged = 1
-				track.approved_by = session[:user_id]
-				track.save
+				track.approved_by = Nerve::Model::User.find(session[:user_id])
+				track.save!
 
 				return { "success" => 1 }.to_json
 
@@ -85,7 +83,7 @@ module Nerve
 				raise "Incorrect/empty CSRF key" \
 					if session[:token].empty? || params['token'] != session[:token]
 
-				track = Nerve::Model::TrackProvider.from_id(id)
+				track = Nerve::Model::Track.find(id)
 
 				Nerve::Job::Recall.create({
 					"track_id" => track.id})

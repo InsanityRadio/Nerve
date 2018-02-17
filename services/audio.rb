@@ -16,8 +16,8 @@ module Nerve
 
 				protect_cors!
 
-				path = Database.query("SELECT local_path FROM `tracks` WHERE id=?", id)
-				path = $config["export"]["directory"] + "/" + path.first["local_path"]
+				path = Nerve::Model::Track.find(id).local_path
+				path = $config["export"]["directory"] + "/" + path
 
 				ext = File.extname(path)
 
@@ -30,7 +30,7 @@ module Nerve
 
 				protect_cors!
 
-				track = Nerve::Model::TrackProvider.from_id(id)
+				track = Nerve::Model::Track.find(id)
 
 				path = Object.const_get($config["export"]["mode"]).find_path(track)
 				ext = File.extname(path)
@@ -43,8 +43,8 @@ module Nerve
 
 				protect_cors!
 
-				path = Database.query("SELECT local_path FROM `tracks` WHERE id=?", id)
-				path = $config["export"]["directory"] + "/" + path.first["local_path"] + ".ogg"
+				path = Nerve::Model::Track.find(id).local_path
+				path = $config["export"]["directory"] + "/" + path + ".ogg"
 
 				send_file(path, :type => "audio/ogg", :disposition => 'inline')
 
@@ -54,8 +54,8 @@ module Nerve
 
 				protect_cors!
 
-				path = Database.query("SELECT local_path FROM `tracks` WHERE id=?", id)
-				path = $config["export"]["directory"] + "/" + path.first["local_path"] + ".dat"
+				path = Nerve::Model::Track.find(id).local_path
+				path = $config["export"]["directory"] + "/" + path + ".dat"
 
 				send_file(path, :type => "application/octet-stream", :disposition => 'inline')
 
