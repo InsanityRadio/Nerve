@@ -16,6 +16,7 @@ $config = YAML::load(File.read("config.yml"))
 $genres = YAML::load(File.read("genres.yml"))
 $env = {:slave => false}
 
+require './database'
 
 Resque::Plugins::Status::Hash.expire_in = (60 * 60) * 24
 
@@ -89,7 +90,7 @@ module Nerve
 			{
 				'authorized' => true,
 				'stats' => stats,
-				'user' => @user,
+				'user' => @user.get_json,
 				'key' => key,
 				'station_name' => $config['station_name'],
 				'contact_email' => $config['contact_email'],

@@ -99,7 +99,7 @@ module Nerve; module Migrate
 				Myriad.set_metadata reference, track_id
 
 				# If the "trust" config key is set, we're fine to flat out upload it
-				track = Nerve::Playout::Track.from_id track_id
+				track = Nerve::Model::Track.find track_id
 				track.status = 3
 				track.save
 				return unless $config["import"]["auto_import_trust"] or track.is_safe
@@ -131,7 +131,7 @@ module Nerve; module Migrate
 
 			cart = @@audiowall.load_cart(res[0]["HDReference"].to_i)
 
-			track = Nerve::Playout::Track.from_id nerve_id
+			track =  Nerve::Model::Track.find nerve_id
 
 			raise "Could not find audio cart" if !track
 

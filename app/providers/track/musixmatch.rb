@@ -89,14 +89,14 @@ module Nerve
 					end
 
 					data = {
-						"nerve_id" => 0,
+						"cache_id" => 0,
 						"cache" => "miss",
 						"external_id" => track["commontrack_id"],
 						"title" => override_title || track["track_name"],
 						"artist" => track["artist_name"],
 						"album" => track["album_name"],
 						"explicit" => track["explicit"],
-						"exists" => Nerve::Services::Metadata.exists?(track["commontrack_id"]),
+						"exists" => Nerve::Model::CacheItem.where(external_id: track["commontrack_id"]).count > 0,
 						"genre" => genre,
 						"year" => (track["first_release_date"][0..3] rescue nil),
 						"big" => track.to_json

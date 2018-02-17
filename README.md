@@ -41,7 +41,7 @@ Nerve has been tried and tested at Insanity Radio 103.2FM, a community radio sta
 
 I haven't had time to write an installation guide, but it's not really that straightforward, unfortunately. Some statically linked binaries are currently included in the source tree to make it easier to run some components. 
 
-Nerve is based on Sinatra, a microframework for Ruby. We chose this over Rails as we didn't feel ActiveRecord would suit this project at its current level (Full-text search is hard to implement on some DBMS, and MySQL is fine). 
+Nerve is based on Sinatra, a microframework for Ruby. It (now) uses ActiveRecord, too.
 
 You will need to install a Redis server (the default settings work fine), and you'll need a MySQL database. 
 
