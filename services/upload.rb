@@ -128,18 +128,18 @@ module Nerve
 					raise "You must select an end type!" \
 						unless [1, 2, 3].include? params['end_type'].to_i
 
-					# Reject artist name changes
 					if params['artist'] != track.artist.name
 						track.artist = Nerve::Model::Artist.find_or_initialize_by(name: params['artist'])
 						track.artist.external_id ||= 0
 						track.artist.created_by = session[:user_id]
 						track.set_unsafe
+						track.update_metadata rescue nil 
 					end
-
 
 					if params['title'] != track.title
 						track.title = params['title'] 
 						track.set_unsafe
+						track.update_metadata rescue nil 
 					end
 
 					track.end_type = params['end_type'].to_i

@@ -24,16 +24,34 @@ module Nerve; module Model
 			!!status and status > 3
 		end
 
+		def update_metadata
+
+			result = Nerve::Services::Metadata.match artist.name, (album.name rescue ''), title, true, true
+			external_id = result['external_id']
+			get_metadata 
+
+		end
+
 		def get_metadata
 
-			result = Nerve::Services::Metadata.match_meta(external_id, true, "external_id")
+			result, cache_item = Nerve::Services::Metadata.match_meta(external_id, true, "external_id", true)
 			_big = result["big"] rescue nil
 
-			_lyrics = JSON.parse(_big["lyrics"])[0] rescue ""
+			_lyrics = (cache_item.lyrics or JSON.parse(_big["lyrics"])[0]) rescue ""
+			_lyrics = _lyrics[0] if _lyrics.is_a? Array
+			_lyrics = '' if !_lyrics or _lyrics.to_s.empty? or _lyrics.to_s == '0' or _lyrics.to_s == 'false'
 
-			if !_lyrics or _lyrics.to_s.empty?
-				_lyrics = Nerve::Services::Metadata.match_lyrics(artist.name, album.name, title)[0] \
-					rescue "No lyrics available."
+			if _lyrics == ''
+				_lyrics = "No lyrics available."
+				begin
+					_lyrics = Nerve::Services::Metadata.match_lyrics(artist.name, (album.name rescue ''), title)[0] 
+					if cache_item
+						cache_item.lyrics = _lyrics
+						cache_item.save
+					end
+				rescue
+					_lyrics = "No lyrics available."
+				end
 			end
 
 			[result, _lyrics, (result["year"] rescue nil)]
@@ -53,7 +71,7 @@ module Nerve; module Model
 			r = Regexp.new("\\b((#{$config["words"]["banned"].join("|")})[^\\s\\b,.\<\>]*)\\b", 7)
 
 			# If the size is 0, then it's "safe" ish
-			return false if !_lyrics or _lyrics.to_s.empty?
+			return false if !_lyrics or _lyrics.to_s.empty? or _lyrics == 0
 
 			# TODO: make this cleaner
 			_lyrics.scan(r).size == 0 && !!_lyrics && _lyrics != "" && _lyrics != "No lyrics available."
@@ -61,22 +79,25 @@ module Nerve; module Model
 		end
 
 		def set_unsafe
-			explicit = 1
+			explicit = true
 		end
 
 		def why_unsafe
 
-			return "determined as risky during upload" if status == 0 # only works before submission
-			return "has parental advisory/explicit flag" if explicit
+			reasons = []
+			reasons << "determined as risky during upload" if status == 0 # only works before submission
+			reasons << "has parental advisory/explicit flag" if explicit
 			_extended, _lyrics = get_metadata
 
-			r = Regexp.new("\\b((#{$config["words"]["banned"].join("|")})[^\\s\\b,.\<\>]*)\\b", 7)
-			s = _lyrics.scan(r)
+			if !_lyrics.to_s.empty? && _lyrics != 0 && _lyrics != "No lyrics available."
+				r = Regexp.new("\\b((#{$config["words"]["banned"].join("|")})[^\\s\\b,.\<\>]*)\\b", 7)
+				s = _lyrics.scan(r)
+				reasons << "it contains (at least one) expletive (#{s[0]})" if s.size > 0
+			else
+				reasons << "no lyrics were found"
+			end
 
-			return "it contains (at least one) expletive (#{s[0]})" if s.size > 0
-			return "no lyrics were found" if !_lyrics or _lyrics == "No lyrics available."
-
-			false
+			reasons.length > 0 ? reasons : false
 
 		end
 
