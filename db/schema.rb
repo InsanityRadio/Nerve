@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180113004836) do
+ActiveRecord::Schema.define(version: 20180217105112) do
 
   create_table "albums", force: :cascade do |t|
     t.integer  "external_id",   limit: 4,   null: false
@@ -83,14 +83,14 @@ ActiveRecord::Schema.define(version: 20180113004836) do
     t.integer  "bitrate",         limit: 4,                             default: 0
     t.integer  "sample_rate",     limit: 4,                             default: 0
     t.integer  "end_type",        limit: 4,                             default: 0
-    t.integer  "explicit",        limit: 4,                             default: 0
-    t.integer  "is_library",      limit: 4,                             default: 0
-    t.integer  "is_automation",   limit: 4,                             default: 0
+    t.boolean  "explicit",                                              default: false
+    t.boolean  "is_library",                                            default: false
+    t.boolean  "is_automation",                                         default: false
     t.integer  "ext_id",          limit: 4
     t.string   "playout_id",      limit: 255
     t.integer  "restrict_play",   limit: 4,                             default: 0
-    t.integer  "flagged",         limit: 4,                             default: 0
-    t.integer  "instrumental",    limit: 4,                             default: 0
+    t.boolean  "flagged",                                               default: false
+    t.boolean  "instrumental",                                          default: false
     t.string   "playout_id_2",    limit: 255
     t.text     "extra",           limit: 65535
     t.integer  "category_a",      limit: 4,                             default: 0

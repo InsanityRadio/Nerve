@@ -57,12 +57,14 @@ module Nerve
 
 			end
 
-			def self.match_meta id, enhanced = false, column = "id"
+			def self.match_meta id, enhanced = false, column = "id", raw = false 
 
 				raise "Invalid column name specified?" if column != "id" and column != "external_id"
 				
 				query = Nerve::Model::CacheItem.where("#{column}=?", id)
-				query.count == 1 ? query.first.get_json(enhanced) : false
+				return false if !query.count
+				item = query.first.get_json(enhanced)
+				raw ? [item, query.first] : item
 
 			end
 
@@ -75,13 +77,7 @@ module Nerve
 			def self.cache data 
 
 				item = Nerve::Model::CacheItem.find_or_create_by(external_id: data['external_id'])
-
-				data['year'] = data['year'] == '' ? 0 : data['year']
-				data['track'] = data['title']
-
-				data = data.select {|x| item.class.attribute_names.index(x) }
-				item.assign_attributes data
-
+				item.init_by data
 				item.save
 				item
 
