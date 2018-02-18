@@ -193,7 +193,7 @@ module Nerve
 				if track.is_safe
 
 					track.status = 4
-					track.approved_by = User.find_or_create_by(id: 0)
+					track.approved_by = Nerve::Model::User.find_or_create_by(id: 0)
 					track.save
 					Nerve::Job::Transfer.create({
 						"track_id" => id})
