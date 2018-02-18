@@ -62,7 +62,7 @@ module Nerve
 				raise "Invalid column name specified?" if column != "id" and column != "external_id"
 				
 				query = Nerve::Model::CacheItem.where("#{column}=?", id)
-				return false if !query.count
+				return false if query.count == 0 or !query.first
 				item = query.first.get_json(enhanced)
 				raw ? [item, query.first] : item
 
