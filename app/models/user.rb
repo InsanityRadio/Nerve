@@ -27,7 +27,7 @@ module Nerve; module Model
 				'safety_net' => true,
 			}
 
-			permissions.each { | k, v| @_permissions[k] = v }
+			permissions.each { | k, v| @_permissions[k] = v } if permissions.is_a? Hash
 
 			if admin or moderator
 				@_permissions['override_bitrate'] = true
