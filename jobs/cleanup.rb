@@ -23,7 +23,7 @@ module Nerve; module Job
 
 					@original_status = track.status
 
-					track.delete! track.status == 5
+					track.delete! track.status < 4
 					i += 1
 					at(i * multiplier, 100)
 
