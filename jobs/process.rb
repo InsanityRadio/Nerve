@@ -245,12 +245,14 @@ module Nerve; module Job
 
 
 
-		def generate_waveform file, length
+		def generate_waveform file, length, output = nil 
+
+			output = "#{file}.dat" if output == nil
 
 			_debug "Generating a waveform of the input - hang on"
 			pps = (20000 / length).to_i
 			result = _sys('audiowaveform',
-				'-i', file, '-o', @wave_path = "#{file}.dat",
+				'-i', file, '-o', @wave_path = output,
 				'-b', '8', '--pixels-per-second', pps.to_s)
 
 
