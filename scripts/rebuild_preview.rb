@@ -55,10 +55,9 @@ class Processor < Nerve::Job::Process
 
 			_debug "Done!"
 		
-		rescue
+		ensure
 
 			temp.map { |t| File.unlink(t) }
-			raise $!
 
 		end
 
