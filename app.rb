@@ -9,14 +9,15 @@ require 'sinatra/reloader'
 require 'sinatra/xsendfile'
 require 'yaml'
 
-require './modules'
+$: << '.'
+require_relative 'modules'
 
 Bundler.require
-$config = YAML::load(File.read("config.yml"))
-$genres = YAML::load(File.read("genres.yml"))
+$config = YAML::load(File.read(File.join(File.dirname(__FILE__), "config.yml")))
+$genres = YAML::load(File.read(File.join(File.dirname(__FILE__), "genres.yml")))
 $env = {:slave => false}
 
-require './database'
+require_relative 'database'
 
 Resque::Plugins::Status::Hash.expire_in = (60 * 60) * 24
 
