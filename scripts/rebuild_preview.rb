@@ -13,6 +13,8 @@ class Processor < Nerve::Job::Process
 
 	def initialize; end
 
+	def at *args; end
+
 	def process_track track
 
 		# rebuild the track's preview and peaks
@@ -20,27 +22,45 @@ class Processor < Nerve::Job::Process
 		prev_path = $config["export"]["directory"] + "/" + path + ".ogg"
 		wave_path = $config["export"]["directory"] + "/" + path + ".dat"
 
+		exported_path = Object.const_get($config["export"]["mode"]).find_path(track)
+
 		# If we already have the preview, we probably
-		if File.exist?(prev_path) or !File.exist?(track)
+		if File.exist?(prev_path) or !File.exist?(exported_path)
 			_debug "Skipping for some reason"
 			return
 		end
 
-		exported_path = self.find_path(track)
 
-		_debug "Generating preview"
+		temp = []
 
-		convert(exported_path, prev_path, "ogg", "-1")
+		begin
 
-		raise "Conversion failed!" unless File.exists? prev_path
+			_debug "Generating preview"
 
-		_debug "Generating waveform"
+			temp << Tempfile.new(['nerve', '.wav'])
+			temp_path = temp[0].path
+			temp[0].close; temp[0].unlink
 
-		generate_waveform(prev_path, options["length"], wave_path)
+			FileUtils::copy(exported_path, temp_path)
 
-		raise "Generating waveform failed" unless File.exists? 
+			convert(temp_path, prev_path, "ogg", "-1")
 
-		_debug "Done!"
+			raise "Conversion failed!" unless File.exists? prev_path
+
+			_debug "Generating waveform"
+
+			generate_waveform(temp_path, track.length.to_f, wave_path)
+
+			raise "Generating waveform failed" unless File.exists? wave_path
+
+			_debug "Done!"
+		
+		rescue
+
+			temp.map { |t| File.unlink(t) }
+			raise $!
+
+		end
 
 	end
 
