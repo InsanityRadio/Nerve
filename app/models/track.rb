@@ -24,19 +24,37 @@ module Nerve; module Model
 			!!status and status > 3
 		end
 
+		def update_metadata
+
+			result = Nerve::Services::Metadata.match artist.name, (album.name rescue ''), title, true, true
+			external_id = result['external_id']
+			get_metadata 
+
+		end
+
 		def get_metadata
 
-			result = Nerve::Services::Metadata.match_meta(external_id, true, "external_id")
-			big = result["big"] rescue nil
+			result, cache_item = Nerve::Services::Metadata.match_meta(external_id, true, "external_id", true)
+			_big = result["big"] rescue nil
 
-			lyrics = JSON.parse(big["lyrics"])[0] rescue ""
+			_lyrics = (cache_item.lyrics or JSON.parse(_big["lyrics"])[0]) rescue ""
+			_lyrics = _lyrics[0] if _lyrics.is_a? Array
+			_lyrics = '' if !_lyrics or _lyrics.to_s.empty? or _lyrics.to_s == '0' or _lyrics.to_s == 'false'
 
-			if !lyrics or lyrics.to_s.empty?
-				lyrics = Nerve::Services::Metadata.match_lyrics(artist.name, album.name, title)[0] \
-					rescue "No lyrics available."
+			if _lyrics == ''
+				_lyrics = "No lyrics available."
+				begin
+					_lyrics = Nerve::Services::Metadata.match_lyrics(artist.name, (album.name rescue ''), title)[0] 
+					if cache_item
+						cache_item.lyrics = _lyrics
+						cache_item.save
+					end
+				rescue
+					_lyrics = "No lyrics available."
+				end
 			end
 
-			[result, lyrics, (result["year"] rescue nil)]
+			[result, _lyrics, (result["year"] rescue nil)]
 
 		end
 
@@ -44,7 +62,7 @@ module Nerve; module Model
 		def is_safe
 
 			return false if explicit or status == 0
-			extended, lyrics = get_metadata
+			_extended, _lyrics = get_metadata
 
 			return true if instrumental
 
@@ -53,42 +71,45 @@ module Nerve; module Model
 			r = Regexp.new("\\b((#{$config["words"]["banned"].join("|")})[^\\s\\b,.\<\>]*)\\b", 7)
 
 			# If the size is 0, then it's "safe" ish
-			return false if !lyrics or lyrics.to_s.empty?
+			return false if !_lyrics or _lyrics.to_s.empty? or _lyrics == 0
 
 			# TODO: make this cleaner
-			lyrics.scan(r).size == 0 && !!lyrics && lyrics != "" && lyrics != "No lyrics available."
+			_lyrics.scan(r).size == 0 && !!_lyrics && _lyrics != "" && _lyrics != "No lyrics available."
 
 		end
 
 		def set_unsafe
-			explicit = 1
+			explicit = true
 		end
 
 		def why_unsafe
 
-			return "determined as risky during upload" if status == 0 # only works before submission
-			return "has parental advisory/explicit flag" if explicit
-			extended, lyrics = get_metadata
+			reasons = []
+			reasons << "determined as risky during upload" if status == 0 # only works before submission
+			reasons << "has parental advisory/explicit flag" if explicit
+			_extended, _lyrics = get_metadata
 
-			r = Regexp.new("\\b((#{$config["words"]["banned"].join("|")})[^\\s\\b,.\<\>]*)\\b", 7)
-			s = lyrics.scan(r)
+			if !_lyrics.to_s.empty? && _lyrics != 0 && _lyrics != "No lyrics available."
+				r = Regexp.new("\\b((#{$config["words"]["banned"].join("|")})[^\\s\\b,.\<\>]*)\\b", 7)
+				s = _lyrics.scan(r)
+				reasons << "it contains (at least one) expletive (#{s[0]})" if s.size > 0
+			else
+				reasons << "no lyrics were found"
+			end
 
-			return "it contains (at least one) expletive (#{s[0]})" if s.size > 0
-			return "no lyrics were found" if !lyrics or lyrics == "No lyrics available."
-
-			false
+			reasons.length > 0 ? reasons : false
 
 		end
 
 		def delete! soft = false
-			local_path = $config["export"]["directory"] + "/" + local_path
-			File.unlink(local_path) rescue nil
+			_local_path = $config["export"]["directory"] + "/" + local_path
+			File.unlink(_local_path) rescue nil
 			if soft
 				self.status = 6
 				self.save
 			else
-				File.unlink(local_path + ".ogg") rescue nil
-				File.unlink(local_path + ".dat") rescue nil
+				File.unlink(_local_path + ".ogg") rescue nil
+				File.unlink(_local_path + ".dat") rescue nil
 				destroy
 			end
 		end
@@ -114,7 +135,7 @@ module Nerve; module Model
 				"is_automation" => is_automation,
 				"playout_id" => playout_id,
 				"end_type" => end_type,
-				"created_by" => user.get_json,
+				"created_by" => user && user.get_json,
 				"flagged" => flagged,
 				"instrumental" => instrumental,
 				"extra" => extra

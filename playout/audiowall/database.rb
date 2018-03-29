@@ -162,7 +162,7 @@ module Nerve; module Playout; class AudioWall
 
 		def add_track cart_id, track, category_id, alt_category_id = 0, options = {}
 
-			artist_id = get_artist_id track.artist
+			artist_id = get_artist_id track.artist.name
 			title_id = get_title_id track.title
 			style_id = get_style track.genre, $genres[track.genre]
 
@@ -200,7 +200,7 @@ module Nerve; module Playout; class AudioWall
 					    '%s', GETDATE(), GETDATE(), 0, %i, '%s', '%s', '%s', '%s')",
 				
 					SecureRandom.uuid, nil, 'Nerve_' + track.id.to_s,
-					title_id, artist_id, nil, @conn.escape(track.title), @conn.escape(track.artist),
+					title_id, artist_id, nil, @conn.escape(track.title), @conn.escape(track.artist.name),
 					cart_id, category_id, alt_category_id, 0, era_id,
 					0, (options['CharacteristicStart1'] or 0), (options['CharacteristicEnd1'] or 0),
 					(options['CharacteristicStart2'] or 0), (options['CharacteristicEnd2'] or 0),
@@ -227,14 +227,14 @@ module Nerve; module Playout; class AudioWall
 
 		def update_track track, options
 
-			artist_id = get_artist_id track.artist
+			artist_id = get_artist_id track.artist.name
 			title_id = get_title_id track.title
 
 			arguments = []
 			query = []
 
 			options['DisplayTitle'] = track.title
-			options['DisplayBy'] = track.artist
+			options['DisplayBy'] = track.artist.name
 
 			options.each { | k, v | arguments << k + " = '%s'"; query << @conn.escape(v.to_s) }
 

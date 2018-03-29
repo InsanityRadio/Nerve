@@ -18,6 +18,16 @@ module Nerve; module Model
 			Track.where('external_id=?', external_id).count > 0
 		end
 
+		def init_by data
+
+			data['year'] = data['year'] == '' ? 0 : data['year']
+			data['track'] = data['title']
+
+			data = data.select {|x| self.class.attribute_names.index(x) }
+			assign_attributes data
+
+		end
+
 		def get_json enhanced = false
 			return {
 				"cache_id" => id,

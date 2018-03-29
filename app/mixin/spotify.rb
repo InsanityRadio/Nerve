@@ -25,7 +25,7 @@ module Nerve; module Mixin
 		def self.search track, token
 
 			title_clean = track.title.split(/(ft\.|feat\.?\s)/)[0].gsub('"', '').gsub(/[\(\[][a-zA-Z0-9\ \.\-]+[\)\]]/, '').split("feat.")[0].strip
-			artist_clean = track.artist.split(/(ft\.|feat\.?\s)/)[0].gsub('"', '').split("feat.")[0].strip
+			artist_clean = track.artist.name.split(/(ft\.|feat\.?\s)/)[0].gsub('"', '').split("feat.")[0].strip
 			http_response = RestClient.get("https://api.spotify.com/v1/search", {params: {q: 'track:"' + title_clean + '" artist:"' + artist_clean + '"', type: "track", market: "GB"}, authorization: token})
 			response = JSON.parse(http_response.body) rescue nil
 
@@ -54,6 +54,7 @@ module Nerve; module Mixin
 			images = result['album']['images'] rescue []
 			images.sort! { | a, b | b['width'] <=> a['width'] }	
 
+			track.extra ||= {}
 			track.extra['spotify_id'] = spotify_id
 			track.extra['album_art'] = images[0]['url'] if images.length and images[0]['width'] > 400
 			track.save

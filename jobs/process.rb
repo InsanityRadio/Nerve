@@ -189,7 +189,7 @@ module Nerve; module Job
 				File.rename(output, input)
 
 				# And finally, get the new loudness data. We need it to work out gain.
-				ld = investigate_loudness(output)
+				ld = investigate_loudness(input)
 
 			end
 
@@ -245,12 +245,14 @@ module Nerve; module Job
 
 
 
-		def generate_waveform file, length
+		def generate_waveform file, length, output = nil 
+
+			output = "#{file}.dat" if output == nil
 
 			_debug "Generating a waveform of the input - hang on"
 			pps = (20000 / length).to_i
 			result = _sys('audiowaveform',
-				'-i', file, '-o', @wave_path = "#{file}.dat",
+				'-i', file, '-o', @wave_path = output,
 				'-b', '8', '--pixels-per-second', pps.to_s)
 
 
@@ -282,12 +284,12 @@ module Nerve; module Job
 
 			# Create the artist and album rows, if they don't already exist.
 
-			artist = Nerve::Model::Artist.find_or_create_by(name: data['artist'])
+			artist = Nerve::Model::Artist.find_or_initialize_by(name: data['artist'])
 			artist.created_by = options['user_id']
 			#artist.external_id = ext_artist_id if ext_artist_id != nil
 			artist.save!
 
-			album = Nerve::Model::Album.find_or_create_by(name: data['album'], artist: artist)
+			album = Nerve::Model::Album.find_or_initialize_by(name: data['album'], artist: artist)
 			album.created_by = options['user_id']
 			#album.external_id = ext_album_id if ext_album_id != nil
 			album.save!

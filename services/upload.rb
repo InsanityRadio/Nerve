@@ -55,7 +55,7 @@ module Nerve
 				login_service = Nerve::Services::Login.get_service
 				@user = login_service.get_user(session[:user_id]) rescue login_service.get_nil_user
 
-				instrumental = (params['instrumental'] == "true" and @user.permissions[:instrumental])
+				instrumental = (params['instrumental'] == "true" and @user.permissions['instrumental'])
 				data = {
 					"file" => temp_file,
 					"user_id" => session[:user_id],
@@ -65,7 +65,7 @@ module Nerve
 					"album" => params['album'],
 					"override_bitrate" => (
 						params['override_bitrate'] == "true" and
-						@user.permissions[:override_bitrate]), # TODO: check user can do that
+						@user.permissions['override_bitrate']), # TODO: check user can do that
 					"override_compressor" => params['override_compressor'] == "true",
 					"upload_library" => params['upload_library'] == "true",
 					"instrumental" => instrumental
@@ -128,18 +128,18 @@ module Nerve
 					raise "You must select an end type!" \
 						unless [1, 2, 3].include? params['end_type'].to_i
 
-					# Reject artist name changes
 					if params['artist'] != track.artist.name
 						track.artist = Nerve::Model::Artist.find_or_initialize_by(name: params['artist'])
 						track.artist.external_id ||= 0
 						track.artist.created_by = session[:user_id]
 						track.set_unsafe
+						track.update_metadata rescue nil 
 					end
-
 
 					if params['title'] != track.title
 						track.title = params['title'] 
 						track.set_unsafe
+						track.update_metadata rescue nil 
 					end
 
 					track.end_type = params['end_type'].to_i
@@ -193,7 +193,7 @@ module Nerve
 				if track.is_safe
 
 					track.status = 4
-					track.approved_by = 0
+					track.approved_by = Nerve::Model::User.find_or_create_by(id: 0)
 					track.save
 					Nerve::Job::Transfer.create({
 						"track_id" => id})
