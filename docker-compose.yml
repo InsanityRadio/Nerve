@@ -24,7 +24,7 @@ services:
             - http_proxy
             - https_proxy
         volumes:
-            - /config/agent:/config
+            - ./config:/config
 secrets:
     nerve_root_pw:
         file: ./root.txt
