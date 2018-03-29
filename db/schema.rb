@@ -11,10 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180113004836) do
+ActiveRecord::Schema.define(version: 20180217115144) do
+
+  create_table "album_idents", id: false, force: :cascade do |t|
+    t.integer "album_id",   limit: 4,   null: false
+    t.string  "type",       limit: 32
+    t.string  "identifier", limit: 255, null: false
+  end
+
+  add_index "album_idents", ["identifier"], name: "in_ident", using: :btree
 
   create_table "albums", force: :cascade do |t|
-    t.integer  "external_id",   limit: 4,   null: false
+    t.integer  "external_id",   limit: 4
     t.string   "name",          limit: 255
     t.integer  "artist",        limit: 4
     t.integer  "created_by",    limit: 4,   null: false
@@ -22,13 +30,23 @@ ActiveRecord::Schema.define(version: 20180113004836) do
   end
 
   create_table "artists", force: :cascade do |t|
-    t.integer  "external_id",   limit: 4,   null: false
+    t.integer  "external_id",   limit: 4
     t.string   "name",          limit: 255
     t.integer  "created_by",    limit: 4,   null: false
     t.datetime "creation_date",             null: false
   end
 
   add_index "artists", ["name"], name: "index_artists_on_name", type: :fulltext
+
+  create_table "exports", primary_key: "export_id", force: :cascade do |t|
+    t.integer  "track_id",    limit: 4,  null: false
+    t.datetime "export_date",            null: false
+    t.string   "export_type", limit: 32
+    t.integer  "playout_id",  limit: 4
+  end
+
+  add_index "exports", ["playout_id"], name: "in_export", using: :btree
+  add_index "exports", ["track_id"], name: "in_track", using: :btree
 
   create_table "migrate_cache", primary_key: "cart_id", force: :cascade do |t|
     t.string "title",       limit: 255
@@ -60,8 +78,23 @@ ActiveRecord::Schema.define(version: 20180113004836) do
     t.string   "name",          limit: 64
   end
 
+  create_table "track_comments", force: :cascade do |t|
+    t.integer  "track_id",      limit: 4,     null: false
+    t.integer  "created_by",    limit: 4,     null: false
+    t.datetime "creation_date",               null: false
+    t.text     "comment",       limit: 65535
+  end
+
+  create_table "track_idents", id: false, force: :cascade do |t|
+    t.integer "track_id",   limit: 4,   null: false
+    t.string  "type",       limit: 32,  null: false
+    t.string  "identifier", limit: 255, null: false
+  end
+
+  add_index "track_idents", ["identifier"], name: "in_ident", using: :btree
+
   create_table "tracks", force: :cascade do |t|
-    t.integer  "external_id",     limit: 4,                                             null: false
+    t.integer  "external_id",     limit: 4
     t.string   "title",           limit: 255
     t.integer  "artist",          limit: 4,                                             null: false
     t.integer  "album",           limit: 4,                                             null: false
@@ -73,7 +106,7 @@ ActiveRecord::Schema.define(version: 20180113004836) do
     t.datetime "last_update"
     t.datetime "local_kill_date"
     t.string   "local_path",      limit: 255
-    t.decimal  "intro_start",                   precision: 6, scale: 2, default: 0.0
+    t.decimal  "intro_start",                   precision: 6, scale: 2
     t.decimal  "intro_end",                     precision: 6, scale: 2
     t.decimal  "hook_end",                      precision: 6, scale: 2
     t.decimal  "hook_start",                    precision: 6, scale: 2
@@ -83,18 +116,19 @@ ActiveRecord::Schema.define(version: 20180113004836) do
     t.integer  "bitrate",         limit: 4,                             default: 0
     t.integer  "sample_rate",     limit: 4,                             default: 0
     t.integer  "end_type",        limit: 4,                             default: 0
-    t.integer  "explicit",        limit: 4,                             default: 0
-    t.integer  "is_library",      limit: 4,                             default: 0
-    t.integer  "is_automation",   limit: 4,                             default: 0
-    t.integer  "ext_id",          limit: 4
+    t.boolean  "explicit",                                              default: false
+    t.boolean  "is_library",                                            default: false
+    t.boolean  "is_automation",                                         default: false
+    t.string   "ext_id",          limit: 255
     t.string   "playout_id",      limit: 255
     t.integer  "restrict_play",   limit: 4,                             default: 0
-    t.integer  "flagged",         limit: 4,                             default: 0
-    t.integer  "instrumental",    limit: 4,                             default: 0
+    t.string   "note",            limit: 255
+    t.boolean  "flagged",                                               default: false
+    t.boolean  "instrumental",                                          default: false
     t.string   "playout_id_2",    limit: 255
     t.text     "extra",           limit: 65535
-    t.integer  "category_a",      limit: 4,                             default: 0
-    t.integer  "category_b",      limit: 4,                             default: 0
+    t.integer  "category_a",      limit: 4
+    t.integer  "category_b",      limit: 4
   end
 
   add_index "tracks", ["title"], name: "index_tracks_on_title", type: :fulltext

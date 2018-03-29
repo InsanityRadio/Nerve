@@ -28,7 +28,7 @@ module Nerve; module Playout
 				return unless track
 
 				@track = track
-				@title = track.title; @artist = track.artist; @description = "";
+				@title = track.title; @artist = track.artist.name; @description = "";
 				@hook_start = track.hook_start; @hook_end = track.hook_end
 				@intro_start = track.intro_start; @intro_end = track.intro_end
 				@extro_start = track.outro; @extro_end = track.length
