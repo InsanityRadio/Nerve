@@ -17,7 +17,7 @@ module Nerve
 
 			get '/upload/list/' do 
 
-				protect_json!
+				protect_json! 
 				COUNT = 50; page = params['page'] || 0
 
 				Nerve::Model::Track.where(created_by: session[:user_id]).
@@ -98,7 +98,7 @@ module Nerve
 
 			get '/upload/file/:id' do | id |
 
-				protect_json!
+				protect_json! true
 
 				track = Nerve::Model::Track.find(id) #rescue false
 

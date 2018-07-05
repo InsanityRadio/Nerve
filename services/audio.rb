@@ -14,7 +14,7 @@ module Nerve
 
 			get '/audio/get/:id' do | id |
 
-				protect_cors!
+				protect_cors! true
 
 				path = Nerve::Model::Track.find(id).local_path
 				path = $config["export"]["directory"] + "/" + path
@@ -28,7 +28,7 @@ module Nerve
 			# Retrieve audio from the playout system.
 			get '/audio/export/:id' do | id |
 
-				protect_cors!
+				protect_cors! true
 
 				track = Nerve::Model::Track.find(id)
 
@@ -41,7 +41,7 @@ module Nerve
 
 			get '/audio/preview/:id' do | id |
 
-				protect_cors!
+				protect_cors! true
 
 				path = Nerve::Model::Track.find(id).local_path
 				path = $config["export"]["directory"] + "/" + path + ".ogg"
@@ -52,7 +52,7 @@ module Nerve
 
 			get '/audio/waveform/:id' do | id |
 
-				protect_cors!
+				protect_cors! true
 
 				path = Nerve::Model::Track.find(id).local_path
 				path = $config["export"]["directory"] + "/" + path + ".dat"
