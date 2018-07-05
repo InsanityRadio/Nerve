@@ -8,6 +8,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'sinatra/xsendfile'
 require 'yaml'
+require 'dig_rb'
 
 $: << '.'
 require_relative 'modules'
