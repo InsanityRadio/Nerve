@@ -2,29 +2,34 @@ module Nerve
 	module Services
 		module Helpers
 
-			def protect!
+			def protect! api = false
+
 				return if session[:authenticated] and session[:user_id] != nil
-				redirect to(service.redirect(session) || '/login.html')
-				throw(:halt, [403, "Please authenticate\n"])
+
+				key = env['HTTP_X_AUTH_KEY']
+				return if api and $config.dig('security', 'keys') and $config.dig('security', 'keys').include? key
+
+				message = { authorized: false }
+				throw(:halt, [403, message.to_json])
 			end
 
 			def protect_moderator!
 				return if session[:authenticated] and session[:user_id] != nil
 				user = Nerve::Services::Login.get_service.get_user session[:user_id]
-				throw(:halt, [403, "You are not a moderator!"]) if !user.moderator
+				throw(:halt, [403, { authorized: false }.to_json]) if !user.moderator
 			end
 
-			def protect_json! 
+			def protect_json! api = false
 
 				content_type 'application/json'
-				protect_cors!
+				protect_cors! api
 
 
 			end
 
-			def protect_cors!
+			def protect_cors! api = false
 
-				protect!
+				protect! api
 				# If we have a *valid* CORS origin, let's accept it.
 				return unless $config["security"]["allowed_origins"].include? env['HTTP_ORIGIN'].to_s.downcase
 				resp = {

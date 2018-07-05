@@ -35,6 +35,9 @@ security:
     allowed_origins:
         - "nerve.insanityradio.com"
 
+    # Adding keys to this array allows API access using X-Auth-Key (read-only functionality).
+    keys:
+        - "changeme"
 
 # Only really supports MySQL2 (sorry! I'm lazy haha)
 database:
