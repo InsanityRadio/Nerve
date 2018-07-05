@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 
 gem 'rspec'
 gem 'oauth2'
+gem 'dig_rb'
 gem 'sinatra', require: 'sinatra/base'
 gem 'sinatra-reloader'
 gem 'sinatra-xsendfile'
