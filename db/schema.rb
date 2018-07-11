@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180217115144) do
+ActiveRecord::Schema.define(version: 20180624142433) do
 
   create_table "album_idents", id: false, force: :cascade do |t|
     t.integer "album_id",   limit: 4,   null: false
@@ -94,41 +94,43 @@ ActiveRecord::Schema.define(version: 20180217115144) do
   add_index "track_idents", ["identifier"], name: "in_ident", using: :btree
 
   create_table "tracks", force: :cascade do |t|
-    t.integer  "external_id",     limit: 4
-    t.string   "title",           limit: 255
-    t.integer  "artist",          limit: 4,                                             null: false
-    t.integer  "album",           limit: 4,                                             null: false
-    t.integer  "status",          limit: 4
-    t.integer  "approved_by",     limit: 4,                             default: 0
-    t.integer  "main_genre",      limit: 4,                             default: 0
-    t.integer  "created_by",      limit: 4,                                             null: false
-    t.datetime "creation_date",                                                         null: false
+    t.integer  "external_id",         limit: 4
+    t.string   "title",               limit: 255
+    t.integer  "artist",              limit: 4,                                             null: false
+    t.integer  "album",               limit: 4,                                             null: false
+    t.integer  "status",              limit: 4
+    t.integer  "approved_by",         limit: 4,                             default: 0
+    t.integer  "main_genre",          limit: 4,                             default: 0
+    t.integer  "created_by",          limit: 4,                                             null: false
+    t.datetime "creation_date",                                                             null: false
     t.datetime "last_update"
     t.datetime "local_kill_date"
-    t.string   "local_path",      limit: 255
-    t.decimal  "intro_start",                   precision: 6, scale: 2
-    t.decimal  "intro_end",                     precision: 6, scale: 2
-    t.decimal  "hook_end",                      precision: 6, scale: 2
-    t.decimal  "hook_start",                    precision: 6, scale: 2
-    t.decimal  "outro",                         precision: 6, scale: 2
-    t.boolean  "waveform",                                              default: false
-    t.decimal  "length",                        precision: 6, scale: 2,                 null: false
-    t.integer  "bitrate",         limit: 4,                             default: 0
-    t.integer  "sample_rate",     limit: 4,                             default: 0
-    t.integer  "end_type",        limit: 4,                             default: 0
-    t.boolean  "explicit",                                              default: false
-    t.boolean  "is_library",                                            default: false
-    t.boolean  "is_automation",                                         default: false
-    t.string   "ext_id",          limit: 255
-    t.string   "playout_id",      limit: 255
-    t.integer  "restrict_play",   limit: 4,                             default: 0
-    t.string   "note",            limit: 255
-    t.boolean  "flagged",                                               default: false
-    t.boolean  "instrumental",                                          default: false
-    t.string   "playout_id_2",    limit: 255
-    t.text     "extra",           limit: 65535
-    t.integer  "category_a",      limit: 4
-    t.integer  "category_b",      limit: 4
+    t.string   "local_path",          limit: 255
+    t.decimal  "intro_start",                       precision: 6, scale: 2
+    t.decimal  "intro_end",                         precision: 6, scale: 2
+    t.decimal  "hook_end",                          precision: 6, scale: 2
+    t.decimal  "hook_start",                        precision: 6, scale: 2
+    t.decimal  "outro",                             precision: 6, scale: 2
+    t.boolean  "waveform",                                                  default: false
+    t.decimal  "length",                            precision: 6, scale: 2,                 null: false
+    t.integer  "bitrate",             limit: 4,                             default: 0
+    t.integer  "sample_rate",         limit: 4,                             default: 0
+    t.integer  "end_type",            limit: 4,                             default: 0
+    t.boolean  "explicit",                                                  default: false
+    t.boolean  "is_library",                                                default: false
+    t.boolean  "is_automation",                                             default: false
+    t.string   "ext_id",              limit: 255
+    t.string   "playout_id",          limit: 255
+    t.integer  "restrict_play",       limit: 4,                             default: 0
+    t.string   "note",                limit: 255
+    t.boolean  "flagged",                                                   default: false
+    t.boolean  "instrumental",                                              default: false
+    t.string   "playout_id_2",        limit: 255
+    t.text     "extra",               limit: 65535
+    t.integer  "category_a",          limit: 4
+    t.integer  "category_b",          limit: 4
+    t.string   "local_path_preview",  limit: 255
+    t.string   "local_path_waveform", limit: 255
   end
 
   add_index "tracks", ["title"], name: "index_tracks_on_title", type: :fulltext

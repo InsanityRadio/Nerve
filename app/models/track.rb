@@ -102,14 +102,14 @@ module Nerve; module Model
 		end
 
 		def delete! soft = false
-			_local_path = $config["export"]["directory"] + "/" + local_path
-			File.unlink(_local_path) rescue nil
+			_base = $config["export"]["directory"] + "/"
+			File.unlink(_base + local_path) rescue nil
 			if soft
 				self.status = 6
 				self.save
 			else
-				File.unlink(_local_path + ".ogg") rescue nil
-				File.unlink(_local_path + ".dat") rescue nil
+				File.unlink(_base + local_path_preview) rescue nil
+				File.unlink(_base + local_path_waveform) rescue nil
 				destroy
 			end
 		end

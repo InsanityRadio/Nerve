@@ -136,13 +136,14 @@ module Nerve; module Job
 
 		end
 
-		def ffmpeg_convert input, output
+		def ffmpeg_convert input, output, format = []
 
-			result = _sys('ffmpeg', 
+			result = _sys(*(['ffmpeg', 
 				'-i', input,
-				'-ar', '44100', # We need to convert to 44100, WAV in other sample rates is buggy
+				'-ar', '44100'] # We need to convert to 44100, WAV in other sample rates is buggy
+				+ format
 				#'-map_metadata', '0',
-				output)
+				+ [output])
 
 			raise "Failed to convert into WAV: #{result[2]}" unless result[0]
 
@@ -255,8 +256,9 @@ module Nerve; module Job
 				'-i', file, '-o', @wave_path = output,
 				'-b', '8', '--pixels-per-second', pps.to_s)
 
-
 			raise "Failed to generate waveform: #{result[2]}" unless result[0]
+
+			return @wave_path
 
 		end
 
@@ -328,16 +330,28 @@ module Nerve; module Job
 			FileUtils.mkdir_p File.dirname(final_path)
 			FileUtils.mv(options["file"], final_path)
 
-			generate_waveform final_path, options["length"] if $config["import"]["generate_waveform"]
+			if $config["import"]["generate_waveform"]
+				track.local_path_waveform = generate_waveform(final_path, options["length"])
+				track.save!
+			end
 
 		end
 
 		def preview options
 
-			@preview_path = @final_path + ".ogg"
+			preview_format = "ogg"
 
-			# Generate a low quality "preview" in ogg. Ogg is pretty good low bitrate
-			convert(@final_path, @preview_path, "ogg", "-1")
+			case preview_format
+			when "aac_he", "acc_he_v2"
+				@preview_path = @final_path + ".aac"
+				ffmpeg_convert(@final_path, @preview_path, [
+					'-c:a', 'libfdk_aac',
+					'-profile:a', preview_format,
+					'-b:a', preview_format == 'aac_he' ? '64k' : '48k'])
+			else
+				@preview_path = @final_path + ".ogg"
+				convert(@final_path, @preview_path, "ogg", "-1")
+			end
 
 		end
 
