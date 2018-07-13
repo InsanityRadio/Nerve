@@ -9,6 +9,9 @@ services:
             - MYSQL_DATABASE=nerve
         volumes:
             - ./config:/config
+    redis:
+        image: redis
+        
     http:
         restart: always
         build:
@@ -19,12 +22,63 @@ services:
                 - https_proxy
                 - RESOLVER=8.8.8.8
         ports:
-            - "6100:80"
+            - "9292:80"
+        links:
+            - redis
+            - mariadb
+        secrets:
+            - source: "nerve_root_pw"
+              target: "nerve_root_pw"
+              uid: "9999"
+              gid: "9999"
+              mode: 0400
         environment:
             - http_proxy
             - https_proxy
         volumes:
+            - tmp:/tmp
+            - music:/music
             - ./config:/config
+    worker:
+        restart: always
+        build:
+            context: .
+            dockerfile: docker/Dockerfile.worker
+            args:
+                - http_proxy
+                - https_proxy
+                - RESOLVER=8.8.8.8
+        links:
+            - redis
+            - mariadb
+        secrets:
+            - source: "nerve_root_pw"
+              target: "nerve_root_pw"
+              uid: "9999"
+              gid: "9999"
+              mode: 0400
+        environment:
+            - http_proxy
+            - https_proxy
+        volumes:
+            - tmp:/tmp
+            - music:/music
+            - audiowall:/audiowall
+            - ./config:/config
+    volume_own:
+        restart: "no"
+        image: alpine
+        command: "chown -R 999:999 /music"
+        volumes:
+            - music:/music
+            - audiowall:/audiowall
 secrets:
     nerve_root_pw:
-        file: ./root.txt
+        file: ./config/root.txt
+
+volumes:
+    music:
+    tmp:
+    audiowall: 
+        external:
+            name: audiowall
