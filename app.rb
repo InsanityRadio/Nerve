@@ -14,8 +14,10 @@ $: << '.'
 require_relative 'modules'
 
 Bundler.require
-$config = YAML::load(File.read(File.join(File.dirname(__FILE__), "config.yml")))
-$genres = YAML::load(File.read(File.join(File.dirname(__FILE__), "genres.yml")))
+
+$config = YAML::load(ERB.new(File.read(File.join(File.dirname(__FILE__), "config.yml"))).result(binding))
+$genres = YAML::load(ERB.new(File.read(File.join(File.dirname(__FILE__), "genres.yml"))).result(binding))
+
 $env = {:slave => false}
 
 require_relative 'database'
