@@ -2,7 +2,8 @@ require 'mysql2'
 require 'sinatra'
 require 'sinatra/activerecord'
 
-set :database, $config['database']['development']
+set :database, $config['database'][ENV['RACK_ENV'] || 'development']
+Resque.redis = $config['database']['redis']
 
 module Nerve
 	module Database

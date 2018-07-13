@@ -3,3 +3,4 @@ Gemfile.lock
 config.yml
 export
 schema.current.sql
+config/root.txt
