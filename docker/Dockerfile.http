@@ -25,6 +25,7 @@ RUN ln -s /config/config.yml ./config.yml
 
 COPY ./ ./
 RUN rm config/root.txt
+RUN chown -R app: .
 
 CMD ["/sbin/my_init"]
 

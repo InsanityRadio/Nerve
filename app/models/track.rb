@@ -102,16 +102,19 @@ module Nerve; module Model
 		end
 
 		def delete! soft = false
+
 			_local_path = $config["export"]["directory"] + "/" + local_path
-			File.unlink(_local_path) rescue nil
+			File.unlink(_local_path) rescue puts "Failed to delete #{id}: #{$!}"
+
 			if soft
 				self.status = 6
 				self.save
 			else
-				File.unlink(_local_path + ".ogg") rescue nil
-				File.unlink(_local_path + ".dat") rescue nil
+				File.unlink(_local_path + ".ogg") rescue puts "Failed to delete #{id} preview: #{$!}"
+				File.unlink(_local_path + ".dat") rescue puts "Failed to delete #{id} form: #{$!}"
 				destroy
 			end
+
 		end
 
 		def get_json extended = false

@@ -1,0 +1,237 @@
+FROM ruby:2.3-stretch
+MAINTAINER computing@insanityradio.com
+
+ARG RESOLVER=8.8.8.8
+
+RUN apt-get update && apt-get install -y \
+  build-essential git libc6-dev wget
+
+WORKDIR /tmp
+RUN wget ftp://ftp.freetds.org/pub/freetds/stable/freetds-1.00.27.tar.gz && \
+  tar -xzf freetds-1.00.27.tar.gz && \
+  cd /tmp/freetds-1.00.27 && \
+  ./configure --prefix=/usr/local --with-tdsver=7.3 && make && make install
+
+ARG        PKG_CONFIG_PATH=/opt/ffmpeg/lib/pkgconfig
+ARG        LD_LIBRARY_PATH=/opt/ffmpeg/lib
+ARG        PREFIX=/opt/ffmpeg
+ARG        MAKEFLAGS="-j2"
+
+ENV         FFMPEG_VERSION=3.3.7     \
+            FDKAAC_VERSION=a50eecf65b5ce5d4f03768c5c2cb4b492d2badad      \
+            LAME_VERSION=3.99.5       \
+            LIBASS_VERSION=0.13.7     \
+            OGG_VERSION=1.3.2         \
+            OPENCOREAMR_VERSION=0.1.5 \
+            OPUS_VERSION=1.2          \
+            OPENJPEG_VERSION=2.1.2    \
+            THEORA_VERSION=1.1.1      \
+            VORBIS_VERSION=1.3.5      \
+            VPX_VERSION=1.7.0         \
+            X264_VERSION=20170226-2245-stable \
+            X265_VERSION=2.3          \
+            XVID_VERSION=1.3.4        \
+            FREETYPE_VERSION=2.5.5    \
+            FRIBIDI_VERSION=0.19.7    \
+            FONTCONFIG_VERSION=2.12.4 \
+            LIBVIDSTAB_VERSION=1.1.0  \
+            KVAZAAR_VERSION=1.2.0     \
+            AOM_VERSION=master        \
+            SRC=/usr/local
+
+ARG         OGG_SHA256SUM="e19ee34711d7af328cb26287f4137e70630e7261b17cbe3cd41011d73a654692  libogg-1.3.2.tar.gz"
+ARG         OPUS_SHA256SUM="77db45a87b51578fbc49555ef1b10926179861d854eb2613207dc79d9ec0a9a9  opus-1.2.tar.gz"
+ARG         VORBIS_SHA256SUM="6efbcecdd3e5dfbf090341b485da9d176eb250d893e3eb378c428a2db38301ce  libvorbis-1.3.5.tar.gz"
+ARG         THEORA_SHA256SUM="40952956c47811928d1e7922cda3bc1f427eb75680c3c37249c91e949054916b  libtheora-1.1.1.tar.gz"
+ARG         XVID_SHA256SUM="4e9fd62728885855bc5007fe1be58df42e5e274497591fec37249e1052ae316f  xvidcore-1.3.4.tar.gz"
+ARG         FREETYPE_SHA256SUM="5d03dd76c2171a7601e9ce10551d52d4471cf92cd205948e60289251daddffa8  freetype-2.5.5.tar.gz"
+ARG         LIBVIDSTAB_SHA256SUM="14d2a053e56edad4f397be0cb3ef8eb1ec3150404ce99a426c4eb641861dc0bb  v1.1.0.tar.gz"
+ARG         LIBASS_SHA256SUM="8fadf294bf701300d4605e6f1d92929304187fca4b8d8a47889315526adbafd7  0.13.7.tar.gz"
+ARG         FRIBIDI_SHA256SUM="3fc96fa9473bd31dcb5500bdf1aa78b337ba13eb8c301e7c28923fea982453a8  0.19.7.tar.gz"
+
+
+RUN      buildDeps="autoconf \
+                    automake \
+                    cmake \
+                    curl \
+                    bzip2 \
+                    libexpat1-dev \
+                    g++ \
+                    gcc \
+                    git \
+                    gperf \
+                    libtool \
+                    make \
+                    nasm \
+                    perl \
+                    pkg-config \
+                    python \
+                    libssl-dev \
+                    yasm \
+                    zlib1g-dev" && \
+        apt-get -yqq update && \
+        apt-get install -yq --no-install-recommends ${buildDeps}
+
+### libogg https://www.xiph.org/ogg/
+RUN \
+        DIR=/tmp/ogg && \
+        mkdir -p ${DIR} && \
+        cd ${DIR} && \
+        curl -sLO http://downloads.xiph.org/releases/ogg/libogg-${OGG_VERSION}.tar.gz && \
+        echo ${OGG_SHA256SUM} | sha256sum --check && \
+        tar -zx --strip-components=1 -f libogg-${OGG_VERSION}.tar.gz && \
+        ./configure --prefix="${PREFIX}" --enable-shared  && \
+        make && \
+        make install && \
+        rm -rf ${DIR}
+### libopus https://www.opus-codec.org/
+RUN \
+        DIR=/tmp/opus && \
+        mkdir -p ${DIR} && \
+        cd ${DIR} && \
+        curl -sLO https://archive.mozilla.org/pub/opus/opus-${OPUS_VERSION}.tar.gz && \
+        echo ${OPUS_SHA256SUM} | sha256sum --check && \
+        tar -zx --strip-components=1 -f opus-${OPUS_VERSION}.tar.gz && \
+        autoreconf -fiv && \
+        ./configure --prefix="${PREFIX}" --enable-shared && \
+        make && \
+        make install && \
+        rm -rf ${DIR}
+### libvorbis https://xiph.org/vorbis/
+RUN \
+        DIR=/tmp/vorbis && \
+        mkdir -p ${DIR} && \
+        cd ${DIR} && \
+        curl -sLO http://downloads.xiph.org/releases/vorbis/libvorbis-${VORBIS_VERSION}.tar.gz && \
+        echo ${VORBIS_SHA256SUM} | sha256sum --check && \
+        tar -zx --strip-components=1 -f libvorbis-${VORBIS_VERSION}.tar.gz && \
+        ./configure --prefix="${PREFIX}" --with-ogg="${PREFIX}" --enable-shared && \
+        make && \
+        make install && \
+        rm -rf ${DIR}
+### libmp3lame http://lame.sourceforge.net/
+RUN \
+        DIR=/tmp/lame && \
+        mkdir -p ${DIR} && \
+        cd ${DIR} && \
+        curl -sL https://kent.dl.sourceforge.net/project/lame/lame/$(echo ${LAME_VERSION} | sed -e 's/[^0-9]*\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\)\([0-9A-Za-z-]*\)/\1.\2/')/lame-${LAME_VERSION}.tar.gz | \
+        tar -zx --strip-components=1 && \
+        ./configure --prefix="${PREFIX}" --bindir="${PREFIX}/bin" --enable-shared --enable-nasm --enable-pic --disable-frontend && \
+        make && \
+        make install && \
+        rm -rf ${DIR}
+### fdk-aac https://github.com/mstorsjo/fdk-aac
+RUN \
+        DIR=/tmp/fdk-aac && \
+        mkdir -p ${DIR} && \
+        cd ${DIR} && \
+        curl -sL https://github.com/mstorsjo/fdk-aac/archive/${FDKAAC_VERSION}.tar.gz | \
+        tar -zx --strip-components=1 && \
+        autoreconf -fiv && \
+        ./configure --prefix="${PREFIX}" --enable-shared --datadir="${DIR}" && \
+        make && \
+        make install && \
+        rm -rf ${DIR}
+
+RUN \
+        dir=/tmp/aom ; \
+        mkdir -p ${dir} ; \
+        cd ${dir} ; \
+        curl -sLO https://aomedia.googlesource.com/aom/+archive/${AOM_VERSION}.tar.gz ; \
+        tar -zx -f ${AOM_VERSION}.tar.gz ; \
+        rm -rf CMakeCache.txt CMakeFiles ; \
+        mkdir -p ./aom_build ; \
+        cd ./aom_build ; \ 
+        cmake -DCMAKE_INSTALL_PREFIX="${PREFIX}" -DBUILD_SHARED_LIBS=1 ..; \
+        make ; \
+        make install ; \
+        rm -rf ${dir}
+
+## ffmpeg https://ffmpeg.org/
+RUN  \
+        DIR=$(mktemp -d) && cd ${DIR} && \
+        curl -sLO https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.bz2 && \
+        tar -jx --strip-components=1 -f ffmpeg-${FFMPEG_VERSION}.tar.bz2 && \
+        ./configure \
+        --disable-debug \
+        --disable-doc \
+        --disable-ffplay \
+        --enable-pic --enable-shared \
+        #--disable-shared \
+        --enable-avresample \
+        --enable-gpl \
+        --enable-libmp3lame \
+        --enable-libopus \
+        --enable-libvorbis \
+        --enable-nonfree \
+        --enable-openssl \
+        --enable-libfdk_aac \
+        \
+        --enable-postproc \
+        --enable-small \
+        --enable-version3 \
+        --extra-cflags="-I${PREFIX}/include" \
+        --extra-ldflags="-L${PREFIX}/lib" \
+        --extra-libs=-ldl \
+        --prefix="${PREFIX}" && \
+        make && \
+        make install && \
+        make distclean && \
+        hash -r && \
+        cd tools && \
+        make qt-faststart && \
+        cp qt-faststart ${PREFIX}/bin
+
+WORKDIR /tmp
+
+RUN apt-get install -y automake autoconf
+
+ENV LD_LIBRARY_PATH=/opt/ffmpeg/lib:/usr/local/lib
+
+
+WORKDIR /tmp
+
+RUN apt-get install -y python-numpy python-scipy libspeexdsp1 libspeex-dev libsndfile-dev libtag1-dev swh-plugins ecasound libgd-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libmad0-dev libid3tag0-dev 
+
+RUN wget https://github.com/chirlu/sox/archive/sox-14.4.1.tar.gz && tar -xf sox-14.4.1.tar.gz && cd sox-sox-14.4.1 && autoreconf -i && ./configure && make && make install
+
+RUN git clone git://github.com/jiixyj/loudness-scanner.git && cd loudness-scanner && git submodule init && git submodule update && mkdir build && cd build && cmake .. && make && make install && cp ./loudness /usr/local/bin/loudness && cp *.so /usr/local/lib
+
+RUN git clone https://github.com/bbc/audiowaveform.git && cd audiowaveform && mkdir build && cd build && cmake -D ENABLE_TESTS=0 .. && make && make install
+
+## cleanup
+#RUN \
+#        ldd ${PREFIX}/bin/ffmpeg | grep opt/ffmpeg | cut -d ' ' -f 3 | xargs -i cp {} /usr/local/lib/ && \
+#        cp -nr ${PREFIX}/lib/* /usr/local/lib/ && \
+#        cp ${PREFIX}/bin/* /usr/local/bin/ && \
+#        cp -r ${PREFIX}/include/* /usr/local/include/ && \
+#        cp -r ${PREFIX}/share/ffmpeg /usr/local/share/ && \
+#        LD_LIBRARY_PATH=/usr/local/lib ffmpeg -buildconf
+
+
+RUN groupadd -g 999 appuser && \
+    useradd -r -u 999 -g appuser appuser -m
+USER appuser
+
+WORKDIR /home/appuser
+
+COPY ./Gemfile ./
+RUN gem install bundler && bundle install --jobs 20 --retry 5
+
+RUN ln -s /config/config.yml ./config.yml
+
+COPY ./ ./
+
+USER root
+RUN rm config/root.txt
+RUN chown -R appuser: .
+
+
+USER appuser
+ENV QUEUE=*
+ENV RACK_ENV=production
+ENV PATH="${PATH}:/opt/ffmpeg/bin"
+
+ENV TERM=linux
+
+CMD bundle exec rake resque:work
