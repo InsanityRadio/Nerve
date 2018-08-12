@@ -2,12 +2,12 @@ require 'json'
 require 'rest-client'
 require 'base64'
 
-require_relative '../modules'
+require_relative '../app'
 
 def process_track track
 
 	title_clean = track.title.split(/(ft\.|feat\.?\s)/)[0].gsub('"', '').gsub(/[\(\[][a-zA-Z0-9\ \.\-]+[\)\]]/, '').split("feat.")[0].strip
-	artist_clean = track.artist.split(/(ft\.|feat\.?\s)/)[0].gsub('"', '').split("feat.")[0].strip
+	artist_clean = track.artist.name.split(/(ft\.|feat\.?\s)/)[0].gsub('"', '').split("feat.")[0].strip
 
 	http_response = RestClient.get("https://api.spotify.com/v1/search", {params: {q: 'track:"' + title_clean + '" artist:"' + artist_clean + '"', type: "track", market: "GB"}, authorization: @tok})
 
