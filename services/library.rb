@@ -10,7 +10,7 @@ module Nerve
 
 			get '/library/list/' do 
 
-				protect_json!
+				protect_json! true
 				COUNT = 60; page = params['page'] || 0
 
 				Nerve::Model::Track.where(status: 5).
@@ -20,7 +20,7 @@ module Nerve
 
 			get '/library/search/' do
 
-				protect_json!
+				protect_json! true
 				query = params['query']
 				COUNT = 60; page = params['page'] || 0
 

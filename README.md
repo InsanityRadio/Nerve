@@ -57,6 +57,21 @@ You'll also need to mount your playout drives on the "master" node
 This project is a part of the [Insanity Tech Masterplan](https://wiki.insanityradio.com/wiki/Technical_Masterplan). 
 
 
+## Docker Volumes
+
+To mount your AudioWall in Docker, run the following command on the host. 
+
+	sudo docker volume create --driver local --opt type=cifs --opt device=//10.32.0.222/AudioWall --opt o=username=Nerve,password=password,_netdev,uid=999,gid=999 audiowall
+
+You'll also want to load the database schema, as this isn't done automatically. (Do this after building)
+
+	docker-compose run --rm worker sh -c "bundle exec rake db:schema:load db:migrate"
+
+To run database migrations, after building but before launching, run:
+
+	docker-compose run --rm worker sh -c "bundle exec rake db:migrate"
+
+
 ## Quick Tasks / To-do
 
 - Create recall button on interface that invokes Nerve::Job::Recall
