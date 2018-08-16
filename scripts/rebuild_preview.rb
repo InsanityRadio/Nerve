@@ -17,12 +17,13 @@ class Processor < Nerve::Job::Process
 
 	def process_track track
 
-		# rebuild the track's preview and peaks
-		path = track.local_path
-		prev_path = $config["export"]["directory"] + "/" + path + ".ogg"
-		wave_path = $config["export"]["directory"] + "/" + path + ".dat"
+		# rebuild the track's preview and peaks. first, set up the env like we'd expect
+		@track = track
+		@final_path = track.local_path
 
 		exported_path = Object.const_get($config["export"]["mode"]).find_path(track)
+
+		preview_path = @final_path + get_preview_format[1]
 
 		# If we already have the preview, we probably
 		if File.exist?(prev_path) or !File.exist?(exported_path)
@@ -43,15 +44,24 @@ class Processor < Nerve::Job::Process
 
 			FileUtils::copy(exported_path, temp_path)
 
-			convert(temp_path, prev_path, "ogg", "-1")
+			@track.local_path_preview = preview([])
+			@track.save
 
-			raise "Conversion failed!" unless File.exists? prev_path
+			prev_path = resolve(@track.local_path_preview)
+			raise "Conversion failed!" unless File.exists?(prev_path)
 
 			_debug "Generating waveform"
 
-			generate_waveform(temp_path, track.length.to_f, wave_path)
+			unless @track.local_path_waveform == nil or File.exist?(@track.local_path_waveform)
 
-			raise "Generating waveform failed" unless File.exists? wave_path
+				track.local_path_waveform = @final_path + ".dat"
+				wave_path = generate_waveform(resolve(@final_path), track.length.to_f)
+
+				raise "Generating waveform failed" unless File.exists?(@track.local_path_waveform)
+
+			end
+
+			@track.save
 
 			_debug "Done!"
 		
