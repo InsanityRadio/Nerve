@@ -46,10 +46,8 @@ module Nerve
 				path = Nerve::Model::Track.find(id).local_path_preview
 
 				p Nerve::Model::Track.find(id).local_path
+				p Nerve::Model::Track.find(id).local_path_preview
 				path = $config["export"]["directory"] + "/" + path
-
-
-				p path
 
 				ext = File.extname(path)
 
