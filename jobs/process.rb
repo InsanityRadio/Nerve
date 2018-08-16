@@ -339,20 +339,25 @@ module Nerve; module Job
 			$config["export"]["directory"] + "/" + local_path
 		end
 
+		def get_preview_format
+			preview_format = $config.dig('import', 'preview_format') || 'ogg'
+			[preview_format, '.' + preview_format.split('_')[0]]
+		end
+
 		def preview options
 
-			preview_format = $config.dig('import', 'preview_format') or 'ogg'
+			preview_format = get_preview_format
 			puts "Generating preview #{preview_format}"
+			
+			@preview_path = @final_path + preview_format[1]
 
-			case preview_format
+			case preview_format[0]
 			when 'aac_he', 'aac_he_v2'
-				@preview_path = @final_path + '.aac'
 				ffmpeg_convert(resolve(@final_path), resolve(@preview_path), [
 					'-c:a', 'libfdk_aac',
 					'-profile:a', preview_format,
 					'-b:a', preview_format == 'aac_he' ? '64k' : '48k'])
 			else
-				@preview_path = @final_path + '.ogg'
 				convert(resolve(@final_path), resolve(@preview_path), 'ogg', '-1')
 			end
 
