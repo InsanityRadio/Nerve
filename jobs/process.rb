@@ -140,10 +140,9 @@ module Nerve; module Job
 
 			result = _sys(*(['ffmpeg', 
 				'-i', input,
-				'-ar', '44100'] # We need to convert to 44100, WAV in other sample rates is buggy
-				+ format
-				#'-map_metadata', '0',
-				+ [output])
+				'-ar', '44100'] + # We need to convert to 44100, WAV in other sample rates is buggy
+				format +
+				[output]))
 
 			raise "Failed to convert into WAV: #{result[2]}" unless result[0]
 
@@ -318,41 +317,47 @@ module Nerve; module Job
 
 			@track_id = track_id = track.id
 
-			final_path = generate_path(track_id).join("/") + "." + $config["import"]["transport_format"]
+			@final_path = final_path = generate_path(track_id).join("/") + "." + $config["import"]["transport_format"]
 			_debug "Exporting to #{final_path}..."
 
 			track.local_path = final_path
 			track.save!
 
-			@final_path = final_path = $config["export"]["directory"] + "/" + final_path
-
 			# As we're using a directory tree, we should probably actually make the folder
-			FileUtils.mkdir_p File.dirname(final_path)
-			FileUtils.mv(options["file"], final_path)
+			FileUtils.mkdir_p File.dirname(resolve(final_path))
+			FileUtils.mv(options["file"], resolve(final_path))
 
 			if $config["import"]["generate_waveform"]
-				track.local_path_waveform = generate_waveform(final_path, options["length"])
+				generate_waveform(resolve(final_path), options["length"])
+				track.local_path_waveform = final_path + ".dat"
 				track.save!
 			end
 
 		end
 
+		def resolve local_path
+			$config["export"]["directory"] + "/" + local_path
+		end
+
 		def preview options
 
-			preview_format = "ogg"
+			preview_format = $config.dig('import', 'preview_format') or 'ogg'
+			puts "Generating preview #{preview_format}"
 
 			case preview_format
-			when "aac_he", "acc_he_v2"
-				@preview_path = @final_path + ".aac"
-				ffmpeg_convert(@final_path, @preview_path, [
+			when 'aac_he', 'aac_he_v2'
+				@preview_path = @final_path + '.aac'
+				ffmpeg_convert(resolve(@final_path), resolve(@preview_path), [
 					'-c:a', 'libfdk_aac',
 					'-profile:a', preview_format,
 					'-b:a', preview_format == 'aac_he' ? '64k' : '48k'])
 			else
-				@preview_path = @final_path + ".ogg"
-				convert(@final_path, @preview_path, "ogg", "-1")
+				@preview_path = @final_path + '.ogg'
+				convert(resolve(@final_path), resolve(@preview_path), 'ogg', '-1')
 			end
 
+			@preview_path
+	
 		end
 
 		def generate_path id
@@ -420,7 +425,7 @@ module Nerve; module Job
 
 			at(95, 100, "Generating preview")
 
-			preview _options
+			@track.local_path_preview = preview(_options)
 
 			completed("Processed. Head on over to the My Uploads page to fill in song information.")
 
@@ -449,7 +454,7 @@ module Nerve; module Job
 				# If there's an error, we should delete the track
 				Nerve::Model::Track.destroy(@track_id) if @track_id != nil
 
-				File.unlink(@final_path) rescue nil if @final_path != nil 
+				File.unlink(resolve(@final_path)) rescue nil if @final_path != nil 
 				File.unlink(@wave_path) rescue nil if @wave_path != nil
 				File.unlink(@preview_path) rescue nil if @preview_path != nil
 
