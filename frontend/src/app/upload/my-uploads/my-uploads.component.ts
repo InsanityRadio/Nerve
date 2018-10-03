@@ -33,6 +33,9 @@ export class MyUploadsComponent implements OnInit {
 	navigate (track:any) {
 
 		if (!track.click) {
+			if (track.status == 5 || track.status == 6) {
+				this.router.navigate(['/library', 'track', track.id]);
+			}
 			return;
 		}
 
