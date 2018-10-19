@@ -32,7 +32,7 @@ module Nerve
 
 				end
 
-				def self.search_metadata artist, album, track, count = 10
+				def self.search_metadata artist, album, track, count = 20
 
 					uri = URI.parse("http://api.musixmatch.com/ws/1.1/track.search")
 
