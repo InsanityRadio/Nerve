@@ -624,3 +624,8 @@ track-info, audio-player, edit-controls {
 .resultsTable .selected td {
 	background: #CCC;
 }
+
+#error-container .resultsTable {
+	height: calc(100vh - 350px);
+	overflow: scroll;
+}
