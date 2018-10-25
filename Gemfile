@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 #ruby '>=2'
 
+gem 'nokogiri'
+gem 'genius'
 gem 'rspec'
 gem 'oauth2'
 gem 'dig_rb'

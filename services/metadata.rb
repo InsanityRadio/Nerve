@@ -11,7 +11,7 @@ module Nerve
 			include Helpers
 
 			@@METADATA = Nerve::Provider::Track::MusixMatch
-			@@LYRICS = Nerve::Provider::Lyrics::MetroLyrics
+			@@LYRICS = Nerve::Provider::Lyrics::Genius #MetroLyrics
 
 			def self.match artist, album, track, enhanced = false, force = false
 
@@ -43,7 +43,7 @@ module Nerve
 
 			end
 
-			def self.search artist, album, track, enhanced = false, count = 10
+			def self.search artist, album, track, enhanced = false, count = 20
 
 				results = @@METADATA.search_metadata(artist, album, track, count) || []
 				results.map { | r | r["cache_id"] = self.cache(r).id }
