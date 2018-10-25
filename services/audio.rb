@@ -43,10 +43,15 @@ module Nerve
 
 				protect_cors! true
 
-				path = Nerve::Model::Track.find(id).local_path
-				path = $config["export"]["directory"] + "/" + path + ".ogg"
+				path = Nerve::Model::Track.find(id).local_path_preview
 
-				send_file(path, :type => "audio/ogg", :disposition => 'inline')
+				p Nerve::Model::Track.find(id).local_path
+				p Nerve::Model::Track.find(id).local_path_preview
+				path = $config["export"]["directory"] + "/" + path
+
+				ext = File.extname(path)
+
+				send_file(path, :type => Rack::Mime::MIME_TYPES[ext] || "application/octet-data", :disposition => 'inline')
 
 			end
 
@@ -54,8 +59,8 @@ module Nerve
 
 				protect_cors! true
 
-				path = Nerve::Model::Track.find(id).local_path
-				path = $config["export"]["directory"] + "/" + path + ".dat"
+				path = Nerve::Model::Track.find(id).local_path_waveform
+				path = $config["export"]["directory"] + "/" + path
 
 				send_file(path, :type => "application/octet-stream", :disposition => 'inline')
 

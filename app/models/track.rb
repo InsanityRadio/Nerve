@@ -103,8 +103,8 @@ module Nerve; module Model
 
 		def delete! soft = false
 
-			_local_path = $config["export"]["directory"] + "/" + local_path
-			File.unlink(_local_path) rescue puts "Failed to delete #{id}: #{$!}"
+			_base = $config["export"]["directory"] + "/"
+			File.unlink(_base + local_path) rescue puts "Failed to delete #{id}: #{$!}"
 
 			if soft
 				self.status = 6
