@@ -65,6 +65,7 @@ module Nerve
 
 			autoload :MetroLyrics, "app/providers/lyrics/metrolyrics.rb"
 			autoload :MusixMatch, "app/providers/lyrics/musixmatch.rb"
+			autoload :Genius, "app/providers/lyrics/genius.rb"
 
 		end
 
