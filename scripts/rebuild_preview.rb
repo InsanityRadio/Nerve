@@ -26,7 +26,7 @@ class Processor < Nerve::Job::Process
 		preview_path = @final_path + get_preview_format[1]
 
 		# If we already have the preview, we probably
-		if File.exist?(prev_path) or !File.exist?(exported_path)
+		if File.exist?(preview_path) or !File.exist?(exported_path)
 			_debug "Skipping for some reason"
 			return
 		end
