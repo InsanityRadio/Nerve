@@ -54,10 +54,10 @@ class Processor < Nerve::Job::Process
 
 			_debug "Generating waveform"
 
-			unless @track.local_path_waveform == nil or File.exist?(@track.local_path_waveform)
+			if @track.local_path_waveform == nil or !File.exist?(resolve(@track.local_path_waveform))
 
 				track.local_path_waveform = @final_path + ".dat"
-				wave_path = generate_waveform(resolve(@final_path), track.length.to_f)
+				wave_path = generate_waveform(resolve(temp_path), track.length.to_f, track.local_path_waveform)
 
 				raise "Generating waveform failed" unless File.exists?(@track.local_path_waveform)
 
