@@ -355,8 +355,8 @@ module Nerve; module Job
 			when 'aac_he', 'aac_he_v2'
 				ffmpeg_convert(resolve(@final_path), resolve(@preview_path), [
 					'-c:a', 'libfdk_aac',
-					'-profile:a', preview_format,
-					'-b:a', preview_format == 'aac_he' ? '64k' : '48k'])
+					'-profile:a', preview_format[0],
+					'-b:a', preview_format[0] == 'aac_he' ? '64k' : '48k'])
 			else
 				convert(resolve(@final_path), resolve(@preview_path), 'ogg', '-1')
 			end
@@ -430,7 +430,9 @@ module Nerve; module Job
 
 			at(95, 100, "Generating preview")
 
-			@track.local_path_preview = preview(_options)
+			preview(_options)
+			@track.local_path_preview = @preview_path
+			@track.save
 
 			completed("Processed. Head on over to the My Uploads page to fill in song information.")
 
