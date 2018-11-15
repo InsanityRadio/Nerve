@@ -344,7 +344,7 @@ module Nerve; module Job
 			[preview_format, '.' + preview_format.split('_')[0]]
 		end
 
-		def preview options
+		def preview options, override_path = nil
 
 			preview_format = get_preview_format
 			puts "Generating preview #{preview_format}"
@@ -353,12 +353,12 @@ module Nerve; module Job
 
 			case preview_format[0]
 			when 'aac_he', 'aac_he_v2'
-				ffmpeg_convert(resolve(@final_path), resolve(@preview_path), [
+				ffmpeg_convert((override_path or resolve(@final_path)), resolve(@preview_path), [
 					'-c:a', 'libfdk_aac',
-					'-profile:a', preview_format,
-					'-b:a', preview_format == 'aac_he' ? '64k' : '48k'])
+					'-profile:a', preview_format[0],
+					'-b:a', preview_format[0] == 'aac_he' ? '64k' : '48k'])
 			else
-				convert(resolve(@final_path), resolve(@preview_path), 'ogg', '-1')
+				convert((override_path or resolve(@final_path)), resolve(@preview_path), 'ogg', '-1')
 			end
 
 			@preview_path
@@ -430,7 +430,9 @@ module Nerve; module Job
 
 			at(95, 100, "Generating preview")
 
-			@track.local_path_preview = preview(_options)
+			preview(_options)
+			@track.local_path_preview = @preview_path
+			@track.save
 
 			completed("Processed. Head on over to the My Uploads page to fill in song information.")
 
