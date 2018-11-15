@@ -44,7 +44,9 @@ class Processor < Nerve::Job::Process
 
 			FileUtils::copy(exported_path, temp_path)
 
-			@track.local_path_preview = preview([])
+			_debug "Made copy of exported cart to preview from"
+
+			@track.local_path_preview = preview([], temp_path)
 			@track.save
 
 			prev_path = resolve(@track.local_path_preview)
