@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 
 gem 'nokogiri'
 gem 'genius'
-gem 'gracenote'
+gem 'gracenote', :git => 'https://github.com/InsanityRadio/gracenote.git'
 gem 'rspec'
 gem 'oauth2'
 gem 'dig_rb'
