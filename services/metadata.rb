@@ -10,7 +10,7 @@ module Nerve
 
 			include Helpers
 
-			@@METADATA = Nerve::Provider::Track::MusixMatch
+			@@METADATA = Nerve::Provider::Track::Gracenote
 			@@LYRICS = Nerve::Provider::Lyrics::Genius #MetroLyrics
 
 			def self.match artist, album, track, enhanced = false, force = false
