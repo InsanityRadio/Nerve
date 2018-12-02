@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 
 gem 'nokogiri'
 gem 'genius'
+gem 'gracenote'
 gem 'rspec'
 gem 'oauth2'
 gem 'dig_rb'

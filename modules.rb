@@ -58,6 +58,7 @@ module Nerve
 			autoload :Spotify, "app/providers/track/spotify.rb"
 			autoload :MusixMatch, "app/providers/track/musixmatch.rb"
 			autoload :MusicBrainz, "app/providers/track/musicbrainz.rb"
+			autoload :Gracenote, 'app/providers/track/gracenote'
 
 		end
 
@@ -91,6 +92,8 @@ module Nerve
 		autoload :TrackProvider, "app/models/track_provider"
 
 		autoload :CacheItem, "app/models/cache_item"
+
+		autoload :Setting, "app/models/setting"
 
 		autoload :User, "app/models/user"
 
