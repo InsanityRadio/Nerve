@@ -60,14 +60,14 @@ module Nerve
 					data = {
 						"cache_id" => 0,
 						"cache" => "miss",
-						"external_id" => track.track_gnid,
-						"title" => track.track_title,
-						"artist" => track.track_artist_name,
-						"album" => track.album_title,
+						"external_id" => track['track_gnid'],
+						"title" => track['track_title'],
+						"artist" => track['track_artist_name'],
+						"album" => track['album_title'],
 						"explicit" => 0,
-						"exists" => Nerve::Model::CacheItem.where(external_id: track.track_gnid).count > 0,
+						"exists" => Nerve::Model::CacheItem.where(external_id: track['track_gnid']).count > 0,
 						"genre" => genre,
-						"year" => (track.album_year rescue nil),
+						"year" => (track['album_year'] rescue nil),
 						"big" => track.to_json
 					}
 
