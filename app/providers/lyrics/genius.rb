@@ -26,8 +26,21 @@ module Nerve
 					::Genius.access_token = $config["search"]["genius_key"]
 					song_search = ::Genius::Song.search(track + ' - ' + artist)
 					return false if !song_search.length
+
+					song_result = song_search[0]
+
+					# If the search results are weird, see if the artist more or less matches
+					song_search.each do |track|
+						begin
+							if artist.start_with? track.primary_artist.name
+								song_result = track
+								break
+							end
+						rescue
+						end
+					end
 			
-					data = open(song_search[0].url).read
+					data = open(song_result.url).read
 
 					html = Nokogiri::HTML(data)
 		
