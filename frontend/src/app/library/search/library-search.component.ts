@@ -12,23 +12,19 @@ export class LibrarySearchComponent implements OnInit {
 
 	tracks:any = [];
 
-    constructor (private nerveService: NerveService, private router: Router) {}
+	constructor (private nerveService: NerveService, private router: Router) {}
 
-    ngOnInit() {
-    }
+	ngOnInit() {
+	}
 
-    search (query:string) {
-    	this.nerveService.librarySearch(query).then((tracks:Track[]) => {
-
-    		this.tracks = tracks
-
-    	});
-    }
+	search (query:string) {
+		this.nerveService.librarySearch(query).then((tracks:Track[]) => {
+			this.tracks = tracks
+		});
+	}
 
 	navigate (track:any) {
-
 		this.router.navigate(['/library', 'track', track.id])
-
 	}
 
 }
