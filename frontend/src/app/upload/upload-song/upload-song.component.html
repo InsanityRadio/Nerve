@@ -2,7 +2,7 @@
 	<track-search *ngIf="currentSearchFile" [title]="currentSearchFile.name" (complete)="fixed($event)"></track-search>
 	<table class="grid upload-container"><tr><td>
 
-		<label class="upload-box" for="song-upload-main">
+		<label #uploadDrop class="upload-box" for="song-upload-main">
 
 			<div class="upload-progress" id="song-upload-progress" style="width: 0%"></div>
 

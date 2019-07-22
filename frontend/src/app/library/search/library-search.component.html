@@ -1,7 +1,7 @@
 <div class="screen visible">
 
 	<div class="input-group" style="max-width: 600px; margin: 10px auto 30px;">
-		<input #searchQuery class="input-group-field" type="text" />
+		<input #searchQuery class="input-group-field" type="text" (keyup.enter)="search(searchQuery.value)" />
 		<div class="input-group-button">
 			<button (click)="search(searchQuery.value)" class="button">Search</button>
 		</div>

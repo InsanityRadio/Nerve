@@ -23,7 +23,8 @@ class FileWrapper {
 
 export class UploadSongComponent implements OnInit {
 
-	@ViewChild('upload') upload:HTMLElement;
+	@ViewChild('upload') upload:any;
+	@ViewChild('uploadDrop') uploadDrop:HTMLElement;
 
 	@ViewChild('overrideBitrate') overrideBitrate:ElementRef;
 	@ViewChild('overrideCompressor') overrideCompressor:ElementRef;
@@ -39,6 +40,15 @@ export class UploadSongComponent implements OnInit {
 	}
 
 	ngOnInit () {
+	}
+
+	preventDefault (event:any) {
+		event.preventDefault();
+	}
+
+	drop (event:any) {
+		this.upload.nativeElement.files = event.dataTransfer.files;
+		this.select(event);
 	}
 
 	select (event:any) {
