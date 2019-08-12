@@ -62,15 +62,15 @@ module Nerve; module Playout; class Myriad5
 			local_path = $config["export"]["directory"] + "/" + track.local_path
 
 			if track.playout_id_2
-				cart_id = track.playout_id_2
+				cart_id = track.playout_id_2.to_i
 			end
 
 			database_id = nil
 			if track.playout_id
 				if track.playout_id[0] == 'C'
-					cart_id = track.playout_id[1..-1]
+					cart_id = track.playout_id[1..-1].to_i
 				else
-					database_id = track.playout_id
+					database_id = track.playout_id.to_i
 				end
 			end
 			

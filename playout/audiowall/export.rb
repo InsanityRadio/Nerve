@@ -67,9 +67,9 @@ module Nerve; module Playout; class AudioWall
 			database_id = nil
 			if track.playout_id
 				if track.playout_id[0] == 'C'
-					cart_id = track.playout_id[1..-1]
+					cart_id = track.playout_id[1..-1].to_i
 				else
-					database_id = track.playout_id
+					database_id = track.playout_id.to_i
 				end
 			end
 
