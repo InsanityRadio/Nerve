@@ -143,7 +143,7 @@ module Nerve; module Playout; class AudioWall
 						'CharacteristicEnd3' => 0,
 						'CharacteristicEnd4' => 0,
 						'CharacteristicEnd5' => 0,
-						'ForceID': database_id 
+						'ForceID' => database_id 
 						}}}
 
 					Nerve::Mixin::Runner.run! "pre_publish", track, options
