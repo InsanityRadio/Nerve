@@ -1,9 +1,17 @@
-	require 'securerandom'
-	require 'fileutils'
+require 'securerandom'
+require 'fileutils'
 
-	module Nerve; module Playout; class AudioWall
+module Nerve; module Playout; class AudioWall
 
-		module Export
+	class Export
+
+		def options
+			@@options
+		end
+
+		def options= options
+			@@options = options
+		end
 
 		# If we fade the song out 0.5s after the extro point, we lose the "sustaned" song issue
 		#  (basically where someone sets an extro point with like 30 seconds of extro to go)
@@ -55,6 +63,15 @@
 			# Run me in the root directory
 			tmp_files = []
 			@database = nil
+
+			database_id = nil
+			if track.playout_id
+				if track.playout_id[0] == 'C'
+					cart_id = track.playout_id[1..-1]
+				else
+					database_id = track.playout_id
+				end
+			end
 
 			begin
 				#Dir::chdir $config["export"]["settings"]["path"] do 
@@ -125,7 +142,8 @@
 						'CharacteristicEnd2' => 0,
 						'CharacteristicEnd3' => 0,
 						'CharacteristicEnd4' => 0,
-						'CharacteristicEnd5' => 0
+						'CharacteristicEnd5' => 0,
+						'ForceID': database_id 
 						}}}
 
 					Nerve::Mixin::Runner.run! "pre_publish", track, options
@@ -220,6 +238,53 @@
 
 				tmp_files.each { | t | File.unlink(t) rescue nil }
 
+			end
+
+		end
+
+		def _sync track
+
+			# 1. Find database record for track
+			# 2. Find cart for track. 
+
+			# 3. On the track, update category_a to match the library's category
+			# 4. On the track, update title, artist, etc. to match the library(!) entry (not the cart)
+			# 5. Save the track. 
+
+			begin
+
+				@audiowall = Nerve::Playout::AudioWall.new
+				@audiowall.load_settings
+
+				@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
+
+				prefix = @audiowall.get_full_path(cart_id)
+				local_path = $config["export"]["directory"] + "/" + track.local_path
+
+				if track.playout_id[0] != "C"
+					# has a database record
+					autotrack = @database.add_method_here
+					cart_id = @database.get_cart(track)
+
+					track.category_a = autotrack.category_id
+					track.title = autotrack['DisplayTitle']
+					track.artist = autotrack['DisplayArtist']
+				else
+					# doesn't have a DB record, get cart only
+					cart_id = track.playout_id[1..-1].to_i
+				end
+
+				cart = Nerve::Playout::AudioWall.load_cart cart_id
+
+				track.intro_start = cart.intro_start
+				track.intro_end = cart.intro_end
+				track.hook_start = cart.hook_start
+				track.hook_end = cart.hook_end
+				track.extro_start = cart.extro_start
+				track.extro_end = cart.extro_end
+
+			raise
+				raise $!
 			end
 
 		end
