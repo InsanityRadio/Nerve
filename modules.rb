@@ -15,6 +15,8 @@ module Nerve
 
 	module Job
 
+		autoload :Job, 'jobs/job'
+
 		autoload :CleanUp, "jobs/cleanup"
 		autoload :Recall, "jobs/recall"
 		autoload :Process, "jobs/process"
@@ -47,6 +49,14 @@ module Nerve
 		class AudioWall
 			autoload :Database, "playout/audiowall/database"
 			autoload :Export, "playout/audiowall/export"
+		end
+
+		class Myriad5
+			autoload :Database, "playout/myriad5/database"
+			autoload :Export, "playout/myriad5/export"
+			autoload :SignalR, "playout/myriad5/signalr"
+			autoload :RESClient, "playout/myriad5/res_client"
+			autoload :MediaWall, "playout/myriad5/mediawall"
 		end
 
 	end

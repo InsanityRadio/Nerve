@@ -172,9 +172,13 @@ module Nerve; module Playout; class AudioWall
 			year = (metadata[2].to_s rescue '') || ''
 			era_id = get_era year
 
-			result = @conn.execute("SELECT TOP 1 ItemNumber FROM Songs ORDER BY ItemNumber DESC;")
-			item_number = (result.to_a[0]["ItemNumber"].to_i + 1) rescue 1
-			result.do rescue nil
+			if options['ForceID']
+				item_number = options['ForceID']
+			else
+				result = @conn.execute("SELECT TOP 1 ItemNumber FROM Songs ORDER BY ItemNumber DESC;")
+				item_number = (result.to_a[0]["ItemNumber"].to_i + 1) rescue 1
+				result.do rescue nil
+			end
 
 			@current_item_number = item_number
 

@@ -5,13 +5,7 @@ require 'resque-status'
 
 module Nerve; module Job
 
-	class Update
-
-		include Resque::Plugins::Status
-		include Nerve::Database
-
-		# Import the functions that allow us to check the playout system
-		include Object.const_get($config["export"]["mode"])
+	class Update < Job
 
 		private
 
