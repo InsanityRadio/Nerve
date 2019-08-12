@@ -42,11 +42,18 @@ module Nerve; module Playout; class Myriad5
 				Description: '',
 				MediaId: media_id,
 
-				IntroStart: track.intro_start > 0 ? timestamp(track.intro_start) : nil,
-				IntroEnd: track.intro_end > 0 ? timestamp(track.intro_end) : nil,
-				ExtroStart: timestamp(track.outro),
-				HookStart: track.hook_start > 0 ? timestamp(track.hook_start) : nil,
-				HookEnd: track.hook_end > 0 ? timestamp(track.hook_end) : nil,
+				Intro: {
+					Start: track.intro_start > 0 ? timestamp(track.intro_start) : nil,
+					End: track.intro_end > 0 ? timestamp(track.intro_end) : nil
+				},
+				Extro: {
+					Start: timestamp(track.outro),
+					End: timestamp(track.length)
+				}, 
+				Hook: {
+					Start: track.hook_start > 0 ? timestamp(track.hook_start) : nil,
+					End: track.hook_end > 0 ? timestamp(track.hook_end) : nil
+				}
 
 				MediaLength: {
 					End: timestamp(track.length)
