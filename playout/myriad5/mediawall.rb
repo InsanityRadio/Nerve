@@ -53,7 +53,7 @@ module Nerve; module Playout; class Myriad5
 				Hook: {
 					Start: track.hook_start > 0 ? timestamp(track.hook_start) : nil,
 					End: track.hook_end > 0 ? timestamp(track.hook_end) : nil
-				}
+				},
 
 				MediaLength: {
 					End: timestamp(track.length)
