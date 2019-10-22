@@ -1,7 +1,7 @@
 require 'securerandom'
 require 'fileutils'
 
-module Nerve; module Playout; class AudioWall
+module Nerve; module Playout; class Myriad5
 
 	class Export
 
@@ -26,6 +26,7 @@ module Nerve; module Playout; class AudioWall
 
 			command = ["sox", "-r", "44.1k", "-S", input, "-t", format, output]
 			command += ["fade", "0", cut_point.to_s, "7t"]
+			command += ["trim", "0", track.length.to_s]
 
 			p command
 
@@ -55,21 +56,17 @@ module Nerve; module Playout; class AudioWall
 
 		def _run track, cart_id = nil
 
-			p 'a'
-
-			@audiowall = Nerve::Playout::AudioWall.new
-			p 'b'
+			@mediawall = Nerve::Playout::Myriad5::MediaWall.new $config["export"]["settings"]["database5"]["name"]
+			@audiowall = Nerve::Playout::AudioWall.new 
 			@audiowall.load_settings
-			p 'c'
 
 			local_path = $config["export"]["directory"] + "/" + track.local_path
-			
-			# Run me in the root directory
-			tmp_files = []
-			@database = nil
+
+			if track.playout_id_2
+				cart_id = track.playout_id_2.to_i
+			end
 
 			database_id = nil
-
 			if track.playout_id
 				if track.playout_id[0] == 'C'
 					cart_id = track.playout_id[1..-1].to_i
@@ -77,44 +74,39 @@ module Nerve; module Playout; class AudioWall
 					database_id = track.playout_id.to_i
 				end
 			end
+			
+			# Run me in the root directory
+			tmp_files = []
+			@database = nil
 
 			begin
 				#Dir::chdir $config["export"]["settings"]["path"] do 
 					
-					cart_id = @audiowall.get_cart_id(track) unless cart_id
+					cart_id = @mediawall.reserve_media_item(track) unless cart_id
 					prefix = @audiowall.get_full_path(cart_id)
 
 					genres = $config["export"]["settings"]["genre"]
-					puts "Writing to cart #{cart_id}, genre #{track.genre}, #{genres[track.genre]}, #{prefix}"
+					puts "Writing to Media ID #{cart_id}, genre #{track.genre}, #{genres[track.genre]}, #{prefix}"
+
+					unless cart_id and File.exist?(prefix + '.WAV')
+						# convert to the final wav and do the fade out ending, this is fast.
+						# the fade out in the future will be based on the end type
+						tmp_files << (file = local_path + ".upload.wav")
+						a = fade_end(local_path, file, track.outro.to_f)
+
+						p "b"
+						raise a unless a == true
+
+						p a
+						puts "Faded"
 
 
-					cart = Nerve::Playout::AudioWall::Cart.new track
-					#cart.length = cart.extro_end = cart.extro_start + 5.0
-
-					#raise "You /must/ activate individual lists, writing to big files is unsupported and dangerous." \
-					#	unless @audiowall.settings[:individual_carts]
-
-					# Lock the "cart_id". Only supported on Audio Walls with individual LSTs
-					# (do this by writing the LST file, prevents Myriad writing to it).
-					# binwrite allows us to actually export proper binary.
-
-					@audiowall.save cart_id, cart, track
-
-					# convert to the final wav and do the fade out ending, this is fast.
-					# the fade out in the future will be based on the end type
-					tmp_files << (file = local_path + ".upload.wav")
-					a = fade_end(local_path, file, cart.extro_start)
-
-					p "b"
-					raise a unless a == true
-
-					p a
-					puts "Faded"
-
-
-					# upload the WAV to the Audio Wall
-					FileUtils.cp(file, @final_path = prefix + ".WAV", :preserve => false)
-					FileUtils.rm(file)
+						# upload the WAV to the Audio Wall
+						FileUtils.cp(file, @final_path = prefix + ".WAV", :preserve => false)
+						FileUtils.rm(file)
+					else
+						@final_path = prefix + '.WAV'
+					end
 
 					category_id = options["category_id"].to_i
 					alt_category_id = 0
@@ -134,6 +126,9 @@ module Nerve; module Playout; class AudioWall
 						end
 					end
 
+					# now, write the cart
+					@mediawall.add_track cart_id, track, { categoryID: category_id }
+
 
 					# Run any mixins we might have.
 					options = {'myriad' => {'database' => {
@@ -148,12 +143,12 @@ module Nerve; module Playout; class AudioWall
 						'CharacteristicEnd3' => 0,
 						'CharacteristicEnd4' => 0,
 						'CharacteristicEnd5' => 0,
-						'ForceID' => database_id 
+						'ForceID' => database_id
 						}}}
 
 					Nerve::Mixin::Runner.run! "pre_publish", track, options
 
-					@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
+					@database = Nerve::Playout::Myriad5::Database.new $config["export"]["settings"]["database5"]["name"]
 					@item_number = @database.add_track cart_id, track, category_id, alt_category_id, options['myriad']['database']
 
 					track.playout_id = @item_number
@@ -172,6 +167,7 @@ module Nerve; module Playout; class AudioWall
 			rescue
 
 				@database.execute("DELETE FROM Songs WHERE ItemNumber=#{@database.current_item_number};").do rescue nil
+				@mediawall.delete_track track rescue nil
 				File.unlink(@final_path) rescue nil if @final_path
 				File.unlink(@lst_path) rescue nil if @lst_path
 				raise $!
@@ -192,26 +188,31 @@ module Nerve; module Playout; class AudioWall
 
 				raise "The audio was removed" if track.status == 6 and audio
 
+				@mediawall = Nerve::Playout::Myriad5::MediaWall.new $config["export"]["settings"]["database5"]["name"]
+
 				@audiowall = Nerve::Playout::AudioWall.new
 				@audiowall.load_settings
 
-				@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
+				@database = Nerve::Playout::Myriad5::Database.new $config["export"]["settings"]["database5"]["name"]
+
 				cart_id = track.playout_id[0] == "C" ? track.playout_id[1..-1].to_i : @database.get_cart(track)
 				prefix = @audiowall.get_full_path(cart_id)
 				local_path = $config["export"]["directory"] + "/" + track.local_path
-				cart = Nerve::Playout::AudioWall::Cart.new track
 
 				genres = $config["export"]["settings"]["genre"]
-				puts "Writing to cart #{cart_id}, genre #{track.genre}, #{genres[track.genre]}, #{prefix}"
+				puts "Writing to Media ID #{cart_id}, genre #{track.genre}, #{genres[track.genre]}, #{prefix}"
 
-				raise "Cart appears to have gone from playout system." if @audiowall.load_cart(cart_id).title == ""
+				# Load the existing Media Item and check it exists 
+				existing = @mediawall.read_media_item(cart_id)
+				raise "Cart appears to have gone from playout system." if existing['Title'] == nil or ['Title'].starts_with?('** ')
+
 				if audio
 	
 					tmp_files << (file = local_path + ".upload.wav")
-					a = fade_end(local_path, file, cart.extro_start)
+					a = fade_end(local_path, file, track.outro.to_f)
 					raise a if a != true
 
-					@audiowall.save cart_id, cart, track
+					@mediawall.add_track cart_id, track, {}
 
 					FileUtils.cp(file, @final_path = prefix + ".WAV", :preserve => false)
 					FileUtils.rm(file)
@@ -302,12 +303,13 @@ module Nerve; module Playout; class AudioWall
 			library = track.playout_id[0] == "C"
 			cart_id = 0
 
+			@mediawall = Nerve::Playout::Myriad5::MediaWall.new nil
+			@audiowall = Nerve::Playout::AudioWall.new
+			@audiowall.load_settings
+
 			unless library
 
-				@audiowall = Nerve::Playout::AudioWall.new
-				@audiowall.load_settings
-
-				@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
+				@database = Nerve::Playout::Myriad5::Database.new $config["export"]["settings"]["database5"]["name"]
 
 				cart_id = @database.delete_track track
 
@@ -322,6 +324,7 @@ module Nerve; module Playout; class AudioWall
 
 			end
 
+			@mediawall.delete_track track
 			@audiowall.purge cart_id
 
 		end

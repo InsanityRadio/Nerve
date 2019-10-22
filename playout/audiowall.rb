@@ -329,7 +329,13 @@ module Nerve; module Playout
 
 			if @settings[:individual_carts]
 				file_name = get_full_path(id) + ".LST"
-				data = File.read(file_name, :encoding => "ASCII-8BIT")
+				begin
+					data = File.read(file_name, :encoding => "ASCII-8BIT") 
+				rescue
+					cart = Cart.new
+					cart.blank!
+					return cart
+				end
 			else 
 				file, offset = get_master_cart(id)
 
