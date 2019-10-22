@@ -26,6 +26,7 @@ module Nerve; module Playout; class Myriad5
 
 			command = ["sox", "-r", "44.1k", "-S", input, "-t", format, output]
 			command += ["fade", "0", cut_point.to_s, "7t"]
+			command += ["trim", "0", track.length.to_s]
 
 			p command
 
