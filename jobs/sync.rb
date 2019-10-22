@@ -5,11 +5,12 @@ require 'resque-status'
 
 module Nerve; module Job
 
-	class Update < Job
+	class Sync < Job
 
 		private
 
-		# This job updates cart files that may have somehow become corrupted. All of them. 
+		# This form finds the cart in the database, and updates it locally in Nerve.
+		# This allows Nerve and Myriad to remain perfectly in sync! 
 		def perform
 
 			track = Nerve::Model::Track.find options["track_id"]
@@ -17,14 +18,8 @@ module Nerve; module Job
 			begin
 
 				raise "This track shouldn't be updated" if track.status != 5 and (track.status != 6 and !options["audio"])
-				@original_status = track.status
 
-				track.status = 10
-				track.save
-
-				_update track, options["audio"]
-
-				track.status = 5
+				_sync track
 				track.save
 
 			rescue

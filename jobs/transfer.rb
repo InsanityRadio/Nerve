@@ -5,13 +5,7 @@ require 'resque-status'
 
 module Nerve; module Job
 
-	class Transfer
-
-		include Resque::Plugins::Status
-		include Nerve::Database
-
-		# Import the functions that allow us to import into the right playout system
-		include Object.const_get($config["export"]["mode"])
+	class Transfer < Job
 
 		def status_update status
 			Object.const_get(options["status_update"]) \

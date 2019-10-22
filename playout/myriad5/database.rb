@@ -1,7 +1,7 @@
 require 'securerandom'
 require 'fileutils'
 
-module Nerve; module Playout; class AudioWall
+module Nerve; module Playout; class Myriad5
 
 	class Database
 
@@ -9,7 +9,9 @@ module Nerve; module Playout; class AudioWall
 
 		def self.get_connection database
 
-			database_settings = $config["export"]["settings"]["database"]
+			database = "Myriad4"
+
+			database_settings = $config["export"]["settings"]["database5"]
 			raise "Database settings non-existent in config.yml" if !database_settings
 
 			@@connections ||= {}
@@ -172,13 +174,8 @@ module Nerve; module Playout; class AudioWall
 			year = (metadata[2].to_s rescue '') || ''
 			era_id = get_era year
 
-			result = @conn.execute("SELECT TOP 1 ItemNumber FROM Songs ORDER BY ItemNumber DESC;")
-			item_number = (result.to_a[0]["ItemNumber"].to_i + 1) rescue 1
-			result.do rescue nil
-
 			if options['ForceID']
 				item_number = options['ForceID']
-				@conn.execute("DELETE FROM Songs WHERE ItemNumber='#{ item_number.to_i}'").do
 			else
 				result = @conn.execute("SELECT TOP 1 ItemNumber FROM Songs ORDER BY ItemNumber DESC;")
 				item_number = (result.to_a[0]["ItemNumber"].to_i + 1) rescue 1
@@ -188,8 +185,6 @@ module Nerve; module Playout; class AudioWall
 			@current_item_number = item_number
 
 			uploader = @conn.escape(track.created_by.username) rescue "???"
-			
-			@conn.execute("DELETE FROM Songs WHERE ItemNumber='#{ item_number.to_i}'").do
 
 			result = @conn.execute(q = sprintf("INSERT INTO Songs (GUID, ItemSource, ExternalReference,
 					TitleNumber, ArtistNumber1, ArtistNumber2, DisplayTitle, DisplayBy,

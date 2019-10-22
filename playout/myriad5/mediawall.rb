@@ -47,6 +47,7 @@ module Nerve; module Playout; class Myriad5
 				Title: track.title,
 				Description: '',
 				MediaId: media_id,
+				Ending: track.end_type,
 
 				Intro: {
 					Start: track.intro_start > 0 ? timestamp(track.intro_start) : nil,
