@@ -172,13 +172,26 @@ module Nerve; module Playout; class AudioWall
 			year = (metadata[2].to_s rescue '') || ''
 			era_id = get_era year
 
+<<<<<<< Updated upstream
 			result = @conn.execute("SELECT TOP 1 ItemNumber FROM Songs ORDER BY ItemNumber DESC;")
 			item_number = (result.to_a[0]["ItemNumber"].to_i + 1) rescue 1
 			result.do rescue nil
+=======
+			if options['ForceID']
+				item_number = options['ForceID']
+				@conn.execute("DELETE FROM Songs WHERE ItemNumber='#{ item_number.to_i}'").do
+			else
+				result = @conn.execute("SELECT TOP 1 ItemNumber FROM Songs ORDER BY ItemNumber DESC;")
+				item_number = (result.to_a[0]["ItemNumber"].to_i + 1) rescue 1
+				result.do rescue nil
+			end
+>>>>>>> Stashed changes
 
 			@current_item_number = item_number
 
 			uploader = @conn.escape(track.created_by.username) rescue "???"
+			
+			@conn.execute("DELETE FROM Songs WHERE ItemNumber='#{ item_number.to_i}'").do
 
 			result = @conn.execute(q = sprintf("INSERT INTO Songs (GUID, ItemSource, ExternalReference,
 					TitleNumber, ArtistNumber1, ArtistNumber2, DisplayTitle, DisplayBy,
