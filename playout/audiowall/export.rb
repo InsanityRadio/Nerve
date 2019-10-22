@@ -47,8 +47,12 @@
 
 		def _run track, cart_id = nil
 
+			p 'a'
+
 			@audiowall = Nerve::Playout::AudioWall.new
+			p 'b'
 			@audiowall.load_settings
+			p 'c'
 
 			local_path = $config["export"]["directory"] + "/" + track.local_path
 			
@@ -56,6 +60,19 @@
 			tmp_files = []
 			@database = nil
 
+<<<<<<< Updated upstream
+=======
+			database_id = nil
+			if track.playout_id
+				if track.playout_id[0] == 'C'
+					cart_id = track.playout_id[1..-1].to_i
+				else
+					database_id = track.playout_id.to_i
+				end
+			end
+			p 'd'
+
+>>>>>>> Stashed changes
 			begin
 				#Dir::chdir $config["export"]["settings"]["path"] do 
 					

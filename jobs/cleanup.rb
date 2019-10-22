@@ -14,7 +14,7 @@ module Nerve; module Job
 
 		def perform
 
-			tracks = Nerve::Model::Track.where("DATEDIFF(NOW(), creation_date) > 50")
+			tracks = []; #Nerve::Model::Track.where("DATEDIFF(NOW(), creation_date) > 28")
 
 			multiplier = tracks.length / 100.0
 			i = 0
@@ -23,7 +23,7 @@ module Nerve; module Job
 
 					@original_status = track.status
 
-					track.delete! track.status < 4
+					track.delete! track.status > 2
 					i += 1
 					at(i * multiplier, 100)
 
@@ -44,6 +44,13 @@ module Nerve; module Job
 				end
 			end
 
+			# clean up tracks that don't exist in the database with matching WAVs
+			Dir::chdir($config["export"]["directory"] + "/") do
+			
+				wavs = Dir.glob('**/*.wav')
+			
+				p wavs
+			end
 
 		end
 

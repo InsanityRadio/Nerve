@@ -26,24 +26,17 @@ ActiveRecord::Schema.define(version: 20181202213721) do
     t.string   "name",          limit: 255
     t.integer  "artist",        limit: 4
     t.integer  "created_by",    limit: 4,   null: false
-    t.datetime "creation_date"
+    t.datetime "creation_date",             null: false
   end
 
   create_table "artists", force: :cascade do |t|
     t.integer  "external_id",   limit: 4
     t.string   "name",          limit: 255
     t.integer  "created_by",    limit: 4,   null: false
-    t.datetime "creation_date"
+    t.datetime "creation_date",             null: false
   end
 
   add_index "artists", ["name"], name: "index_artists_on_name", type: :fulltext
-
-  create_table "config", force: :cascade do |t|
-    t.string "key",   limit: 255,   null: false
-    t.text   "value", limit: 65535
-  end
-
-  add_index "config", ["key"], name: "index_config_on_key", unique: true, using: :btree
 
   create_table "exports", primary_key: "export_id", force: :cascade do |t|
     t.integer  "track_id",    limit: 4,  null: false
@@ -63,7 +56,7 @@ ActiveRecord::Schema.define(version: 20181202213721) do
 
   create_table "nerve_cache", force: :cascade do |t|
     t.string   "external_id",   limit: 255
-    t.datetime "creation_date"
+    t.datetime "creation_date",                           null: false
     t.string   "track",         limit: 255
     t.string   "artist",        limit: 255
     t.string   "album",         limit: 255
@@ -86,11 +79,11 @@ ActiveRecord::Schema.define(version: 20181202213721) do
   end
 
   create_table "settings", force: :cascade do |t|
-    t.string "key",   limit: 255,   null: false
-    t.text   "value", limit: 65535
+    t.string "setting", limit: 255,   null: false
+    t.text   "value",   limit: 65535
   end
 
-  add_index "settings", ["key"], name: "index_settings_on_key", unique: true, using: :btree
+  add_index "settings", ["setting"], name: "index_settings_on_setting", unique: true, using: :btree
 
   create_table "track_comments", force: :cascade do |t|
     t.integer  "track_id",      limit: 4,     null: false
@@ -116,7 +109,7 @@ ActiveRecord::Schema.define(version: 20181202213721) do
     t.integer  "approved_by",         limit: 4,                             default: 0
     t.integer  "main_genre",          limit: 4,                             default: 0
     t.integer  "created_by",          limit: 4,                                             null: false
-    t.datetime "creation_date"
+    t.datetime "creation_date",                                                             null: false
     t.datetime "last_update"
     t.datetime "local_kill_date"
     t.string   "local_path",          limit: 255

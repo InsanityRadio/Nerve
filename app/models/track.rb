@@ -110,8 +110,8 @@ module Nerve; module Model
 				self.status = 6
 				self.save
 			else
-				File.unlink(_local_path + ".ogg") rescue puts "Failed to delete #{id} preview: #{$!}"
-				File.unlink(_local_path + ".dat") rescue puts "Failed to delete #{id} form: #{$!}"
+				File.unlink(_base + local_path_preview) rescue puts "Failed to delete #{id} preview: #{$!}"
+				File.unlink(_base + local_path_waveform) rescue puts "Failed to delete #{id} form: #{$!}"
 				destroy
 			end
 
