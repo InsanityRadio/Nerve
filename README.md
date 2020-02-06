@@ -6,10 +6,6 @@ This software is aimed to be the last "master" you'll ever need for music metada
 
 Nerve is object-oriented and (nearly) event-ready, and is completely customisable and extendable. We mean "object oriented" in the broadcast sense - you can tie its data into systems to create immersive and future-proofed content through soon-to-be APIs (or through its database).
 
-## This branch
-
-We have deprecated support for Myriad 4. But we know some other student stations still run it, so this release will hopefully be supported with non-playout features. 
-
 ## Why Nerve?
 
 Nerve has been tried and tested at Insanity Radio 103.2FM, a community radio station homed in North Surrey. Crazily, it also won the Student Radio Award for Best Technical Achievement in 2017.
@@ -76,11 +72,8 @@ To run database migrations, after building but before launching, run:
 	docker-compose run --rm worker sh -c "bundle exec rake db:migrate"
 
 
-## Quick Tasks / To-do
+## To-do
 
-- Create recall button on interface that invokes Nerve::Job::Recall
-- Make the Library tab work. 
-- Create fulltext search for Library.
 - Song Versions
 	- Text field on interface, perhaps with pre-set versions
 	- Automatically detect "Remix" in titles of uploads

@@ -1,54 +1,165 @@
 host: nerve.insanityradio.com
-slave: false
-
-environment: production
 
 station_name: Insanity Radio 103.2FM
 contact_email: computing@insanityradio.com
+
+mixins:
+    - Nerve::Mixin::Spotify
+
 
 search:
     # If you change this, it's likely that you'll lose part of dupe checking, as different systems!
     # Watch out :) Use musixmatch if you can - it has a good API for metadata and lyrics, and has 
     #  a cool feature called "commontrack", which pretty accurately prevents dupes.
-    # Using MusixMatch uses MusicBrainz to do searching, as it's more reliable from defacement
-    mode: musixmatch
+    metadata_mode: musixmatch
+
     # NOT IMPLEMNETED but planned for future versions:
-    # mode: trust    means use the user's metadata. Very basic duplicate checking is done here.
+    # mode: trust    means use the user's metadata. Very basic/no duplicate checking is done here.
     # mode: spotify  uses Spotify's API for metadata. No lyrics, and the explicit checking <100% :(
     # mode: custom   use your custom code here, idc
 
+    lyrics_mode: genius
+
+    # NOT IMPLEMENTED but planned for above, too:
+    # mode: none     don't do any lyric checking
+
     # Can be any type of key. Preferably one with lyric access, but it doesn't need to be
-    musixmatch_key: 
+
+    musixmatch_key: x
+    gn_client_id: "x"
+    gn_client_tag: "x"
+
+    metrolyrics_key: x
+    genius_key: "x"
 
     spotify:
-        user_id: insanityradio
-        client_id: ~
-        client_secret: ~
+        user_id: x
+        client_id: "x"
+        client_secret: "x"
+
+
+words:
+    # Based on http://stakeholders.ofcom.org.uk/binaries/research/tv-research/offensive-lang.pdf
+    # Season to taste. :) 
+    banned: 
+        # "Most offensive" language
+        - f[u\-]ck
+        - sh[i\-]t
+        - bullsh[i\-]t
+        - m[a-z0-9\-]+rf[u\-][c\-]?k
+        - c[u\-]nt
+
+        # "Take care"
+        - b[i\-]tch
+        - t[i\-]ts
+        - screw
+        - whore
+        - cock
+        - bastard
+        - wank
+        - slag
+        - prick
+        - dick
+        - shag
+        - twat
+        - hoe
+        - "ho\\b"
+        - slut 
+        - rape #??
+        - pussy
+
+        - mutha-fu
+        - mutha fu
+        - muthafu
+        - mofuc
+        - weed
+        - "\\bL\\s?S\\s?D\\b"
+        - marijuana
+        - "gan[gj]a"
+        - "heroin\\b"
+
+        # Discriminatory - take care
+        - n[i\-]gger
+        - n[i\-]gga
+        - negro
+        - paki
+        - retard
+        - spastic
+        - pikey
+        - gyppo
+        - towelhead
+        - jew
+        - tranny
+        - nazi
+        - chink
+        - fenian
+        - faggot
+        - spakka
+        - spaz
+        - gender-bender
+        - gender bender
+        - coon
+        - shank
+        - mong
+        - (golly)?wog
+        - eskimo
+        - red[ -]indian
+        - piss
+
+        - gash
+        - bloodclaat #?!
+        - feck
+        - "[A-Za-z]+\\*+[A-Za-z]*" # match anything that contains asterisks (like f*ck)
 
 security:
     # ::Simple is literally just key=>value in a config file. Don't use it in production.
     # Coding a backend for authentication is simple, you just need to implement 3 easy functions.
-    authentication: Nerve::Authentication::Simple
+    authentication: Nerve::Authentication::Cortex
+
+    oauth:
+        host: https://sso.cor.insanityradio.com
+        root: /api/v1/1
+        authorize: /api/v1/1/oauth/authorize
+        token: /api/v1/1/oauth/token
+        id: nerve.insanityradio.com
+        secret: XXXXXXXXXXXXXXXXXXXXXXX
+
+        options:
+            :ssl:
+                :ca_file: /srv/insanity/ca.crt
+
+        groups:
+            moderator: 22
+            admin: 23
+            specialist: 26
 
     # This is only really needed for master/slave installs. Technically, distribution is pretty
     #  pointless, but there are some "odd" setups.
     allowed_origins:
         - "nerve.insanityradio.com"
+        - "nerve._vpn.insanityradio.com"
+        - "nerve.local"
+        - "127.0.0.1:9292"
+        - "localhost:9292"
 
-    # Adding keys to this array allows API access using X-Auth-Key (read-only functionality).
     keys:
-        - "changeme"
+        - "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-# Only really supports MySQL2 (sorry! I'm lazy haha)
 database:
 
     redis: localhost:6379
+
+    mysql2:
+        host: 127.0.0.1
+        username: nerve
+        password: no # you probably want something more secure than that
+        database: nerve
 
     development:
         adapter: mysql2
         host: 127.0.0.1
         username: nerve
-        password: nerve # you probably want something more secure than that
+        password: no # you probably want something more secure than that
         database: nerve
 
 
@@ -60,32 +171,45 @@ import:
     # The minimum sample rate we'll accept. 44,000 is a good starting point.
     sample_min: 44000
 
-    # Minimum length for a song. Prevents uploads of unauthorized branding if set to small.
-    length_min: 10
+    # Minimum length for a song. Could potentially prevent uploads of unauthorized ads/branding
+    length_min: 25
 
-    # Maximum length for a song in seconds. This is 15 minutes :-)
-    length_max: 900
+    # Maximum length for a song in seconds. This is 1 hour :)
+    length_max: 3600
 
-    # From 0/nil (off) to 10 (super high), how much compression do we want?
-    # The higher the compression, the smoother the waveform will be when looking in, say, Audacity.
-    # 3 is about right for FM. But have a play around. It jacks up pretty quickly. :)
-    compression_strength: 5
+    # From 0/nil (completely off) some crazy high number, this acts as the multiplier for the 
+    #  compression ratio. This is as well as LRA, but is only triggered if above its threshold.
+    # If this is zero, LRA is disabled. TO-DO: clean this up, it's really confusing.
+    compression_strength: 2.5
 
-    # -2 ~= 65%, what most stations sorta use. At least, Insanity does.
-    normalise: -2
+    # The target LRA (range). Completely related to above. The smaller, the less dynamic range.
+    # The only real difference is that this also acts as a threshold, and isn't an arbitrary unit.
+    # 8 is about normal. If you don't care about dynamic range (CHR?), try 4 or something. 
+    #lra: 8
+
+    lra: 7
+    # Also, the normalisation is advanced enough to not make older songs sound really quiet, like
+    #  in Myriad. 
+
 
     # Set to true to automatically generate waveform data as part of the import. 
     # This requires "audiowaveform" by BBC, so you might want to install/compile before enabling. 
     # Luckily, most (if not all) of its dependencies are satisfied if you've already got me working
+    #
+    # If you built dependencies using the Chef recipe or some pre-built ISO, you're good to go.
     generate_waveform: true
 
-    # Leave empty or specify localhost to disable multi-server mode.
+    preview_format: aac_he_v2
+
+    # Leave empty or specify localhost to disable multi-server mode. TO-DO
     workers:
         - localhost
 
     # Path to sox binary. Comment out to use default
     # sox: /usr/local/bin/sox
 
+    # TO-DO
+    #
     # Putting any MP3s in here will automatically import them. This is good for migrating/bulks.
     # auto_import: /dev/null
     auto_import: /srv/auto_import
@@ -98,24 +222,33 @@ import:
     # Path to /tmp. Leave commented to use system default. (note that "" will use /)
     #temp: /tmp
 
+    # Transport format (i.e. what the server uses for processing uploads before they hit playout)
+    # Although sox supports anything you throw at it, waveforms are only generated for MP3, WAV,
+    #  and FLAC type files. WAV uses more disk space but is waaaaaay faster
+    #transport_format: flac
+    transport_format: wav
+
+
 export:
-    format: mp3
+
     # Use AudioWall to export to Myriad. Remember to enable "TCP", and set up Windows Firewall to
     #  only allow connections from at least the *MASTER* server. 
-    mode: Nerve::Playout::AudioWall::Export
+    mode:
+      # - Nerve::Playout::AudioWall::Export
+      - Nerve::Playout::Myriad5::Export
+
+    # The export format. e.g. AudioWall supports WAV and OGG. WAV is recommended for lossless.
+    format: wav
 
     # Directory to store tracks before they're exported and before their local kill date
     # Local kill is basically Nerve's internal cache and won't delete from playout.
     # Directory should exist.
-    directory: /srv/export
+    directory: /music/export
 
     # mode-specific settings
     settings:
-        host: ins-stu2-plyt.rhul.ac.uk
-        port: 6950
-
-        # use_extended_path: false
-        # path: /audiowall
+        #host: ins-stu1-plyt.rhul.ac.uk
+        #port: 6950
 
         use_extended_path: true
         path:
@@ -141,84 +274,63 @@ export:
             80001: /audiowall/80001
             90001: /audiowall/90001
 
-        # Set the "genre mapping" to AudioWall ranges
-        # See 2nd column of affiliate.itunes.apple.com/resources/documentation/genre-mapping/
-        genre:
-            default: 141000-149999
-            sweepers: 1000-2000
-            misc: 106000-110000
-            34: 141000-149999
-            # Pop
-            14: 10000-14999
-            # Rock
-            21: 15000-19999
-            # Indie/Alternative
-            20: 20000-24999
-            # Acoustic
-            10: 25000-29999
-            1160: 25000-29999
-            # Country/Folk
-            6:  30000-34999
-            # Electronic
-            7:  35000-39999
-            # Dance
-            17:   40000-44999
-            1137: 40000-44999
-            # EDM (Dubstep/House/Techno)
-            1048: 45000-49999
-            1049: 45000-49999
-            1050: 45000-49999
-            1051: 45000-49999
-            # Punk
-            1006: 50000-54999
-            # Metal
-            1149: 55000-59999
-            1151: 55000-59999
-            1153: 55000-59999
-            # Hip-Hop
-            18: 60000-64999
-            # R&B
-            15: 65000-69999
-            # Reggae
-            24: 70000-74999
-            # Blues/Soul
-            2:  75000-79999
-            1143: 75000-79999 
-            # Jazz
-            11: 80000-84999
-            # Classic
-            5:  85000-89999
-            # World
-            19: 90000-94999
-            # Soundtrack
-            16: 95000-99999
-            # Mixes (Insanity genre system) don't have an iTunes genre, so we use Podcasts
-            26: 100000-104999
-            # Holiday
-            8:  105000-105999
-
         database:
-            type: mssql # freetds
-            host: localhost
+            #type: mssql
+            host: 10.32.0.20
+            port: 49180
+            database: InsanityRadio
             user: myriad
-            password: iamnottherejustyet
-            name: InsanityRadio
+            password: no
 
         categories:
             held: 0
             automation: 6
             library: 7
 
+        # Set the "genre mapping" to AudioWall ranges
+        # See 2nd column of affiliate.itunes.apple.com/resources/documentation/genre-mapping/
+        genre:
+            # Fill in the "end" space
+            default: 10000-99999
+            sweepers: 1000-2000
+            misc: 106000-110000
+
+            mixes: 100000-104999
+
+        database:
+            type: mssql # freetds
+            host: 10.32.0.20
+            port: 49180
+            user: myriad
+            password: no
+            name: InsanityRadio
+
+        database5:
+            type: mssql # freetds
+            host: 10.32.0.222
+            port: 3308
+            user: myriad
+            password: no
+            name: InsanityRadio
+
+        myriad5:
+            res:
+                server: 10.32.0.222
+                username: _Nerve
+                password: no
+                database_name: InsanityRadio
+                station_id: 0
+
+
     # mode: file
     # directory: /srv/export
 
-# audiowall can be the same format as "path" above (ie. multi folder)
 migrate:
-    use_extended_path: false
-    audiowall: /path_to/old_audiowall/
+    audiowall: /old_audiowall/M4/AudioWall
     database: InsanityRadio1032FM
-    category_id: 5
-    target_category_id: 8
+    use_extended_path: false
+    category_id: 8
+    target_category_id: 5
     automation: true
 
 playlists:
@@ -229,6 +341,4 @@ playlists:
 
     mode: InstantCart
     # mode: nil
-
-
 
