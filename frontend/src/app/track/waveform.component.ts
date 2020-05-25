@@ -131,10 +131,8 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 
 		});
 
-		this.peaks.on('segments.ready', () => {
-
+		this.peaks.on('peaks.ready', () => {
 			this.fillMarkers();
-
 		});
 
 		this.peaks.on('segments.dragged', (segment:any) => {
@@ -197,9 +195,11 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 
 		var waveform = this.peaks;
 
-		if(!waveform.waveform.originalWaveformData ||
+		console.log('test', waveform, waveform)
+
+		if(!waveform._waveformData ||
 				!waveform.segments.getSegments()[0] ||
-				!waveform.waveform.originalWaveformData.adapter.data.buffer.byteLength ||
+				/* !waveform.waveform.originalWaveformData.adapter.data.buffer.byteLength || */
 				!waveform.player.getDuration()) {
 			setTimeout(() => this.fillMarkers(), 100);
 			return;
@@ -221,7 +221,9 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 	calculateExtro():void {
 
 		var waveform = this.peaks;
-		var buffer = waveform.waveform.originalWaveformData.adapter.data.buffer.slice(0);
+
+		console.log('calculating extro', waveform)
+		var buffer = waveform._waveformData._adapter._data.buffer.slice(0);
 		var extroTime = AudioUtil.getExtro(buffer, waveform.player.getDuration());
 
 		this.set("extro_start", extroTime);
