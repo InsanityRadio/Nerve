@@ -30,7 +30,7 @@
     "core-js": "^2.4.1",
     "foundation-sites": "^6.2.3",
     "gulp": "^3.9.1",
-    "jquery": "^2.2.4",
+    "jquery": "^3.5.0",
     "musicmetadata": "^2.0.5",
     "peaks.js": "^0.21.0",
     "reflect-metadata": "^0.1.8",
