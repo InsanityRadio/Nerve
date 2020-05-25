@@ -31,9 +31,7 @@ Nerve has been tried and tested at Insanity Radio 103.2FM, a community radio sta
 * *Documented JSON API for developers and integration*
 * *Multiple node support*
 * *Storage of original pre-processed tracks to allow multiple station profiles*
-* *Song suggestion based on Spotify APIs*
 * *Simultaneous playout system*
-* Refactor Myriad engine and test support for Myriad v5
 
 
 
@@ -72,11 +70,8 @@ To run database migrations, after building but before launching, run:
 	docker-compose run --rm worker sh -c "bundle exec rake db:migrate"
 
 
-## Quick Tasks / To-do
+## To-do
 
-- Create recall button on interface that invokes Nerve::Job::Recall
-- Make the Library tab work. 
-- Create fulltext search for Library.
 - Song Versions
 	- Text field on interface, perhaps with pre-set versions
 	- Automatically detect "Remix" in titles of uploads
