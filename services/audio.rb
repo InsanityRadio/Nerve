@@ -32,8 +32,12 @@ module Nerve
 
 				track = Nerve::Model::Track.find(id)
 
-				path = Object.const_get($config["export"]["mode"]).find_path(track)
+				STDERR.puts "locating #{track.id}"
+				path = Object.const_get($config["export"]["mode"][0]).find_path(track)
+				STDERR.puts "found #{path}"
 				ext = File.extname(path)
+
+				STDERR.puts "Sending path #{path}"
 
 				send_file(path, :type => Rack::Mime::MIME_TYPES[ext] || "application/octet-data", :disposition => params[:force] == '1' ? 'attachment' : 'inline', :filename => "#{id}#{ext}")
 

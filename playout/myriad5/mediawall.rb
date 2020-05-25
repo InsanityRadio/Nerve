@@ -17,7 +17,7 @@ module Nerve; module Playout; class Myriad5
 
 			res_config = $config["export"]["settings"]["myriad5"]["res"]
 
-			@client = RESClient.new "http://" + res_config["server"] + ":6947/MyriadRES5"
+			@client = RESClient.new "https://" + res_config["server"] + ":6947/MyriadRES5"
 
 			response = @client.login res_config["username"], res_config["password"], res_config["database_name"], res_config["station_id"]
 
@@ -55,7 +55,7 @@ module Nerve; module Playout; class Myriad5
 				}.compact,
 				Extro: {
 					Start: timestamp(track.outro),
-					End: timestamp(track.length)
+					End: timestamp(track.playout_length)
 				}.compact, 
 				Hook: {
 					Start: track.hook_start > 0 ? timestamp(track.hook_start) : nil,
@@ -63,10 +63,10 @@ module Nerve; module Playout; class Myriad5
 				}.compact,
 
 				MediaLength: {
-					End: timestamp(track.length)
+					End: timestamp(track.playout_length)
 				},
-				ActualLength: timestamp(track.length),
-				TotalLength: timestamp(track.length),
+				ActualLength: timestamp(track.playout_length),
+				TotalLength: timestamp(track.playout_length),
 
 				Attributes: options[:categoryID] ? [{ Type: 1, Index: 1, Number: options[:categoryID] }] : []
 			)
@@ -100,6 +100,7 @@ module Nerve; module Playout; class Myriad5
 		def reserve_media_id media_id
 			@client = self.class.get_connection
 			if @client.read_media_item(media_id)['Type'] != 2
+				@client.close
 				raise 'Media ID reservation failed'
 			end
 

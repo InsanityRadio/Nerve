@@ -216,7 +216,7 @@ module Nerve; module Playout; class Myriad5
 					hour_r, hour_r, hour_r, hour_r, hour_r, hour_r,
 					@conn.escape(year), 1, style_id,
 					100, "Nerve User (#{uploader})", item_number,
-					track.length.to_f.round,
+					track.playout_length.to_f.round,
 					track.intro_start.to_f.round, track.intro_end.to_f.round,
 					track.outro.to_f.round
 
