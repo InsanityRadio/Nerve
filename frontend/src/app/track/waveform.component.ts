@@ -7,6 +7,8 @@ import {FullTrack, Track} from '../struct/track';
 import {AudioUtil, AudioBackend, HTMLAudio} from './audio';
 import {TrackComponent} from './track.component';
 
+const Peaks = require('peaks.js/peaks.js');
+
 function getOptions(track : FullTrack, container : HTMLElement, audio : any, readonly : boolean) : any {
 
 	return {
@@ -51,7 +53,16 @@ function getOptions(track : FullTrack, container : HTMLElement, audio : any, rea
 		{
 			id: "extro",
 			startTime: track.length - 0.1,
-			endTime: track.length + 100,
+			endTime: track.length - 0.01,
+			editable: false,
+			inMarkerColor: "#ff00ff",
+			color: "rgba(200, 0, 0, 0.5)",
+			labelText: "Outro"
+		}],
+
+		points: [{
+			id: "extro",
+			time: track.length - 0.1,
 			editable: !readonly,
 			inMarkerColor: "#ff00ff",
 			color: "rgba(200, 0, 0, 0.5)",
@@ -110,7 +121,7 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 		this.ngOnDestroy();
 		var options = getOptions(this.track, this.container.nativeElement, this.audio.aud, this.readonly);
 
-		this.peaks = window['peaks']['js'].init(options);
+		this.peaks = Peaks.init(options);
 		this.peaks.on('error', (error:any) => {
 
 			console.error('ERROR SHOWING WAVEFORM');
@@ -140,6 +151,15 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 
 		});
 
+		this.peaks.on('points.dragmove', (segment:any) => {
+
+			this.handleChange();
+
+			this.set(segment.id + "_start", segment.time);
+
+
+		});
+
 	}
 
 	set(key:string, value:number) {
@@ -153,11 +173,17 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 		if(type == -1)
 			throw new Error("Can't set " + key + " as there's no such property");
 
-		var segment:any = this.peaks.waveform.segments.getSegments()[type];
-		segment[key.split("_")[1] + "Time"] = value;
+		console.log(this.peaks.segments, this.peaks.segments.getSegments(), type)
 
+		var segment:any = this.peaks.segments.getSegment(key.split("_")[0]);
+		var point:any = this.peaks.points.getPoint(key.split("_")[0]);;
 
-		this.peaks.waveform.segments.updateSegments();
+		if (key == 'intro_end' && value == 0) {
+			value = 0.01;
+		}
+
+		segment && segment.update({ [(key.split("_")[1] + "Time")]: value });
+		point && point.update({ time: value })
 
 	}
 
@@ -170,8 +196,9 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 	private fillMarkers():void {
 
 		var waveform = this.peaks;
+
 		if(!waveform.waveform.originalWaveformData ||
-				!waveform.waveform.segments.getSegments()[0] ||
+				!waveform.segments.getSegments()[0] ||
 				!waveform.waveform.originalWaveformData.adapter.data.buffer.byteLength ||
 				!waveform.player.getDuration()) {
 			setTimeout(() => this.fillMarkers(), 100);
@@ -184,10 +211,13 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 				this.set(type, this.track[type]);
 		}
 
+		console.log('got fill markers', waveform, this.track)
+
 		if(this.track.extro_start == 0 || this.track.extro_start == null)
 			this.calculateExtro();
 
 	}
+
 	calculateExtro():void {
 
 		var waveform = this.peaks;

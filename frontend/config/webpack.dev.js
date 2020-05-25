@@ -23,8 +23,14 @@ module.exports = webpackMerge(commonConfig, {
         historyApiFallback: true,
         stats: 'minimal',
         proxy: {
+            '/authorize': {
+                target: 'http://10.32.0.121',
+                //target: 'http://127.0.0.1:9292',
+                secure: false
+            },
             '/api': {
-                target: 'http://127.0.0.1:9292',
+                target: 'http://10.32.0.121',
+                //target: 'http://127.0.0.1:9292',
                 secure: false
             }
         }
