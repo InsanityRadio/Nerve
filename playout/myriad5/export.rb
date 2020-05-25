@@ -15,7 +15,7 @@ module Nerve; module Playout; class Myriad5
 
 		# If we fade the song out 0.5s after the extro point, we lose the "sustaned" song issue
 		#  (basically where someone sets an extro point with like 30 seconds of extro to go)
-		def fade_end(input, output, extro)
+		def fade_end(input, output, extro, track)
 
 			exit    = -1
 			stderr  = "(no output)"
@@ -92,7 +92,7 @@ module Nerve; module Playout; class Myriad5
 						# convert to the final wav and do the fade out ending, this is fast.
 						# the fade out in the future will be based on the end type
 						tmp_files << (file = local_path + ".upload.wav")
-						a = fade_end(local_path, file, track.outro.to_f)
+						a = fade_end(local_path, file, track.outro.to_f, track)
 
 						p "b"
 						raise a unless a == true
@@ -303,7 +303,7 @@ module Nerve; module Playout; class Myriad5
 			library = track.playout_id[0] == "C"
 			cart_id = 0
 
-			@mediawall = Nerve::Playout::Myriad5::MediaWall.new nil
+			@mediawall = Nerve::Playout::Myriad5::MediaWall.new $config["export"]["settings"]["database5"]["name"]
 			@audiowall = Nerve::Playout::AudioWall.new
 			@audiowall.load_settings
 
@@ -332,11 +332,13 @@ module Nerve; module Playout; class Myriad5
 		def self.find_path track
 
 			raise "Not exported" if track.status != 5 and track.status != 6
-
+			
+			@mediawall = Nerve::Playout::Myriad5::MediaWall.new $config["export"]["settings"]["database5"]["name"]
 			@audiowall = Nerve::Playout::AudioWall.new
 			@audiowall.load_settings
+			
+			@database = Nerve::Playout::Myriad5::Database.new $config["export"]["settings"]["database5"]["name"]
 
-			@database = Nerve::Playout::AudioWall::Database.new $config["export"]["settings"]["database"]["name"]
 			cart_id = track.playout_id[0] == "C" ? track.playout_id[1..-1].to_i : @database.get_cart(track)
 			
 			@audiowall.get_audio_path(cart_id)

@@ -78,6 +78,11 @@ module Nerve; module Model
 
 		end
 
+		# cut point after extro is 8 seconds
+		def playout_length
+			[length, outro + 8.0].min
+		end
+
 		def set_unsafe
 			explicit = true
 		end
@@ -134,6 +139,7 @@ module Nerve; module Model
 				"length" => length,
 				"status" => status,
 				"upload_date" => upload_date.iso8601,
+				"extro_start" => outro,
 				"is_library" => is_library,
 				"is_automation" => is_automation,
 				"playout_id" => playout_id,

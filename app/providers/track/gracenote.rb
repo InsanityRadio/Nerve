@@ -14,15 +14,24 @@ module Nerve
 					user_id = Nerve::Model::Setting.find_by(setting: 'gn_user').value rescue nil
 					
 					gn = ::Gracenote.new(clientID: client_id, clientTag: client_tag, userID: user_id)
+					p user_id
+	
 					if user_id == nil
-						Nerve::Model::Setting.create(setting: 'gn_user', value: gn.registerUser)
+						user_id = gn.registerUser
+						p user_id
+						Nerve::Model::Setting.create(setting: 'gn_user', value: user_id)
 					end
 					gn
 				end
 
 				def self.match_metadata artist, album, track
 
-					matches = connect_to_gn.findTrack(artist, album, track)
+					begin
+						matches = connect_to_gn.findTrack(artist, album, track)
+					rescue
+						Nerve::Model::Setting.where(setting: 'gn_user').destroy_all
+						matches = connect_to_gn.findTrack(artist, album, track)
+					end
 					track = matches[0]
 
 					data = self.process_track track
@@ -33,8 +42,12 @@ module Nerve
 
 				def self.search_metadata artist, album, track, count = 20
 
-
-					tracks = connect_to_gn.findTrack(artist, album, track)
+					begin
+						tracks = connect_to_gn.findTrack(artist, album, track)
+					rescue
+						Nerve::Model::Setting.where(setting: 'gn_user').destroy_all
+						tracks = connect_to_gn.findTrack(artist, album, track)
+					end
 					return false if tracks.length == 0
 
 					tracks.map! { | t | t = self.process_track t }

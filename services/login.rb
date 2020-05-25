@@ -64,7 +64,9 @@ module Nerve
 
 				success = @@service.authorize session, params, request
 
-				redirect to('/')
+				raise "There was an error completing this request" unless success
+
+				redirect to('/').gsub("api/", "")
 
 			end
 

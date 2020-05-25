@@ -51,6 +51,7 @@ module Nerve
 
 				session[:user] = response.parsed['user']
 
+
 				session[:token] ||= SecureRandom.hex
 				session[:user_id] = session[:user]['id']
 				session[:authenticated] = true
@@ -76,11 +77,13 @@ module Nerve
 					user.permissions['override_bitrate'] = false
 					user.permissions['override_compressor'] = false
 				end
+				
+				session[:user]["groups"] = {}
 
 				user.save!
 
 
-
+				p ["committed session", session]
 				true
 
 			end
