@@ -160,8 +160,9 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 
 	}
 
-	set(key:string, value:number) {
+	set(key:string, rawVal:any) {
 
+		let value:number = parseFloat(rawVal)
 		console.log('Setting', key, value)
 
 		this.track[key] = value;
@@ -179,6 +180,12 @@ export class WaveformComponent implements OnInit, OnDestroy, OnChanges {
 		if (key == 'intro_end' && value == 0) {
 			value = 0.01;
 		}
+
+		if (key == 'hook_end' && value == 0) {
+			value = 0.01;
+		}
+
+		console.log('update', { [(key.split("_")[1] + "Time")]: value })
 
 		segment && segment.update({ [(key.split("_")[1] + "Time")]: value });
 		point && point.update({ time: value })
