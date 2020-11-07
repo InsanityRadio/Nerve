@@ -1,6 +1,7 @@
 dump.rdb
 Gemfile.lock
 config.yml
+config.yml.bak
 export
 schema.current.sql
 config/root.txt

@@ -10,6 +10,7 @@ module Nerve
 		autoload :Simple, "auth/simple"
 
 		autoload :Cortex, "auth/cortex"
+		autoload :MSO, "auth/mso"
 
 	end
 

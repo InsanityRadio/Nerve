@@ -83,6 +83,9 @@ module Nerve
 				raise "Incorrect/empty CSRF key" \
 					if session[:token].empty? || params['token'] != session[:token]
 
+
+				puts "RECALL ON #{id} CALLED BY #{session[:user_id]}"
+
 				track = Nerve::Model::Track.find(id)
 
 				Nerve::Job::Recall.create({

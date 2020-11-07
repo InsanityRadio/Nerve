@@ -166,47 +166,54 @@ module Nerve
 
 				protect_json!
 
-				raise "Incorrect/empty CSRF key" \
-					if session[:token].empty? || params['token'] != session[:token]
+				begin
+					raise "Incorrect/empty CSRF key" \
+						if session[:token].empty? || params['token'] != session[:token]
 
 
-				# This method call takes no parameters as everything is saved before its published
-				# Now we're certain the metadata is correct, we can do final checks to see if the
-				#  track should be moderated. 
+					# This method call takes no parameters as everything is saved before its published
+					# Now we're certain the metadata is correct, we can do final checks to see if the
+					#  track should be moderated. 
+	
+					# Check that the user has permission to do this (is the uploader, or is an admin)
 
-				# Check that the user has permission to do this (is the uploader, or is an admin)
+					# Set EXPLICIT to 1 if any of the following are true
+					# 	Check lyrics for expletives is positive
+					# 	Track metadata changed by user
+					# 	No lyrics
+					# 	Track already has explicit flag set
+					# If explicit, set track status to 3
 
-				# Set EXPLICIT to 1 if any of the following are true
-				# 	Check lyrics for expletives is positive
-				# 	Track metadata changed by user
-				# 	No lyrics
-				# 	Track already has explicit flag set
-				# If explicit, set track status to 3
+					# If not explicit, set status to 4 and queue as a Job::Transfer.
 
-				# If not explicit, set status to 4 and queue as a Job::Transfer.
+					track = Nerve::Model::Track.find id
 
-				track = Nerve::Model::Track.find id
+					raise "Missing extro" if track.outro == 0 || track.outro == nil
+					raise "Missing end type" if track.end_type == 0 || track.end_type == nil
 
-				raise "Missing extro" if track.outro == 0 || track.outro == nil
-				raise "Missing end type" if track.end_type == 0 || track.end_type == nil
+					if track.is_safe
 
-				if track.is_safe
+						track.status = 4
+						track.approved_by = Nerve::Model::User.find_or_create_by(id: 0)
+						track.save
+						Nerve::Job::Transfer.create({
+							"track_id" => id})
 
-					track.status = 4
-					track.approved_by = Nerve::Model::User.find_or_create_by(id: 0)
-					track.save
-					Nerve::Job::Transfer.create({
-						"track_id" => id})
+						return { "success" => 1 }.to_json
 
-					return { "success" => 1 }.to_json
+					else
 
-				else
+						reason = track.why_unsafe
 
-					reason = track.why_unsafe
+						track.status = 3
+						track.save
+						return { "success" => 1, "message" => "The track is now pending approval by a moderator, because #{reason}" }.to_json
 
-					track.status = 3
-					track.save
-					return { "success" => 1, "message" => "The track is now pending approval by a moderator, because #{reason}" }.to_json
+					end
+				rescue
+
+					status 501
+					return { "success" => 0, "message" => $!.message }.to_json
 
 				end
 

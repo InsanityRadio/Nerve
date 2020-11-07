@@ -15,7 +15,7 @@ module Nerve
 				@config = $config["security"]["oauth"]
 
 				options = {
-					:site => 'https://sso.cor.insanityradio.com/',
+					:site => @config['host'],
 					:authorize_url => @config["authorize"],
 					:token_url => @config["token"] }
 
@@ -29,10 +29,13 @@ module Nerve
 				p state
 				p session
 				base_url = "#{request.secure? ? "https" : "http"}://#{request.env['HTTP_HOST']}/authorize"
-				@client.auth_code.authorize_url(
+				options = {
 					:redirect_uri => base_url,
 					:state => state,
-					:message => "Log in to get access to Nerve, the music upload system.")
+					:message => "Log in to get access to Nerve, the music upload system."
+				}
+				options['scope'] = @config['scope'] if @config['scope']
+				@client.auth_code.authorize_url(options)
 			end
 
 			def authorize session, params, request

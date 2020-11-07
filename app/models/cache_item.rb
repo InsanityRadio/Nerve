@@ -26,6 +26,8 @@ module Nerve; module Model
 			data = data.select {|x| self.class.attribute_names.index(x) }
 			assign_attributes data
 
+			self.lyrics = data['lyrics'] if data['lyrics'] != nil and data['lyrics'] != false
+
 		end
 
 		def get_json enhanced = false

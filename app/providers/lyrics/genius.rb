@@ -4,6 +4,15 @@ require 'tempfile'
 require 'genius'
 require 'nokogiri'
 
+def traverse obj
+	return obj if obj.is_a? String
+
+	obj = obj['children'] if obj.is_a? Hash and obj['children']
+
+	return obj.map{|t| traverse t} if obj.is_a? Array
+	return "\n" if obj.is_a? Hash and obj['tag'] == 'br'
+end
+
 module Nerve
 	module Provider
 		module Lyrics
@@ -44,7 +53,31 @@ module Nerve
 
 					html = Nokogiri::HTML(data)
 		
-					data = html.css('.song_body-lyrics .lyrics').text.strip
+					p 'got html', html
+
+					matches = data.force_encoding('ASCII-8BIT').match /window.__PRELOADED_STATE__ = JSON.parse\((.*)\);\n/
+					if matches != nil and matches.length
+						data = JSON.parse(matches[1].gsub(/\\"/, '"')[1..-2])
+
+						data = traverse(data['songPage']['lyricsData']['body'])
+						p 'got lyr', data
+						data = data.flatten.join("")
+						
+					else
+						data = html.css('meta[itemprop]')[0]["content"]
+
+	
+						p 'step 1', data
+						data = JSON.parse(data)
+						p 'step 2', data
+						data = data['lyrics_data']['body']['html']
+
+						p 'step 3', data
+
+						data = Nokogiri::HTML(data).text
+					end
+					p 'got ', data
+
 					return [data]
 				end
 

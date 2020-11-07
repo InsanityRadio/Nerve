@@ -10,7 +10,7 @@ module Nerve
 
 			include Helpers
 
-			@@METADATA = Nerve::Provider::Track::Gracenote
+			@@METADATA = Nerve::Provider::Track::Spotify
 			@@LYRICS = Nerve::Provider::Lyrics::Genius #MetroLyrics
 
 			def self.match artist, album, track, enhanced = false, force = false
@@ -53,7 +53,12 @@ module Nerve
 
 			def self.match_lyrics artist, album, title
 
-				@@LYRICS.match_lyrics(artist, album, title) rescue false
+				begin
+					return @@LYRICS.match_lyrics(artist, album, title) 
+				rescue
+					puts 'lyrics error', $!
+					return false
+				end
 
 			end
 

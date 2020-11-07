@@ -75,6 +75,7 @@ module Nerve
 			service = Nerve::Services::Login.get_service
 			begin
 				raise "not logged in" if !session[:authenticated] or !session[:user_id]
+p 'got service', service
 				@user = service.get_user session[:user_id]
 			rescue
 				session.clear
