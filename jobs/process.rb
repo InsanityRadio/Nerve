@@ -388,7 +388,7 @@ module Nerve; module Job
 			@temp << file = _options["file"]
 
 			# Location of "step 2" files. First for conversion, second for compressing.
-			temp = Tempfile.new('nerve')
+			temp = Tempfile.new('nerve', '/mnt/temp')
 			path = temp.path
 			temp.close; temp.unlink
 
@@ -407,22 +407,30 @@ module Nerve; module Job
 
 
 			# This chops off any starting intro and adds the smallest fade in (to prevent pops)
+			puts "Converting 1"
 			response = convert(new_file_3, new_file, format)
+			puts "Converted 1"
 			File.unlink(file) rescue nil # We may not always want to delete it.
+
+
+			raise "The uploaded audio file contains silence" if File.size(new_file) <= 200
 
 			unless response === true
 				raise "Conversion failed: #{response}" 
 			end
 
 			# Ensure that we meet at most the target LRA (loudness)
+			puts "Compressing"
 			response = compress(new_file, new_file_2, format, _options)
-
+			puts "Compressed"
+	
 			unless response === true
 				raise "Compression failed: #{response}" 
 			end
 
 			_options["file"] = new_file_2
 
+			puts "Committing"
 			at(90, 100, "Committing to database")
 
 			_debug "Committing track to database."

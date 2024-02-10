@@ -82,8 +82,13 @@ module Nerve; module Playout; class Myriad5
 			begin
 				#Dir::chdir $config["export"]["settings"]["path"] do 
 					
-					cart_id = @mediawall.reserve_media_item(track) unless cart_id
+					cart_id = @mediawall.reserve_media_item(track) #unless cart_id
 					prefix = @audiowall.get_full_path(cart_id)
+
+					@database = Nerve::Playout::Myriad5::Database.new $config["export"]["settings"]["database5"]["name"]
+					existing = @database.get_nerve_id_from_cart cart_id 
+					@database = nil 
+					raise "Media ID #{cart_id} exists in AutoTrack (#{existing})" if existing != nil and existing != track.id
 
 					genres = $config["export"]["settings"]["genre"]
 					puts "Writing to Media ID #{cart_id}, genre #{track.genre}, #{genres[track.genre]}, #{prefix}"

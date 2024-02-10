@@ -9,9 +9,12 @@ require 'sinatra/reloader'
 require 'sinatra/xsendfile'
 require 'yaml'
 require 'dig_rb'
+require 'openssl'
 
 $: << '.'
 require_relative 'modules'
+
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 
 Bundler.require
 

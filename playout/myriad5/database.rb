@@ -162,6 +162,12 @@ module Nerve; module Playout; class Myriad5
 
 		end
 
+		def get_nerve_id_from_cart cart_id 
+			result = @conn.execute("SELECT TOP 1 ExternalReference FROM Songs WHERE HDReference=#{cart_id.to_i};").to_a
+			p result
+			return result[0]['ExternalReference'].match(/Nerve_(\d+)$/)[1].to_i rescue result.length > 0 ? -1 : nil 
+		end
+
 		def add_track cart_id, track, category_id, alt_category_id = 0, options = {}
 
 			artist_id = get_artist_id track.artist.name
@@ -180,6 +186,11 @@ module Nerve; module Playout; class Myriad5
 				result = @conn.execute("SELECT TOP 1 ItemNumber FROM Songs ORDER BY ItemNumber DESC;")
 				item_number = (result.to_a[0]["ItemNumber"].to_i + 1) rescue 1
 				result.do rescue nil
+			end
+
+			if track.playout_id and track.playout_id === track.playout_id.to_i.to_s
+				puts "Delete old row"
+				@conn.execute("DELETE FROM Songs WHERE ItemNumber=#{track.playout_id.to_i};")
 			end
 
 			@current_item_number = item_number

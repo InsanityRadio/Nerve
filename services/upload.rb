@@ -18,7 +18,7 @@ module Nerve
 			get '/upload/list/' do 
 
 				protect_json! 
-				COUNT = 50; page = params['page'] || 0
+				COUNT = (params['count'] || 50).to_i; page = params['page'] || 0
 
 				Nerve::Model::Track.where(created_by: session[:user_id]).
 					order(id: :desc).
@@ -54,6 +54,9 @@ module Nerve
 
 				login_service = Nerve::Services::Login.get_service
 				@user = login_service.get_user(session[:user_id]) rescue login_service.get_nil_user
+
+				puts "got request full"
+				p params
 
 				instrumental = (params['instrumental'] == "true" and @user.permissions['instrumental'])
 				data = {
@@ -186,7 +189,9 @@ module Nerve
 
 					# If not explicit, set status to 4 and queue as a Job::Transfer.
 
+
 					track = Nerve::Model::Track.find id
+					raise "Track has already been published/sent for moderation." if track.status >= 3
 
 					raise "Missing extro" if track.outro == 0 || track.outro == nil
 					raise "Missing end type" if track.end_type == 0 || track.end_type == nil

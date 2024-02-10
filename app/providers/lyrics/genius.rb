@@ -18,8 +18,12 @@ module Nerve
 		module Lyrics
 			module Genius
 
-				def self.match_lyrics artist, album, track
+				def self.match_lyrics artist, album, track, try_artists = false
 
+					if artist.include? "," or try_artists
+						data = open('https://api.broadcast.radio/api/artists/' + $config["search"]["broadcast_radio_key"] + '/' + URI.escape(artist)).read
+						artist = JSON.parse(data)['body']['artists'][0] rescue artist
+					end
 
 					puts 'searching lyrics for ' + track + ',' + artist
 
@@ -28,13 +32,18 @@ module Nerve
 
 					track = track.split(/ (- |\()(.*)(Mix|Edit|Remix|Version|Remaster)/)[0]
 					track = track.split("/")[0] # Remove "alt" titles as ML barely has them
-					track.gsub!(/\(.*?\)/, ""); track.gsub!(/[^0-9a-z ]/i, '')
+					track.gsub!(/\(.*?\).*/, ""); track.gsub!(/[^0-9a-z ]/i, '')
 
-					STDERR.puts track
+					track = track.strip
+					STDERR.puts track + ' - ' + artist
 
 					::Genius.access_token = $config["search"]["genius_key"]
 					song_search = ::Genius::Song.search(track + ' - ' + artist)
-					return false if !song_search.length
+
+					if !song_search.length
+						return try_artists ? self.match_lyrics(artist, album, track, true) : false
+					end
+
 
 					song_result = song_search[0]
 
@@ -48,35 +57,30 @@ module Nerve
 						rescue
 						end
 					end
-			
+
 					data = open(song_result.url).read
 
 					html = Nokogiri::HTML(data)
 		
-					p 'got html', html
-
 					matches = data.force_encoding('ASCII-8BIT').match /window.__PRELOADED_STATE__ = JSON.parse\((.*)\);\n/
-					if matches != nil and matches.length
-						data = JSON.parse(matches[1].gsub(/\\"/, '"')[1..-2])
 
+					if matches != nil and matches.length
+						begin
+							data = JSON.parse(matches[1].gsub(/\\"/, '"')[1..-2]) 
+						rescue
+							data = JSON.parse(JSON.parse('"' + matches[1][1..-2] + '"'))
+						end
 						data = traverse(data['songPage']['lyricsData']['body'])
-						p 'got lyr', data
 						data = data.flatten.join("")
 						
 					else
 						data = html.css('meta[itemprop]')[0]["content"]
 
-	
-						p 'step 1', data
 						data = JSON.parse(data)
-						p 'step 2', data
 						data = data['lyrics_data']['body']['html']
-
-						p 'step 3', data
 
 						data = Nokogiri::HTML(data).text
 					end
-					p 'got ', data
 
 					return [data]
 				end

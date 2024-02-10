@@ -17,7 +17,7 @@ module Nerve; module Playout; class Myriad5
 
 			res_config = $config["export"]["settings"]["myriad5"]["res"]
 
-			@client = RESClient.new "https://" + res_config["server"] + ":6947/MyriadRES5"
+			@client = RESClient.new "https://" + res_config["server"] + ":6947/BrMyriadRES/v6"
 
 			response = @client.login res_config["username"], res_config["password"], res_config["database_name"], res_config["station_id"]
 
@@ -39,6 +39,13 @@ module Nerve; module Playout; class Myriad5
 
 		def add_track media_id, track, options = {}
 			@client = self.class.get_connection
+
+			exist = @client.read_media_item(media_id)
+			if exist['Title'] != '** Nerve Reservation'
+				@client.close
+				raise 'Media ID already has content ' + exist['Title']
+			end
+
 			@client.write_media_item(
 				Type: 7,
 				Artists: [{ ArtistName: track.artist.name }],
@@ -93,15 +100,17 @@ module Nerve; module Playout; class Myriad5
 		# Given a track, return a reserved media ID
 		def reserve_media_item track
 			media_id = get_cart_id track
+			print "Reserved #{media_id} "
 			reserve_media_id(media_id)
 			media_id
 		end
 
 		def reserve_media_id media_id
 			@client = self.class.get_connection
-			if @client.read_media_item(media_id)['Type'] != 2
+			title = @client.read_media_item(media_id)['Title']
+			if title != nil and title != "" and title != "** Nerve Reservation"
 				@client.close
-				raise 'Media ID reservation failed'
+				raise 'Media ID reservation failed ' + media_id.to_s
 			end
 
 			r = @client.write_media_item(

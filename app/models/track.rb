@@ -33,19 +33,36 @@ module Nerve; module Model
 		end
 
 		def get_metadata
+			puts "get metadata"
 
-			result, cache_item = Nerve::Services::Metadata.match_meta(external_id, true, "external_id", true)
+			if self.external_id === "0"
+				result = Nerve::Services::Metadata.match artist.name, (album.name rescue ''), title, true, true
+
+				puts "got a result"
+				self.external_id = external_id = result['external_id']
+			end
+
+			result, cache_item = Nerve::Services::Metadata.match_meta(self.external_id, true, "external_id", true)
 			_big = result["big"] rescue nil
 
+			puts "got big", _big
+
 			_lyrics = (cache_item.lyrics or JSON.parse(_big["lyrics"])[0]) rescue ""
+			puts _lyrics
 			_lyrics = _lyrics[0] if _lyrics.is_a? Array
+			puts _lyrics
 			_lyrics = '' if !_lyrics or _lyrics.to_s.empty? or _lyrics.to_s == '0' or _lyrics.to_s == 'false'
+			puts _lyrics
 
 			if _lyrics == ''
 				_lyrics = "No lyrics available."
 				begin
 					_lyrics = Nerve::Services::Metadata.match_lyrics(artist.name, (album.name rescue ''), title)[0] 
+					puts "found lyrics"
+					p _lyrics
+					p cache_item
 					if cache_item
+						puts "caching them"
 						cache_item.lyrics = _lyrics
 						cache_item.save
 					end

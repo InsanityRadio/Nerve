@@ -63,7 +63,8 @@ module Nerve
 			end
 
 			def self.match_meta id, enhanced = false, column = "id", raw = false 
-
+				puts "match search"
+				p [id, enhanced, column, raw]
 				raise "Invalid column name specified?" if column != "id" and column != "external_id"
 				
 				query = Nerve::Model::CacheItem.where("#{column}=?", id)
